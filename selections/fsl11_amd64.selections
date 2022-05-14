@@ -423,6 +423,7 @@ ibus						install
 ibus-data					install
 ibus-gtk:amd64					install
 ibus-gtk3:amd64					install
+idle-python3.9					install
 ienglish-common					install
 ifupdown					install
 iio-sensor-proxy				install
@@ -1139,6 +1140,7 @@ libraw1394-11:amd64				install
 libraw20:amd64					install
 librdf0:amd64					install
 libreadline8:amd64				install
+libreadline-dev:amd64				install
 librecode0:amd64				install
 libreoffice-base-core				install
 libreoffice-calc				install
@@ -1580,6 +1582,7 @@ python3-louis					install
 python3-mako					install
 python3-markupsafe				install
 python3-minimal					install
+python3-numpy:amd64				install
 python3-pkg-resources				install
 python3-pyatspi					install
 python3-pycurl					install
@@ -1593,8 +1596,10 @@ python3-software-properties			install
 python3-speechd					install
 python3-talloc:amd64				install
 python3-tdb					install
+python3-tk:amd64				install
 python3-uno					install
 python3-urllib3					install
+python3-venv					install
 python3-xdg					install
 python3.9					install
 python3.9-minimal				install
@@ -1672,10 +1677,14 @@ task-gnome-desktop				install
 task-ssh-server					install
 tasksel						install
 tasksel-data					install
+tcl						install
+tcl8.6						install
 tcsh						install
 telnet						install
 time						install
 timgm6mb-soundfont				install
+tk						install
+tk8.6						install
 tk8.6-blt2.5					install
 tmux						install
 totem						install
