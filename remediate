@@ -654,12 +654,10 @@ EOT
 # 5.3.3 Ensure password reuse is limited
 #
 sed -i 's/^\(password\s\+required\).*/\1\t\t\tpam_pwquality.so remember=5/' /etc/pam.d/common-password
-EOT
 #
 # 5.3.4 Ensure password hashing algorithm is SHA-512
 #
 sed -i 's/^password\s\+\[.*\]\s\+pam_unix.so/& sha512/' /etc/pam.d/common-password
-EOT
 #
 # 5.4.1.1 Ensure password expiration is 365 days or less
 #
