@@ -26,57 +26,48 @@ if ! [ $(id -u) = 0 ]; then
    exit 1
 fi
 #
+# 1.1 Filesystem Configuration
+#
 # 1.1.1 Disable unused filesystems
 #
 touch /etc/modprobe.d/CIS.conf
 cat >>/etc/modprobe.d/CIS.conf <<EOT
-# 1.1.1
+# 1.1.1.1
 install freevxfs /bin/true
+# 1.1.1.2
 install jffs2 /bin/true
+# 1.1.1.3
 install hfs /bin/true
+# 1.1.1.4
 install hfsplus /bin/true
+# 1.1.1.5
 install squashfs /bin/true
+# 1.1.1.6
 install udf /bin/true
+# 1.1.1.7
 install vfat /bin/true
 EOT
 #
-rmmod freevxfs
-rmmod jffs2
-rmmod hfs
-rmmod hfsplus
-rmmod squashfs
-rmmod udf
-rmmod vfat
+# these fail, not needed
+#rmmod freevxfs
+#rmmod jffs2
+#rmmod hfs
+#rmmod hfsplus
+#rmmod squashfs
+#rmmod udf
+#rmmod vfat
 #
 # 1.1.3-1.1.5 Ensure nodevi,nosuid,noexec options set on /tmp partition
 #
 sed -i 's/ \/tmp \+ext4 \+defaults/&,nodev,nosuid,noexec/' /etc/fstab
-#Doesn't work
-## touch /etc/systemd/system/local-fs.target.wants/tmp.mount
-## cat >>/etc/systemd/system/local-fs.target.wants/tmp.mount <<EOT
-## [Mount]
-## What=tmpfs
-## Where=/tmp
-## Type=tmpfs
-## Options=mode=1777,strictatime,noexec,nodev,nosuid
-## EOT
-#
-##systemctl unmask tmp.mount
-##systemctl enable tmp.mount
 #
 mount -o remount,nodev,nosuid,noexec /tmp
-#mount -o remount,nodev /tmp
-#mount -o remount,nosuid /tmp
-#mount -o remount,noexec /tmp
 #
 # 1.1.8-10 Ensure nodevi,nosuid,noexec options set on /var/tmp partition
 #
 sed -i 's/ \/var\/tmp \+ext4 \+defaults/&,nodev,nosuid,noexec/' /etc/fstab
 #
 mount -o remount,nodev,nosuid,noexec /var/tmp
-#mount -o remount,nodev /var/tmp
-#mount -o remount,nosuid /var/tmp
-#mount -o remount,noexec /var/tmp
 #
 # 1.1.14 Ensure nodev option set on /home partition
 #
@@ -90,16 +81,20 @@ cat >>/etc/fstab <<EOT
 tmpfs /dev/shm tmpfs defaults,nodev,nosuid,noexec 0 0
 EOT
 #
-mount -o remount,noexec /dev/shm
+#mount -o remount,noexec /dev/shm
 #
 # 1.1.23 Disable USB Storage
 #
+touch /etc/modprobe.d/CIS.conf
 cat >>/etc/modprobe.d/CIS.conf <<EOT
 # 1.1.23
 install usb-storage /bin/true
 EOT
 #
-rmmod usb-storage
+# this fails, not needed
+#rmmod usb-storage
+#
+# 1.3 Configure sudo
 #
 # 1.3.2-3 Ensure sudo commands use pty AND logfile
 #
@@ -112,6 +107,7 @@ aideinit
 #
 # 1.3.2 Ensure filesystem integrity is regularly checked
 #
+# 'root' was missing
 touch /etc/crontab
 cat >>/etc/crontab <<EOT
 0 5 * * * root /usr/bin/aide.wrapper --config /etc/aide/aide.conf --check
@@ -119,7 +115,7 @@ EOT
 #
 # 1.5.1 Ensure permissions on bootloader config are configured
 #
-#move to end so not overriden by update-grub's
+#moves to end so not overriden by update-grub's
 #chown root:root /boot/grub/grub.cfg
 #chmod og-rwx /boot/grub/grub.cfg
 #
@@ -161,6 +157,11 @@ apt-get -y install apparmor apparmor-utils
 sed -i 's/^GRUB_CMDLINE_LINUX=\"[^"]\+/& apparmor=1 security=apparmor/' /etc/default/grub
 update-grub
 #
+# 1.7.1.4 Ensure all AppArmor Profiles are enforcing
+#
+# must be done after reboot?
+#aa-enforce /etc/apparmor.d/*
+#
 # 1.8.1.1 Ensure message of the day is configured properly
 #
 mv /etc/motd /etc/motd.CIS
@@ -183,7 +184,7 @@ sed -i "/^# banner-message-text='Welcome'/a banner-message-enable=true\nbanner-m
 #
 # actually makes it less secure
 #
-sed -i 's/ignore # was: \(.*\)limited/\1/' /etc/ntp.conf 
+sed -i 's/'s/ignore # was: \(.*\)limited/\1# CIS 2.2.14 was: ignore/' /etc/ntp.conf
 #
 # 2.2.4 Ensure CUPS is not enabled
 #
@@ -195,7 +196,7 @@ systemctl --now disable rsync
 #
 # 2.3.4 Ensure telnet client is not installed
 #
-apt-get -y purge  telnet
+apt-get -y purge telnet
 #
 # 3.1.1 Disable IPv6
 #
@@ -221,26 +222,21 @@ EOT
 sysctl -w net.ipv4.conf.all.send_redirects=0
 sysctl -w net.ipv4.conf.default.send_redirects=0
 sysctl -w net.ipv4.route.flush=1
-# 3.2.2
-sysctl -w net.ipv4.ip_forward=0
-sysctl -w net.ipv6.conf.all.forwarding=0
-sysctl -w net.ipv4.route.flush=1
-sysctl -w net.ipv6.route.flush=1
 #
-# 3.2 Network Parameters (Host and Router)
+# 3.3 Network Parameters (Host and Router)
 #
 touch /etc/sysctl.d/CIS.conf
 cat >>/etc/sysctl.d/CIS.conf <<EOT
 # 3.3.1
 net.ipv4.conf.all.accept_source_route = 0
 net.ipv4.conf.default.accept_source_route = 0
-net.ipv6.conf.all.accept_source_route = 0
-net.ipv6.conf.default.accept_source_route = 0
+#net.ipv6.conf.all.accept_source_route = 0
+#net.ipv6.conf.default.accept_source_route = 0
 # 3.3.2
 net.ipv4.conf.all.accept_redirects = 0
 net.ipv4.conf.default.accept_redirects = 0
-net.ipv6.conf.all.accept_redirects = 0
-net.ipv6.conf.default.accept_redirects = 0
+#net.ipv6.conf.all.accept_redirects = 0
+#net.ipv6.conf.default.accept_redirects = 0
 # 3.3.3
 net.ipv4.conf.all.secure_redirects = 0
 net.ipv4.conf.default.secure_redirects = 0
@@ -257,24 +253,24 @@ net.ipv4.conf.default.rp_filter = 1
 # 3.3.8
 net.ipv4.tcp_syncookies = 1
 # 3.3.9
-net.ipv6.conf.all.accept_ra = 0
-net.ipv6.conf.default.accept_ra = 0
+#net.ipv6.conf.all.accept_ra = 0
+#net.ipv6.conf.default.accept_ra = 0
 EOT
 #
 # 3.3.1
 sysctl -w net.ipv4.conf.all.accept_source_route=0
 sysctl -w net.ipv4.conf.default.accept_source_route=0
 sysctl -w net.ipv4.route.flush=1
-sysctl -w net.ipv6.conf.all.accept_source_route=0
-sysctl -w net.ipv6.conf.default.accept_source_route=0
-sysctl -w net.ipv6.route.flush=1
+#sysctl -w net.ipv6.conf.all.accept_source_route=0
+#sysctl -w net.ipv6.conf.default.accept_source_route=0
+#sysctl -w net.ipv6.route.flush=1
 # 3.3.2
 sysctl -w net.ipv4.conf.all.accept_redirects=0
 sysctl -w net.ipv4.conf.default.accept_redirects=0
 sysctl -w net.ipv4.route.flush=1
-sysctl -w net.ipv6.conf.all.accept_redirects=0
-sysctl -w net.ipv6.conf.default.accept_redirects=0
-sysctl -w net.ipv6.route.flush=1
+#sysctl -w net.ipv6.conf.all.accept_redirects=0
+#sysctl -w net.ipv6.conf.default.accept_redirects=0
+#sysctl -w net.ipv6.route.flush=1
 # 3.3.3
 sysctl -w net.ipv4.conf.all.secure_redirects=0
 sysctl -w net.ipv4.conf.default.secure_redirects=0
@@ -297,9 +293,9 @@ sysctl -w net.ipv4.route.flush=1
 sysctl -w net.ipv4.tcp_syncookies=1
 sysctl -w net.ipv4.route.flush=1
 # 3.3.9
-sysctl -w net.ipv6.conf.all.accept_ra=0
-sysctl -w net.ipv6.conf.default.accept_ra=0
-sysctl -w net.ipv6.route.flush=1
+#sysctl -w net.ipv6.conf.all.accept_ra=0
+#sysctl -w net.ipv6.conf.default.accept_ra=0
+#sysctl -w net.ipv6.route.flush=1
 #
 # 3.4 Uncommon Network Protocols
 #
@@ -512,14 +508,14 @@ EOT
 # 4.2.1 Configure rsyslog
 #
 # 4.2.2.1
-apt-get -y install rsyslog
+#apt-get -y install rsyslog
 # 4.2.1.2
-systemctl --now enable rsyslog
+#systemctl --now enable rsyslog
 # 4.2.1.4
-touch /etc/rsyslog.conf
-cat >>/etc/rsyslog.conf <<EOT
-$FileCreateMode 0640
-EOT
+#touch /etc/rsyslog.conf
+#cat >>/etc/rsyslog.conf <<EOT
+#$FileCreateMode 0640
+#EOT
 #4.2.1.5
 # to be configured later
 #touch /etc/rsyslog.conf
@@ -618,8 +614,7 @@ DenyGroups rtx
 # 5.2.19
 Banner /etc/issue.net
 # 5.2.21
-# We require forwarding
-#AllowTcpForwarding no
+AllowTcpForwarding no
 # 5.2.22
 maxstartups 10:30:60
 EOT
@@ -642,7 +637,7 @@ minlen = 14
 minclass = 4
 EOT
 #
-sed -i 's/^(password\s+requiste).*/\1\t\t\tpam_pwquality.so retry=3/' /etc/pam.d/common-password
+sed -i 's/^\(password\s\+requisite\).*/\1\t\t\tpam_pwquality.so retry=3/' /etc/pam.d/common-password
 #
 # 5.3.2 Ensure lockout for failed password attempts is configured
 #
@@ -659,23 +654,23 @@ EOT
 #
 # 5.3.3 Ensure password reuse is limited
 #
-sed -i 's/^(password\s+required).*/\1\t\t\tpam_pwquality.so remember=5/' /etc/pam.d/common-password
+sed -i 's/^\(password\s\+required\).*/\1\t\t\tpam_pwquality.so remember=5/' /etc/pam.d/common-password
 EOT
 #
 # 5.3.4 Ensure password hashing algorithm is SHA-512
 #
-sed -i 's/^(password\s+[.*]\s+pam_unix.so)/\1 sha512/' /etc/pam.d/common-password
+sed -i 's/^password\s\+\[.*\]\s\+pam_unix.so/& sha512/' /etc/pam.d/common-password
 EOT
 #
 # 5.4.1.1 Ensure password expiration is 365 days or less
 #
-sed -i 's/^\(PASS_MAX_DAYS\).*/# CIS 5.4.1.1\n#&\n\1 60\n#/' /etc/login.defs
+sed -i 's/^\(PASS_MAX_DAYS\s\+\).*/#&\n# CIS 5.4.1.1\n\1 60\n#/' /etc/login.defs
 chage --maxdays 60 desktop
 chage --maxdays 60 root
 #
 # 5.4.1.2 Ensure minimum days between password changes is configured
 #
-sed -i 's/^\(PASS_MIN_DAYS\).*/# CIS 5.4.1.2\n#&\n\1 1\n#/' /etc/login.defs
+sed -i 's/^\(PASS_MIN_DAYS\s\+\).*/#&\n# CIS 5.4.1.2\n\1 1\n#/' /etc/login.defs
 chage --mindays 1 desktop
 chage --mindays 1 root
 #
@@ -731,7 +726,7 @@ chmod u-x,g-rwx /etc/shadow-
 chown root:root /etc/group-
 chmod u-x,g-rwx /etc/group-
 #
-# 6.1.12 Ensure no unowned files or directories exist
+# 6.1.11 Ensure no unowned files or directories exist
 # 6.1.12 Ensure no ungrouped files or directories exist
 #
 chown root:root /var/cache/private/fwupdmgr
