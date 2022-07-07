@@ -686,7 +686,7 @@ chage --inactive 60 desktop
 #
 sed -i '0,/^ *$/s/^ *$/\n# CIS 5.4.4\numask 027\n#\n/' /etc/bash.bashrc
 sed -i '0,/^ *$/s/^ *$/\n# CIS 5.4.4\numask 027\n#\n/' /etc/profile
-for FILE on /etc/profile.d/*.sh; do
+for FILE in /etc/profile.d/*.sh; do
 	sed -i '0,/^ *$/s/^ *$/\n# CIS 5.4.4\numask 027\n#\n/' "$FILE"
 done
 sed -i '0,/^ *$/s/^ *$/\n# CIS 5.4.4\numask 027\n#\n/' /etc/csh.login
@@ -695,7 +695,7 @@ sed -i '0,/^ *$/s/^ *$/\n# CIS 5.4.4\numask 027\n#\n/' /etc/csh.login
 #
 sed -i '0,/^ *$/s/^ *$/\n# CIS 5.4.5\nTMOUT=900\n#\n/' /etc/profile
 sed -i '0,/^ *$/s/^ *$/\n# CIS 5.4.5\nTMOUT=900\n#\n/' /etc/bash.bashrc
-for FILE on /etc/profile.d/*.sh; do
+for FILE in /etc/profile.d/*.sh; do
 	sed -i '0,/^ *$/s/^ *$/\n# CIS 5.4.5\nTMOUT=900\n#\n/' "$FILE"
 done
 sed -i '0,/^ *$/s/^ *$/\n# CIS 5.4.5\nset autologout = 15\n#\n/' /etc/csh.login
