@@ -184,7 +184,7 @@ sed -i "/^# banner-message-text='Welcome'/a banner-message-enable=true\nbanner-m
 #
 # actually makes it less secure
 #
-sed -i 's/'s/ignore # was: \(.*\)limited/\1# CIS 2.2.14 was: ignore/' /etc/ntp.conf
+sed -i 's/ignore # was: \(.*\)limited/\1# CIS 2.2.14 was: ignore/' /etc/ntp.conf
 #
 # 2.2.4 Ensure CUPS is not enabled
 #
@@ -316,7 +316,6 @@ apt-get -y install ufw
 ufw allow OpenSSH
 ufw logging on
 ufw --force enable
-exit
 #
 # 4.1 Configure System Accounting (auditd)
 #
