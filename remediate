@@ -292,9 +292,7 @@ sysctl -w net.ipv4.conf.all.log_martians=1
 sysctl -w net.ipv4.conf.default.log_martians=1
 sysctl -w net.ipv4.route.flush=1
 find /var/log -type f -exec chmod g-wx,o-rwx "{}" + -o -type d -exec chmod g-w,o-rwx "{}" +
-#chmod u-x,go-rwx /etc/passwd-
-#chmod u-x,go-rwx /etc/shadow-
-#chmod u-x,go-rwx /etc/group-
+chown root:root /var/cache/private/fwupdmgr
 exit 0
 EOT
 chmod u+x /usr/local/sbin/CISfix
