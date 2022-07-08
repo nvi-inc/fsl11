@@ -45,7 +45,8 @@ install squashfs /bin/true
 # 1.1.1.6
 install udf /bin/true
 # 1.1.1.7
-install vfat /bin/true
+# Can't disable vfat, used by /boot/efi
+#install vfat /bin/true
 EOT
 #
 # these fail, not needed
