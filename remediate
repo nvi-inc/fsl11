@@ -166,6 +166,7 @@ update-grub
 # 1.8.1.1 Ensure message of the day is configured properly
 #
 mv /etc/motd /etc/motd.CIS
+touch /etc/motd
 #
 # 1.8.1.2 Ensure local login warning banner is configured properly
 #
@@ -180,6 +181,11 @@ echo "Authorized uses only. All activity may be monitored and reported." > /etc/
 # 1.8.2 Ensure GDM login banner is configured
 #
 sed -i "/^# banner-message-text='Welcome'/a banner-message-enable=true\nbanner-message-text='Authorized uses only. All activity may be monitored and reported.'" /etc/gdm3/greeter.dconf-defaults
+#
+# 1.8.1.4 Ensure permissions on /etc/motd are configured
+#
+chown root:root /etc/motd
+chmod u-x,go-wx,a+r /etc/motd
 #
 # 2.2.1.4 Ensure ntp is configured
 #
@@ -258,6 +264,42 @@ net.ipv4.tcp_syncookies = 1
 #net.ipv6.conf.default.accept_ra = 0
 EOT
 #
+# 3.3.4
+# needed because above doesn't work after boot for some reason
+# create a startup to fix this
+systemctl disable CISfix || :
+rm -f /etc/systemd/system/CISfix.service
+touch /etc/systemd/system/CISfix.service
+cat >>/etc/systemd/system/CISfix.service <<EOT
+[Unit]
+Description=CIS fix on startup
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/CISfix
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+EOT
+rm -f /usr/local/sbin/CISfix
+touch /usr/local/sbin/CISfix
+cat >> /usr/local/sbin/CISfix <<EOT
+#!/bin/bash
+set -e
+# CIS 3.3.4
+sysctl -w net.ipv4.conf.all.log_martians=1
+sysctl -w net.ipv4.conf.default.log_martians=1
+sysctl -w net.ipv4.route.flush=1
+find /var/log -type f -exec chmod g-wx,o-rwx "{}" + -o -type d -exec chmod g-w,o-rwx "{}" +
+#chmod u-x,go-rwx /etc/passwd-
+#chmod u-x,go-rwx /etc/shadow-
+#chmod u-x,go-rwx /etc/group-
+exit 0
+EOT
+chmod u+x /usr/local/sbin/CISfix
+systemctl enable CISfix.service
+#
 # 3.3.1
 sysctl -w net.ipv4.conf.all.accept_source_route=0
 sysctl -w net.ipv4.conf.default.accept_source_route=0
@@ -318,9 +360,15 @@ ufw allow OpenSSH
 ufw logging on
 ufw --force enable
 #
+# 3.5.2.3 Ensure loopback traffic is configured
+#
+#ufw allow in on lo
+ufw deny in from 127.0.0.0/8
+#
 # 4.1 Configure System Accounting (auditd)
 #
 # 4.1.1.1 Ensure auditd is installed
+
 #
 apt-get -y install auditd audispd-plugins
 #
@@ -336,17 +384,9 @@ update-grub
 #
 # 4.1.2 Configure Data Retention
 #
-touch /etc/audit/audit.conf
-cat >>/etc/audit/audit.conf <<EOT
-# CIS 4.1.2.1
-max_log_file = 10
-# CIS 4.1.2.2
-max_log_file_action = keep_logs
-# CIS 4.1.2.3
-space_left_action = email
-action_mail_acct = root
-admin_space_left_action = halt
-EOT
+sed -i 's/^\(max_log_file_action\).*/#&\n# CIS 4.1.2.2\n\1 = keep_logs/' /etc/audit/auditd.conf
+sed -i 's/^\(space_left_action\).*/#&\n# CIS 4.1.2.3\n\1 = email/' /etc/audit/auditd.conf
+sed -i 's/^\(admin_space_left_action\).*/#&\n# CIS 4.1.2.3\n\1 = halt/' /etc/audit/auditd.conf
 #
 # 4.1.3 Ensure events that modify date and time information are collected
 #
@@ -656,7 +696,7 @@ EOT
 #
 # 5.3.3 Ensure password reuse is limited
 #
-sed -i 's/^\(password\s\+required\).*/#&\n# CIS 5.3.3\n\1\t\t\tpam_pwquality.so remember=12/' /etc/pam.d/common-password
+sed -i 's/^\(password\s\+required\).*/#&\n# CIS 5.3.3\n\1\t\t\tpam_pwhistory.so remember=24/' /etc/pam.d/common-password
 #
 # 5.3.4 Ensure password hashing algorithm is SHA-512
 #
@@ -667,18 +707,23 @@ sed -i 's/^\(password\s\+\[.*\]\s\+pam_unix.so\)\(.*\)/#&\n# CIS 5.3.4\n\1 sha51
 sed -i 's/^\(PASS_MAX_DAYS\s\+\).*/#&\n# CIS 5.4.1.1\n\1 60\n#/' /etc/login.defs
 chage --maxdays 60 desktop
 chage --maxdays 60 root
+chage --maxdays 60 oper
+chage --maxdays 60 prog
 #
 # 5.4.1.2 Ensure minimum days between password changes is configured
 #
 sed -i 's/^\(PASS_MIN_DAYS\s\+\).*/#&\n# CIS 5.4.1.2\n\1 1\n#/' /etc/login.defs
 chage --mindays 1 desktop
 chage --mindays 1 root
+chage --mindays 1 oper
+chage --mindays 1 prog
 #
 # 5.4.1.4 Ensure inactive password lock is 30 days or less
 #
 # we use 60
 useradd -D -f 60
 chage --inactive 60 desktop
+chage --inactive 60 oper
 # don't know if can do this to root, but it seems like a bad idea
 #
 # 5.4.2 Ensure system accounts are secured
@@ -714,17 +759,17 @@ EOT
 # 6.1.6 Ensure permissions on /etc/passwd- are configured
 #
 chown root:root /etc/passwd-
-chmod o-x,g-rwx /etc/passwd-
+chmod u-x,go-rwx /etc/passwd-
 #
 # 6.1.7 Ensure permissions on /etc/shadow- are configured
 #
 chown root:shadow /etc/shadow-
-chmod u-x,g-rwx /etc/shadow-
+chmod u-x,go-rwx /etc/shadow-
 #
 # 6.1.8 Ensure permissions on /etc/group- are configured
 #
 chown root:root /etc/group-
-chmod u-x,g-rwx /etc/group-
+chmod u-x,go-rwx /etc/group-
 #
 # 6.1.11 Ensure no unowned files or directories exist
 # 6.1.12 Ensure no ungrouped files or directories exist
