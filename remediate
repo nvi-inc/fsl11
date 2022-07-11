@@ -116,9 +116,10 @@ EOT
 #
 # 1.5.1 Ensure permissions on bootloader config are configured
 #
-#moves to end so not overriden by update-grub's
-#chown root:root /boot/grub/grub.cfg
-#chmod og-rwx /boot/grub/grub.cfg
+# Must be redone after each update-grub
+#
+chown root:root /boot/grub/grub.cfg
+chmod og-rwx /boot/grub/grub.cfg
 #
 # 1.5.2 Ensure bootloader password is set
 #
@@ -157,6 +158,8 @@ apt-get -y install apparmor apparmor-utils
 #
 sed -i 's/^GRUB_CMDLINE_LINUX=\"[^"]\+/& apparmor=1 security=apparmor/' /etc/default/grub
 update-grub
+chown root:root /boot/grub/grub.cfg
+chmod og-rwx /boot/grub/grub.cfg
 #
 # 1.7.1.4 Ensure all AppArmor Profiles are enforcing
 #
@@ -209,6 +212,8 @@ apt-get -y purge telnet
 #
 sed -i 's/^GRUB_CMDLINE_LINUX=\"[^"]\+/& ipv6.disable=1/' /etc/default/grub
 update-grub
+chown root:root /boot/grub/grub.cfg
+chmod og-rwx /boot/grub/grub.cfg
 #
 # 3.1.2 Ensure wireless interfaces are disabled
 #
@@ -265,38 +270,9 @@ net.ipv4.tcp_syncookies = 1
 EOT
 #
 # 3.3.4
-# needed because above doesn't work after boot for some reason
-# create a startup to fix this
-systemctl disable CISfix || :
-rm -f /etc/systemd/system/CISfix.service
-touch /etc/systemd/system/CISfix.service
-cat >>/etc/systemd/system/CISfix.service <<EOT
-[Unit]
-Description=CIS fix on startup
-
-[Service]
-Type=oneshot
-ExecStart=/usr/local/sbin/CISfix
-RemainAfterExit=true
-
-[Install]
-WantedBy=multi-user.target
-EOT
-rm -f /usr/local/sbin/CISfix
-touch /usr/local/sbin/CISfix
-cat >> /usr/local/sbin/CISfix <<EOT
-#!/bin/bash
-set -e
-# CIS 3.3.4
-sysctl -w net.ipv4.conf.all.log_martians=1
-sysctl -w net.ipv4.conf.default.log_martians=1
-sysctl -w net.ipv4.route.flush=1
-find /var/log -type f -exec chmod g-wx,o-rwx "{}" + -o -type d -exec chmod g-w,o-rwx "{}" +
-chown root:root /var/cache/private/fwupdmgr
-exit 0
-EOT
-chmod u+x /usr/local/sbin/CISfix
-systemctl enable CISfix.service
+#
+# Added to CISfix service (at the end of this script) because it doesn't work
+# after boot for some reason
 #
 # 3.3.1
 sysctl -w net.ipv4.conf.all.accept_source_route=0
@@ -379,6 +355,8 @@ systemctl --now enable auditd
 #
 sed -i 's/^GRUB_CMDLINE_LINUX=\"[^"]\+/& audit=1 audit_backlog_limit=8192/' /etc/default/grub
 update-grub
+chown root:root /boot/grub/grub.cfg
+chmod og-rwx /boot/grub/grub.cfg
 #
 # 4.1.2 Configure Data Retention
 #
@@ -579,6 +557,9 @@ EOT
 #
 # 4.2.3 Ensure permissions on all logfiles are configured
 #
+# Added to CISfix service (at the end of this script) because it doesn't work
+# after boot for some reason
+#
 find /var/log -type f -exec chmod g-wx,o-rwx "{}" + -o -type d -exec chmod g-w,o-rwx "{}" +
 #
 # 5.1.2 Ensure permissions on /etc/crontab are configured
@@ -772,6 +753,9 @@ chmod u-x,go-rwx /etc/group-
 # 6.1.11 Ensure no unowned files or directories exist
 # 6.1.12 Ensure no ungrouped files or directories exist
 #
+# Added to CISfix service (at the end of this script) because it doesn't work
+# after boot for some reason
+#
 chown root:root /var/cache/private/fwupdmgr
 #
 # 6.2.8 Ensure users' home directories permissions are 750 or more restrictive
@@ -780,9 +764,38 @@ chmod o-rx /home/desktop
 chmod o-rx /usr2/oper
 chmod o-rx /usr2/prog
 #
-# 1.4.1 Ensure permissions on bootloader config are configured
+# create a startup to fix things that need to be refixed after booting
 #
-# must be after all grub-update usage
-#
-chown root:root /boot/grub/grub.cfg
-chmod og-rwx /boot/grub/grub.cfg
+systemctl disable CISfix || :
+rm -f /etc/systemd/system/CISfix.service
+touch /etc/systemd/system/CISfix.service
+cat >>/etc/systemd/system/CISfix.service <<EOT
+[Unit]
+Description=CIS fix on startup
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/CISfix
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+EOT
+rm -f /usr/local/sbin/CISfix
+touch /usr/local/sbin/CISfix
+cat >> /usr/local/sbin/CISfix <<EOT
+#!/bin/bash
+set -e
+# CIS 3.3.4
+sysctl -w net.ipv4.conf.all.log_martians=1
+sysctl -w net.ipv4.conf.default.log_martians=1
+sysctl -w net.ipv4.route.flush=1
+# CIS 4.2.3
+find /var/log -type f -exec chmod g-wx,o-rwx "{}" + -o -type d -exec chmod g-w,o-rwx "{}" +
+# CIS 6.1.11
+# CIS 6.1.12
+chown root:root /var/cache/private/fwupdmgr
+exit 0
+EOT
+chmod u+x /usr/local/sbin/CISfix
+systemctl enable CISfix.service
