@@ -660,12 +660,11 @@ EOT
 #
 # 5.3.2 Ensure lockout for failed password attempts is configured
 #
-#touch /etc/pam.d/common-auth
-#cat >>/etc/pam.d/common-auth <<EOT
-## CIS 5.3.2
-#auth required pam_faillock.so onerr=fail audit silent deny=5 unlock_time=900
-#EOT
+sed -i '/^# pam-auth-update(8) for details\./a \\n# CIS 5.3.2\nauth\trequired\t\t\tpam_faillock.so preauth silent' /etc/pam.d/common-auth
+sed -i '/^auth\s\+\[success=1 default=ignore\]/a # CIS 5.3.2\nauth\t[default=die]\t\t\tpam_faillock.so authfail audit silent deny=5 unlock_time=900' /etc/pam.d/common-auth
+sed -i 's/^auth\s\+requisite\s\+pam_deny\.so.*/# CIS 5.3.2\n#&/' /etc/pam.d/common-auth
 #
+sed -i '/^# pam-auth-update(8) for details\./a \\n# CIS 5.3.2\naccount\trequired\t\t\tpam_faillock.so' /etc/pam.d/common-account
 #touch /etc/pam.d/common-account
 #cat >>/etc/pam.d/common-account <<EOT
 ## CIS 5.3.2
