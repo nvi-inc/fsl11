@@ -786,6 +786,15 @@ sysctl -w net.ipv4.conf.default.log_martians=1
 sysctl -w net.ipv4.route.flush=1
 # CIS 4.2.3
 find /var/log -type f -exec chmod g-wx,o-rwx "{}" + -o -type d -exec chmod g-w,o-rwx "{}" +
+# CIS 6.1.6
+chown root:root /etc/passwd-
+chmod u-x,go-rwx /etc/passwd-
+# CIS 6.1.7
+chown root:shadow /etc/shadow-
+chmod u-x,go-rwx /etc/shadow-
+# 6.1.8
+chown root:root /etc/group-
+chmod u-x,go-rwx /etc/group-
 # CIS 6.1.11
 # CIS 6.1.12
 chown root:root /var/cache/private/fwupdmgr
