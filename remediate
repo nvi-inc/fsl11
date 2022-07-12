@@ -656,33 +656,27 @@ minlen = 14
 minclass = 4
 EOT
 #
-#sed -i 's/^\(password\s\+requisite\).*/\1\t\t\tpam_pwquality.so retry=3/' /etc/pam.d/common-password
+sed -i 's/^\(password\s\+requisite\).*/# CIS 5.3.1\n#&\n\1\t\t\tpam_pwquality.so retry=3/' /etc/pam.d/common-password
 #
 # 5.3.2 Ensure lockout for failed password attempts is configured
 #
-sed -i '/^# pam-auth-update(8) for details\./a \\n# CIS 5.3.2\nauth\trequired\t\t\tpam_faillock.so preauth silent' /etc/pam.d/common-auth
+sed -i '/^# pam-auth-update(8) for details\./a # CIS 5.3.2\nauth\trequired\t\t\tpam_faillock.so preauth silent' /etc/pam.d/common-auth
 sed -i '/^auth\s\+\[success=1 default=ignore\]/a # CIS 5.3.2\nauth\t[default=die]\t\t\tpam_faillock.so authfail audit silent deny=5 unlock_time=900' /etc/pam.d/common-auth
 sed -i 's/^auth\s\+requisite\s\+pam_deny\.so.*/# CIS 5.3.2\n#&/' /etc/pam.d/common-auth
 #
 sed -i '/^# pam-auth-update(8) for details\./a \\n# CIS 5.3.2\naccount\trequired\t\t\tpam_faillock.so' /etc/pam.d/common-account
-#touch /etc/pam.d/common-account
-#cat >>/etc/pam.d/common-account <<EOT
-## CIS 5.3.2
-#account requisite pam_deny.so
-#account required pam_faillock.so
-#EOT
 #
 # 5.3.3 Ensure password reuse is limited
 #
-sed -i 's/^\(password\s\+required\).*/#&\n# CIS 5.3.3\n\1\t\t\tpam_pwhistory.so remember=24/' /etc/pam.d/common-password
+sed -i 's/^\(password\s\+required\).*/# CIS 5.3.3\n#&\n\1\t\t\tpam_pwhistory.so remember=24/' /etc/pam.d/common-password
 #
 # 5.3.4 Ensure password hashing algorithm is SHA-512
 #
-sed -i 's/^\(password\s\+\[.*\]\s\+pam_unix.so\)\(.*\)/#&\n# CIS 5.3.4\n\1 sha512\2/' /etc/pam.d/common-password
+sed -i 's/^\(password\s\+\[.*\]\s\+pam_unix.so\)\(.*\)/# CIS 5.3.4\n#&\n\1 sha512\2/' /etc/pam.d/common-password
 #
 # 5.4.1.1 Ensure password expiration is 365 days or less
 #
-sed -i 's/^\(PASS_MAX_DAYS\s\+\).*/#&\n# CIS 5.4.1.1\n\1 60\n#/' /etc/login.defs
+sed -i 's/^\(PASS_MAX_DAYS\s\+\).*/# CIS 5.4.1.1\n\#&\n\1 60\n#/' /etc/login.defs
 chage --maxdays 60 desktop
 chage --maxdays 60 root
 chage --maxdays 60 oper
@@ -690,7 +684,7 @@ chage --maxdays 60 prog
 #
 # 5.4.1.2 Ensure minimum days between password changes is configured
 #
-sed -i 's/^\(PASS_MIN_DAYS\s\+\).*/#&\n# CIS 5.4.1.2\n\1 1\n#/' /etc/login.defs
+sed -i 's/^\(PASS_MIN_DAYS\s\+\).*/# CIS 5.4.1.2\n#&\n\1 1\n#/' /etc/login.defs
 chage --mindays 1 desktop
 chage --mindays 1 root
 chage --mindays 1 oper
@@ -702,7 +696,8 @@ chage --mindays 1 prog
 useradd -D -f 60
 chage --inactive 60 desktop
 chage --inactive 60 oper
-# don't know if can do this to root, but it seems like a bad idea
+chage --inactive 60 prog
+# don't for root, per Chip
 #
 # 5.4.2 Ensure system accounts are secured
 #
@@ -759,9 +754,9 @@ chown root:root /var/cache/private/fwupdmgr
 #
 # 6.2.8 Ensure users' home directories permissions are 750 or more restrictive
 #
-chmod o-rx /home/desktop
-chmod o-rx /usr2/oper
-chmod o-rx /usr2/prog
+chmod 0750 /home/desktop
+chmod 0750 /usr2/oper
+chmod 0750 /usr2/prog
 #
 # create a startup to fix things that need to be refixed after booting
 #
