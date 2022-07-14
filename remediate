@@ -158,7 +158,6 @@ apt-get -y install apparmor apparmor-utils
 #
 sed -i 's/^GRUB_CMDLINE_LINUX=\"[^"]\+/& apparmor=1 security=apparmor/' /etc/default/grub
 update-grub
-chown root:root /boot/grub/grub.cfg
 chmod og-rwx /boot/grub/grub.cfg
 #
 # 1.7.1.4 Ensure all AppArmor Profiles are enforcing
@@ -196,6 +195,10 @@ chmod u-x,go-wx,a+r /etc/motd
 #
 sed -i 's/ignore # was: \(.*\)limited/\1# CIS 2.2.14 was: ignore/' /etc/ntp.conf
 #
+# 2.2.2 Ensure X Window System is not installed
+#
+# we require X11
+#
 # 2.2.4 Ensure CUPS is not enabled
 #
 #We need CUPS to print
@@ -212,7 +215,6 @@ apt-get -y purge telnet
 #
 sed -i 's/^GRUB_CMDLINE_LINUX=\"[^"]\+/& ipv6.disable=1/' /etc/default/grub
 update-grub
-chown root:root /boot/grub/grub.cfg
 chmod og-rwx /boot/grub/grub.cfg
 #
 # 3.1.2 Ensure wireless interfaces are disabled
@@ -355,7 +357,6 @@ systemctl --now enable auditd
 #
 sed -i 's/^GRUB_CMDLINE_LINUX=\"[^"]\+/& audit=1 audit_backlog_limit=8192/' /etc/default/grub
 update-grub
-chown root:root /boot/grub/grub.cfg
 chmod og-rwx /boot/grub/grub.cfg
 #
 # 4.1.2 Configure Data Retention
@@ -780,6 +781,8 @@ touch /usr/local/sbin/CISfix
 cat >> /usr/local/sbin/CISfix <<EOT
 #!/bin/bash
 set -e
+# CIS 1.5.1
+chmod og-rwx /boot/grub/grub.cfg
 # CIS 3.3.4
 sysctl -w net.ipv4.conf.all.log_martians=1
 sysctl -w net.ipv4.conf.default.log_martians=1
@@ -787,13 +790,10 @@ sysctl -w net.ipv4.route.flush=1
 # CIS 4.2.3
 find /var/log -type f -exec chmod g-wx,o-rwx "{}" + -o -type d -exec chmod g-w,o-rwx "{}" +
 # CIS 6.1.6
-chown root:root /etc/passwd-
 chmod u-x,go-rwx /etc/passwd-
 # CIS 6.1.7
-chown root:shadow /etc/shadow-
 chmod u-x,go-rwx /etc/shadow-
 # 6.1.8
-chown root:root /etc/group-
 chmod u-x,go-rwx /etc/group-
 # CIS 6.1.11
 # CIS 6.1.12
