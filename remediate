@@ -561,7 +561,9 @@ EOT
 # Added to CISfix service (at the end of this script) because it doesn't work
 # after boot for some reason
 #
-find /var/log -type f -exec chmod g-wx,o-rwx "{}" + -o -type d -exec chmod g-w,o-rwx "{}" +
+# CIS actually doesn't check the directories and changing them breaks things including email
+#find /var/log -type f -exec chmod g-wx,o-rwx "{}" + -o -type d -exec chmod g-w,o-rwx "{}" +
+find /var/log -type f -exec chmod g-wx,o-rwx "{}" +
 #
 # 5.1.2 Ensure permissions on /etc/crontab are configured
 #
@@ -788,7 +790,9 @@ sysctl -w net.ipv4.conf.all.log_martians=1
 sysctl -w net.ipv4.conf.default.log_martians=1
 sysctl -w net.ipv4.route.flush=1
 # CIS 4.2.3
-find /var/log -type f -exec chmod g-wx,o-rwx "{}" + -o -type d -exec chmod g-w,o-rwx "{}" +
+# CIS actually doesn't check the directories and changing them breaks things including email
+#find /var/log -type f -exec chmod g-wx,o-rwx "{}" + -o -type d -exec chmod g-w,o-rwx "{}" +
+find /var/log -type f -exec chmod g-wx,o-rwx "{}" +
 # CIS 6.1.6
 chmod u-x,go-rwx /etc/passwd-
 # CIS 6.1.7
