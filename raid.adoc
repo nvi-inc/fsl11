@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020-2021 NVI, Inc.
+// Copyright (c) 2020-2022 NVI, Inc.
 //
 // This file is part of the FSL10 Linux distribution.
 // (see http://github.com/nvi-inc/fsl10).
@@ -18,9 +18,9 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 //
 
-= RAID Notes for FSL 10
+= RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 1.6.1 - June 2022
+Version 1.7.0 - July 2022
 
 :sectnums:
 :experimental:
@@ -759,12 +759,12 @@ shelf disk a deeper back-up than the _spare_ system RAID disks.
 
 WARNING: For this script to work most usefully, the _operational_ and
 _spare_ systems should have the same set-up including particularly the
-same user accounts with same UIDs and GIDs in parallel for all
-accounts, particularly for those that have home directories on
-_/usr2_, as well as other OS set-up information the FS may depend on
-such as _/etc/hosts_ and _/etc/ntp.conf_.
+same user accounts with the same UIDs and GIDs in parallel for all
+accounts that have home directories on _/usr2_, as well as other OS
+set-up information the FS may depend on such as _/etc/hosts_ and
+_/etc/ntp.conf_.
 
-TIP: If you are unwilling or unable to use the _forced command_
+TIP: If you don't want to or are unable to use the _forced command_
 approach below for the _root_ account, you may find the approach of
 using _sudo_ in a regular account a usable alternative. For details on
 that approach, please see the
@@ -773,10 +773,37 @@ refresh_spare_usr2 with CIS hardening>> subsection of the
 <<cis-setup.adoc#,CIS Hardening for FSL10>> document.
 
 All the steps below must be performed as _root_ on the specified
-system. You should read all of each step or sub-step before following
+system. You should read all of each step and sub-step before following
 it.
 
+. On the _operational_ system:
+
+.. _Temporarily_ set _sshd_ to allow _root_ login:
+
+... Edit _/etc/ssh/sshd_config_
+
++
+
++
+
++
+
+Add an uncommented line (or change an existing line) for
+`PermitRootLogin` to set it to `yes`
+
+... Restart _sshd_. Execute:
+
+  systemclt restart sshd
+
 . On the _spare_ system:
+
+.. Make sure the _operational_ system is represented in the
+_/etc/hosts_ file.
+
++
+
+If it is not already there, add it. It is recommended that it be given
+a simple alias for routine use.
 
 .. Install _refresh_spare_usr2_. Execute:
 
@@ -816,6 +843,15 @@ system.
 
 +
 
+CAUTION: If _root_ already has a key, you only use the second command
+below, to copy it to the _spare_ system.
+
++
+
+TIP: It is recommended to _not_ set a passphrase.
+
++
+
 [subs="+quotes"]
 ----
 ssh-keygen
@@ -827,28 +863,7 @@ ssh-copy-id root@_operational_
 where `_operational_` is the alias, name, or IP of your _operational_
 system.
 
-+
-
-NOTE: If _root_ already has a key, you only need the second command
-above to copy it to the _spare_ system.
-
-+
-
-+
-
-TIP: It is recommended to not set a passphrase.
-
 . On the _operational_ system:
-
-.. Install the _rrsync_ script. Execute:
-
-+
-
-....
-gunzip -c /usr/share/doc/rsync/scripts/rrsync.gz >/usr/local/bin/rrsync
-ln -s /usr/local/bin/rrsync /usr/bin/rrsync
-chmod u+x,go-x /usr/local/bin/rrsync
-....
 
 .. Set the _root_ account to only allow a _forced command_ with _ssh_:
 
@@ -878,9 +893,9 @@ provide the FQDN, IP address, and/or alias of the _spare_ system in a
 comma separated list in place of  `__node__` to get reliable
 operation.
 
-... Set _sshd_ to only allowed forced commands for _root_ by
-un-commenting the `PermitRootLogin` line and changing the second field
-from `prohibit-password` to `forced-commands-only`.
+... Set _sshd_ to only allowed forced commands for _root_ by replacing
+`yes` with `forced-commands-only` on the uncommented `PermitRootLogin`
+line.
 
 ... Restart `_sshd_. Execute:
 
@@ -903,15 +918,45 @@ on a local virtual console text terminal.
 
 +
 
-TIP: Logging in as a non-_root_ user is acceptable. Any means can be
-used: a text console, _ssh_ from another system (preferably not the
-_operational_ system), or the graphics X display. In these cases, you
-must promote to _root_ using _su_ (or execute the script with _sudo_
-for CIS hardened systems).
+[TIP]
+====
 
+Logging in as a non-_root_ user will also work. Any available means
+can be used: a text console, _ssh_ from another system (preferably not
+the _operational_ system), or the graphics X11 display. You must then
+promote to _root_ using _su_ (for CIS hardened systems:
+_root_account_, or execute the script with _sudo_).
+
+CAUTION: If you use the `-I` option (which would not normally be
+used), you must change your working directory to be somewhere off of
+_/usr2_, e.g., _/tmp_, before using _su_ (or _root_account_ or
+_sudo_). We have made an effort to make this reliable, but there still
+may be a chance that the script will fail with the error
+`umount:{nbsp}/usr2:{nbsp}target{nbsp}is{nbsp}busy.`. If this happens,
+you can try to recover by simply rerunning the script. This should
+work because although the error happens in the _critical phase_ (see
+`*refresh_spare_usr2 -h*`), the _/usr2_ partition does not get
+unmounted when it occurs. It might take more than one try of rerunning
+to achieve success.
+
+====
 . Execute the script:
 
   refresh_spare_usr2
+
++
+
+[NOTE]
+====
+
+On a CIS hardened system (see <<cis-setup.adoc#,CIS hardening for
+FSL11>>), you may be able to use:
+
+  sudo refresh_spare_usr2
+
+from an AUID account
+
+====
 
 +
 

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020-2021 NVI, Inc.
+// Copyright (c) 2020-2022 NVI, Inc.
 //
 // This file is part of the FSL10 Linux distribution.
 // (see http://github.com/nvi-inc/fsl10).
@@ -18,12 +18,12 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 //
 
-= CIS hardening for FSL10
-Dave Horsley and Ed Himwich
-Version 1.6.0 - January 2022
-
+= CIS hardening for FSL11
+:sectnums:
 :experimental:
 :toc:
+Dave Horsley and Ed Himwich
+Version 1.7.0 - July 2022
 
 == Introduction
 
@@ -40,6 +40,8 @@ This document  is based on the results for the "`CIS Debian Linux 9
 Benchmark v1.0.0 - Level 2 - Server`".
 
 == Partition Configuration
+
+=== Installation partition configuration
 
 During installation, be sure to create the logical volumes marked
 optional during the partition section.
@@ -717,21 +719,55 @@ _operational_ computer.
 
 .. In the statement setting `PS1` in the `case` block that sets the _xterm_ window title, change the use of `\h` to `$hostalias`.
 
+. For a _spare_ computer only, if you have one:
+
+.. Update _/usr/local/sbin/refresh_spare_usr2_ to use the new alias of
+the _operational_ computer in the _ssh_ line.
+
+.. You will need to update the new alias for the _operational_
+computer to be recognized as a known host to the _root_ account on the
+_spare_ computer. You can do that, as _root_, by using _ssh_ to
+`spare@_operational_` where `_operational_` is the new alias for the
+_operational_ computer. The command will give you guidance for which
+lines need to be deleted in _/root/.ssh/known_hosts_. After deleting
+those lines, reconnect using the same _ssh_ command and answer `*yes*`
+to confirm connecting. The login will rejected because of the
+forced-command setup on the _operational_ computer. The error message
+will probably not seem to make sense, but will end with a line like:
+`Connection to _operational_ closed.`. Still, the task of recording
+the host key will have been accomplished.
+
 === Installing refresh_spare_usr2 with CIS hardening
 
-NOTE: This subsection follows the FS manual font conventions.
+This section is useful if you have a _spare_ computer and want it to
+have a backup of your _operational_ computer _/usr2_ partition. Using
+this method will allow operators to run _refresh_spare_user2_ with
+_sudo_. All steps must be performed as _root_ on the specified system.
+You should read all of each step or sub-step before following it.
 
 TIP: Read the
 <<raid.adoc#_refresh_spare_usr2,refresh_spare_usr2>> section of the
 <<raid.adoc#,RAID Notes for FSL10>> document for important information
 on the __refresh_spare_usr2__ script.
 
-This subsection describes the steps needed to enable use of the
-_refresh_spare_usr2_ script with CIS hardening. All steps must be
-performed as _root_ on the specified system. You should read all of
-each step or sub-step before following it.
-
 . On the _operational_ system:
+
+.. _Temporarily_ set _sshd_ to allow _root_ login:
+
+... Edit _/etc/ssh/sshd_config_
+
++
+
++
+
++
+
+Add an uncommented line (or change an existing line) for
+`PermitRootLogin` to set it to `yes`
+
+... Restart _sshd_. Execute:
+
+  systemclt restart sshd
 
 .. Create _spare_ account. Execute:
 
@@ -751,15 +787,24 @@ _/usr2_.
 
 +
 
-NOTE: The UID and GID values of `2000` are chosen to make it easier to
-keep the values in sync for users on both systems. In other words, it
+NOTE: Since the _spare_ account is unique to the _operational_ system,
+the UID and GID values of `2000` are chosen to make it easier to keep
+the values in sync for other users on both systems. In other words, it
 is not necessary to worry about jumping over a low value on the
 _spare_ system when values are assigned sequentially, as is the
 default. If you think you might have more than 1000 users or groups,
-you might want to increase the values for the _spare_ account and
-group.
+you might want to increase the UID and GID values for the _spare_
+account and group.
 
 . On the _spare_ system.
+
+.. Make sure the _operational_ system is represented in the
+_/etc/hosts_ file.
+
++
+
+If it is not already there, add it. It is recommended that it be given
+a simple alias for routine use.
 
 .. Install _refresh_spare_usr2_. Execute:
 
@@ -780,7 +825,7 @@ echo "This script must be customized before use.  See script for details."
 exit 1
 ....
 
-... Change the _operational_ in the line:
+... Change the `operational` in the line:
 
 +
 
@@ -808,6 +853,15 @@ form is:
 
 +
 
+CAUTION: If _root_ already has a key, you only use the second command
+below, to copy it to the _spare_ account.
+
++
+
+TIP: It is recommended to _not_ set a passphrase.
+
++
+
 [subs="+quotes"]
 ----
 ssh-keygen
@@ -819,14 +873,6 @@ ssh-copy-id spare@_operational_
 where `_operational_` is the alias, name, or IP of your _operational_
 system.
 
-+
-
-NOTE: If _root_ already has a key, you only need the second command
-above to copy it to the _spare_ account:
-
-+
-
-TIP: It is recommended to not set a passphrase.
 
 .. Enable running the script with _sudo_. Use _visudo_ to add:
 
@@ -845,16 +891,6 @@ in a CIS hardened system) by replacing `%operators` with the user
 account name.
 
 . On the _operational_ system:
-
-.. Install the _rrsync_ script. Execute:
-
-+
-
-....
-gunzip -c /usr/share/doc/rsync/scripts/rrsync.gz >/usr/local/bin/rrsync
-ln -s /usr/local/bin/rrsync /usr/bin/rrsync
-chmod u+x,go-x /usr/local/bin/rrsync
-....
 
 .. Set the _spare_ account to only allow a _forced command_ with _ssh_
 by replacing the `ssh-rsa` at the start of the first (and only) line of
@@ -879,7 +915,7 @@ comma separated list in place of  `__node__` to get reliable
 operation.
 
 .. Enable the _spare_ account to run _rrsync_ with _sudo_ without a
-password and passing environment variables. Use _visudo_ to add:
+password and with passing environment variables. Use _visudo_ to add:
 
 +
 
