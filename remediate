@@ -695,11 +695,10 @@ chage --mindays 1 prog
 #
 # 5.4.1.4 Ensure inactive password lock is 30 days or less
 #
-# we use 60
-useradd -D -f 60
-chage --inactive 60 desktop
-chage --inactive 60 oper
-chage --inactive 60 prog
+useradd -D -f 30
+chage --inactive 30 desktop
+chage --inactive 30 oper
+chage --inactive 30 prog
 # don't for root, per Chip
 #
 # 5.4.2 Ensure system accounts are secured
