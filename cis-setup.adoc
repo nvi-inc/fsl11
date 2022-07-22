@@ -172,6 +172,15 @@ message with sterner warnings. The message must not include use of
 You may want to update _/etc/gdm3/greeter.dconf-defaults_ to have a
 more tailored message with sterner warnings.
 
+If desired, you can remove the Debian logo from the GUI login page by
+renaming the file specified for the `logo` option of the
+`[org/gnome/login-screen]` section in
+_/etc/gdm3/greeter/dconf-defaults_. For example, if appropriate, you
+might use:
+
+ cd /usr/share/images/vendor-logos
+ mv logo-text-version-64.png logo-text-version-64.png.bak
+
 ==== 2.2.1.4 Ensure ntp is configured
 
 This needs the  FS NTP configuration. That is more secure than the
