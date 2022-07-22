@@ -181,6 +181,56 @@ might use:
  cd /usr/share/images/vendor-logos
  mv logo-text-version-64.png logo-text-version-64.png.bak
 
+If desired, you can remove the Debian logo from the _grub_ menu by
+renaming the file specified for in the `if` clause for the
+`background_image` file in the `/etc/grub.d/05_debian_theme` section
+of _/boot/grub/grub.cfg_. For example, if appropriate, you might use:
+
+ cd /usr/share/desktop-base/homeworld-theme/grub
+ mv grub-4x3.png grub-4x3.png.bak
+
+[IMPORTANT]
+====
+
+Caveat Emptor! The changes below in this *IMPORTANT* section may not
+be safe. Even if they appear to be successful, they may case problems
+later. The problems may include failure of automatic updates. They may
+also need to be reinstalled after updates.
+
+After making any or all of these changes, it is necessary to execute:
+
+ update-grub
+
+for them to take effect.
+
+. In principle, you can remove the `Debian` label from the _grub_ boot
+menus by editing _/etc/default/grub_ and inserting a line:
+
+ GRUB_DISTRIBTOR=FSL11
+
++
+
+immediately after the existing `GRUB_DISTRIBUTOR=...` line.
+
+. In principle, you can remove the `GNU/Linux` label from the _grub_
+boot menus by editing _/etc/grub.d/10_linux_ and inserting a line:
+
+ OS="${GRUB_DISTRIBUTOR}"
+
++
+
+immediately after the existing `OS="${GRUB_DISTRIBUTOR} GNU/Linux"`
+line.
+
+
+. In principle, you can remove the `Linux` label from the lines
+displaying kernel image files, by editing _/etc/grub.d/10_linux_ and
+globally replacing `{nbsp}Linux{nbsp}` (not the single leading and
+single trailing spaces) with `{nbsp}FSL11{nbsp}` (not the single
+leading and single trailing spaces).
+
+====
+
 ==== 2.2.1.4 Ensure ntp is configured
 
 This needs the  FS NTP configuration. That is more secure than the
