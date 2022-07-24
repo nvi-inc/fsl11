@@ -334,7 +334,7 @@ else
     echo "Refreshing Spare system disk '/usr2' partition in background ..."
 fi
 echo "Started at $(date)"
-echo "[$short_me 3.0]"
+echo "[$short_me 3.0.1]"
 
 if [[ -n "$initialize" ]]; then
 
@@ -357,6 +357,13 @@ if [[ -n "$initialize" ]]; then
 EOF
     fi
 
+    fuser -k -M -m /usr2 || :
+    sleep 1
+# it seems with FSL11 for a user who initially logged into an acocunt with
+# with a home directory on /usr2, the above two commands need to be executed
+# twice more to get success reliably with the umount command
+    fuser -k -M -m /usr2 || :
+    sleep 1
     fuser -k -M -m /usr2 || :
     sleep 1
 
