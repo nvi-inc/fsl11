@@ -334,7 +334,7 @@ else
     echo "Refreshing Spare system disk '/usr2' partition in background ..."
 fi
 echo "Started at $(date)"
-echo "[$short_me 3.0.1]"
+echo "[$short_me 3.1]"
 
 if [[ -n "$initialize" ]]; then
 
@@ -422,9 +422,9 @@ if [[ -n "$ignore" ]]; then
 fi
 
 if [[ -z "$background" ]]; then
-    time rsync "$rsync_options" --delete --no-i-r --info=progress2 "$remote_user@$remote_node:/" /usr2 >/dev/tty
+    time rsync "$rsync_options" -e='ssh -o LogLevel=ERROR' --delete --no-i-r --info=progress2 "$remote_user@$remote_node:/" /usr2 >/dev/tty
 else
-    time rsync "$rsync_options" --delete --stats --human-readable "$remote_user@$remote_node:/" /usr2
+    time rsync "$rsync_options" -e='ssh -o LogLevel=ERROR' --delete --stats --human-readable "$remote_user@$remote_node:/" /usr2
 fi
 
 cat << EOF
