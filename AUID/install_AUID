@@ -1,0 +1,44 @@
+#!/bin/bash
+#
+# Copyright (c) 2020 NVI, Inc.
+#
+# This file is part of FSL10 Linux distribution.
+# (see http://github.com/nvi-inc/fsl10).
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+
+set -e
+if ! [ $(id -u) = 0 ]; then
+   echo "This script must be run as root."
+   exit 1
+fi
+# install promotion scripts
+echo "Setting up promotion scripts"
+cd /usr/local/bin
+cp -a ~/fsl10/AUID/*_account .
+chown root:root *_account
+chmod a+rx *_account
+# Updating ~oper/.profile
+echo "Updating ~oper/.profile"
+touch ~oper/.profile
+cat ~/fsl10/AUID/profile_oper >> ~oper/.profile
+# Updating ~prog/.profile
+echo "Updating ~prog/.profile"
+touch ~prog/.profile
+cat ~/fsl10/AUID/profile_prog >> ~prog/.profile
+# Updating ~root/.profile
+echo "Updating ~root/.profile"
+touch ~root/.profile
+cat ~/fsl10/AUID/profile_root >> ~root/.profile

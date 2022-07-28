@@ -1,0 +1,58 @@
+#! /bin/sh
+#
+# Copyright (c) 2020 NVI, Inc.
+#
+# This file is part of FSL10 Linux distribution.
+# (see http://github.com/nvi-inc/fsl10).
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+
+#
+# cron script to display all upgradeable packages using apt-listchanges
+# (designed to replace the APT::Periodic::Unattended-Upgrade mechanism)
+#
+# - passes through all command line arguments to the underlying apt-listchanges command
+#
+# Written by Jonathan Quick <jon@hartrao.ac.za>.
+
+export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
+
+apt-get -qq update
+
+PACKAGES=$(for file in `unattended-upgrade -v --dry-run 2>&1 | grep "^Packages that will be upgraded: " | cut -c33-`; do echo -n "/var/cache/apt/archives/$file*.deb "; done)
+
+if [ -n "$PACKAGES" ]; then
+	echo "Suggested Debian (Security?) Updates are:"
+	echo
+	apt-listchanges $@ $PACKAGES
+	echo "To install these upgrades run (as root)"
+	echo
+	echo "        apt upgrade     (and 'y' to confirm as needed)"
+	echo "        apt clean"
+	if echo $PACKAGES | grep -q linux-image-; then
+		echo
+		echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+		echo "NB: The Linux kernel image is one of the packages due to be upgraded."
+		VERS=$(cat /proc/version | cut -d' ' -f3)
+		if echo $PACKAGES | grep -q linux-image-$VERS; then
+			echo "NB: (Upgrading will OVERWRITE the running kernel and require you to REBOOT!)"
+		else
+			echo "NB: (The kernal ABI has changed as per the linux-latest source package above"
+			echo "NB:  so all out-of-tree modules WILL NEED TO BE REBUILT after you REBOOT.)"
+		fi
+		echo "NB: Please allow _extra time_ for TESTING after the upgrade."
+		echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+	fi
+fi

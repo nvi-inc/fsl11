@@ -1,0 +1,64 @@
+#!/bin/bash
+#
+# Copyright (c) 2020 NVI, Inc.
+#
+# This file is part of FSL10 Linux distribution.
+# (see http://github.com/nvi-inc/fsl10).
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+
+set -e
+# set-up preconfgure on /root/tmp
+#
+# select /root/tmp for preconfigure
+rm -f /etc/apt/apt.conf.d/50extracttemplates
+touch /etc/apt/apt.conf.d/50extracttemplates
+cat >>/etc/apt/apt.conf.d/50extracttemplates <<EOT
+APT::ExtractTemplates::TempDir "/root/tmp";
+EOT
+#
+# create boot job to clean /root/tmp
+#
+systemctl disable root_tmp || :
+rm -f /etc/systemd/system/root_tmp.service
+touch /etc/systemd/system/root_tmp.service
+cat >>/etc/systemd/system/root_tmp.service <<EOT
+[Unit]
+Description=Clean /root/tmp on startup
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/root_tmp
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+EOT
+rm -f /usr/local/sbin/root_tmp
+touch /usr/local/sbin/root_tmp
+cat >> /usr/local/sbin/root_tmp <<EOT
+#!/bin/bash
+set -e
+rm -rf /root/tmp
+mkdir /root/tmp
+chmod go-wx /root/tmp
+exit 0
+EOT
+chmod u+x /usr/local/sbin/root_tmp
+systemctl enable root_tmp.service
+#
+# create directory
+#
+. /usr/local/sbin/root_tmp

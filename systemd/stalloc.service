@@ -1,0 +1,10 @@
+[Unit]
+Description=Allocate Station shared memory
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "([ -x /usr2/st/bin/stalloc ] && /usr2/st/bin/stalloc) || echo No Station shared memory defined"
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

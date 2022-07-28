@@ -1,0 +1,56 @@
+#!/bin/bash
+#
+# Copyright (c) 2020 NVI, Inc.
+#
+# This file is part of FSL10 Linux distribution.
+# (see http://github.com/nvi-inc/fsl10).
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+
+set -e
+if ! [ $(id -u) = 0 ]; then
+   echo "This script must be run as root."
+   exit 1
+fi
+# install mdstat
+echo "setting up mdstat"
+cd /usr/local/bin
+cp -a ~/fsl10/RAID/mdstat mdstat
+chown root:root mdstat
+chmod a+rx mdstat
+# install refresh_secondary
+echo "setting up refresh_secondary"
+cd /usr/local/sbin
+cp -a ~/fsl10/RAID/refresh_secondary .
+chown root:root refresh_secondary
+chmod a+r,u+x,go-wx refresh_secondary
+# install blank_secondary
+echo "setting up blank_secondary"
+cd /usr/local/sbin
+cp -a ~/fsl10/RAID/blank_secondary .
+chown root:root blank_secondary
+chmod a+r,u+x,go-wx blank_secondary
+# install recover_raid
+echo "setting up recover_raid"
+cd /usr/local/sbin
+cp -a ~/fsl10/RAID/recover_raid .
+chown root:root recover_raid
+chmod a+r,u+x,go-wx recover_raid
+echo "setting up drop_primary"
+cd /usr/local/sbin
+cp -a ~/fsl10/RAID/drop_primary .
+chown root:root drop_primary
+chmod a+r,u+x,go-wx drop_primary
+echo "done"

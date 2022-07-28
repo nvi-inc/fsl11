@@ -1,0 +1,1151 @@
+//
+// Copyright (c) 2020-2021 NVI, Inc.
+//
+// This file is part of the FSL10 Linux distribution.
+// (see http://github.com/nvi-inc/fsl10).
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <http://www.gnu.org/licenses/>.
+//
+
+= RAID Notes for FSL 10
+J.F.H. Quick, W.E. Himwich, and D.E. Horsley
+Version 1.6.1 - June 2022
+
+:sectnums:
+:experimental:
+:downarrow: &darr;
+
+:toc:
+<<<
+== Introduction
+
+These notes are intended to cover, albeit tersely, the major issues
+for RAID operations with FSL10 (see the <<installation.adoc#,FSL10
+      Installation>> document). The disk lay-out has changed
+significantly since FSL9, which required updating the scripts that are
+used. In addition, the scripts have been extensively revised to
+provide more protection from possible errors in how they are used.
+
+All operations and scripts in this document require _root_ privileges
+unless otherwise indicated.
+
+== Guidelines for RAID operations
+
+The FSL10 RAID configuration normally uses two disks configured
+according to the FSL10 installation instructions (see the <<installation.adoc#,FSL10
+      Installation>> document). Below are mandatory
+and recommended guidelines.
+
+=== Mandatory practices
+
+These practices are fundamental to the operation of the RAID.
+
+. Never mix disks from different computers in one computer.
+. Never split up a RAID pair unless already synced, check with _mdstat_
+ 
+A RAID pair (kept together and in order) can be removed or moved
+between computers if need be. A disk rotation (or initializing a new
+    disk)  is probably the only reason to split a pair.
+
+NOTE: When booting a disk from a RAID by itself, you may see
+~20 of the `volume group
+not found` error messages, then the machine will boot. These error
+messages  only appear like this the first time a disk
+from the RAID is booted without its partner.
+
+=== Recommended practices
+
+These recommendations are intended to provide consistent procedures and make it easier to understand any issues, if they occur.
+
+. Always use the lowest numbered interface as the _primary_ and the next lowest numbered as _secondary_
+. Make the upper (or left) slot the _primary_, the lower (or right) slot the _secondary_. If necessary, change the internal cabling to make it so.
+. Label the slots as _primary_ and _secondary_ as appropriate.
+. Always boot for a refresh/blank with the _primary_ slot turned on and the _secondary_ slot turned off: so it is clear which is the active disk
+. Label the disks (so visible when in use) with the system name and number them 1, 2, and 3, ...
+. Label the disks (so visible when in use) with their serial numbers, either from _mdstat_ when only one disk inserted or by examining the disk
+. For reference, place the disk serial numbers in a file with their corresponding numbers, e.g.:
+
++
+./root/DISKS.txt
+[source]
+```
+1=ZC1B1YCC
+2=ZC1A6WZ1
+3=ZC1AHENM
+```
+
+. When rotating disks, keep the disks in cyclical order (_primary_, _secondary_, _shelf_): 1, 2, 3; then 2, 3, 1;, then 3, 1, 2, then 1, 2, 3; and so on
+. Rotate disks for a given computer at least once a month, and before any updates
+. If you have a spare computer (and/or additional systems), keep the disks in the same sequence on all the computers
+. Do not turn a disk off while the system is running. The only time a key switch state should be changed while the system is running is to add a disk for a blank or refresh operation.
+
+. Set your  BIOS to allow hot swapping of disks for both the _primary_
+and _secondary_ controllers. This is necessary to use the RAID procedures
+described in this document.
+
+== Disk Rotation
+
+This section describes the disk rotation procedure. It is used to make
+periodic updates of the shelf disk.
+
+NOTE: Your BIOS must be set to allow hot swapping of disks,
+particularly for the _secondary_ controller (it should also be set for
+the _primary_ controller).
+
+TIP: If you do not have access to the _root_ account, you may
+have _sudo_ access to the privileged commands. If so, you will need
+to run the `shutdown -h now` and _refresh_secondary_ commands with
+_sudo_.  This is true for other privileged commands used elsewhere in
+this document.
+
+. Wait until the RAID is not recovering, check with _mdstat_
+. Shutdown the system, e.g., `shutdown -h now`
+. Take the disk from _primary_ slot, put it on the _shelf_
++
+
+We recommend that you label the disk immediately, including the date
+(and possibly the time). In addition to getting the disk labeled
+before it is put away, it will reduce the chances that it is confused
+with the _old_ _shelf_ disk.
+
+. Move the disk from the _secondary_ slot to the _primary_ slot, keyed-on
+. Move the _old_ _shelf_ disk to the _secondary_ slot, keyed-off
+. Boot (_primary_ keyed-on, _secondary_ keyed-off)
+. Run _refresh_secondary_
+. Key-on the _secondary_ slot when prompted
+. If the script rejects the disk (and stops with an error), seek expert advice. Be sure to note any messages so they can be reported.
+. If the disk is accepted, let the refresh run to completion (the progress report can be aborted as indicated). The system can be used in the meantime, but may be a little slow.
+
+== Recoverable testing
+
+This section describes a method for testing updates in a way that provides a
+relatively easy recovery option if a problem occurs. Should that recovery fail
+for some reason, it is still possible to recover with the shelf disk as
+described in the <<Recover from a shelf disk>> section below.
+
+Seek expert advice for this, but the basic plan is given below:
+
+NOTE: Your BIOS must be set to allow hot swapping of disks
+for both the _primary_ and _secondary_ controllers.
+
+. If a rotation hasn't just been completed, perform one (as an extra backup)
+. Before proceeding verify that there is no recovery in progress, check with _mdstat_
+. Shutdown the system, e.g., `shutdown -h now`
+. Key-off the _primary_ slot
+. Reboot (_primary_ keyed-off, _secondary_ keyed-on)
+. Install and test the update
++
+The update and testing will occur on the secondary disk only.
+
+[TIP]
+====
+
+If an update is relatively minor or the envisaged testing is intended to be
+of short duration and success is likely, expert users may wish to make use of the
+_drop_primary_ script to split the RAID pairing in place of the reboot cycle method
+described above. Note that some (hopefully minor) data loss is possible on the
+primary (backup) disk as it is removed from the RAID whilst all the filesystems
+are still mounted read/write. Hence this script should only be used on a unloaded
+or single-user system.  The advantage of using this script is that returning the
+system to normal operation after a successful update requires only the use of
+_recover_raid_ - no reboot is required at all.
+
+WARNING: Do _NOT_ use the _drop_primary_ script for kernel updates or any other
+such testing that could affect _grub_ and/or require you to reboot in order
+to evaluate the success thereof.
+
+====
+
+If the update is deemed _successful_:
+
+[start=7]
+. Key-on the _primary_ slot
+. Run _recover_raid_ to add the _primary_ slot disk back into the RAID.
++
+The _recover_raid_ script will fail if the disk hasn't spun up and been recognized by the kernel. It is perfectly
+fine to try several times until it succeeds.
+
+. Once the recovery completes (this may only take a few minutes), reboot the system.
++
+This step is necessary to return the disk in the primary slot to be _sda_.
+
+. Once the system has booted, the system has been successfully updated.
+
+Alternatively, if the update is deemed to have _failed_, the system can be
+ recovered as follows:
+
+[start=7]
+. Shutdown the system, e.g., `shutdown -h now`
+. Key-off the _secondary_ slot
+. Key-on the _primary_ slot
+. Reboot (_primary_ keyed-on, _secondary_ keyed-off)
+. Run _blank_secondary_
+. Key-on the _secondary_ slot when prompted
+. Answer `*y*` to blank
+. Run _refresh_secondary_
+. Once the refresh is complete (this may take several hours), you have recovered to the original state.
++
+The system can be used for operations while the refresh is in progress.
+
+== Recover from a shelf disk
+
+The section describes how to recover from a _good_ shelf disk. This
+might be needed, e.g., if it is discovered that a problem has
+developed on the RAID pair since the last disk rotation. This might be
+due to a bad update of some type or some other problem.
+
+TIP: Before using this procedure, it should be considered whether the
+damage is extensive enough to require starting over from the shelf
+disk or whether it can be reasonably repaired in place.
+
+IMPORTANT: This will only produce a good result if the shelf disk is
+a _good_ copy.
+
+WARNING: Do _not_ use this procedure if a problem with computer caused
+the damage to the RAID.
+
+NOTE: Your BIOS must be set to allow hot swapping of disks,
+particularly for the _secondary_ controller (it should also be set for
+the _primary_ controller).
+
+. Shutdown the system, e.g., `shutdown -h now`
+. Take the disks from both the _primary_ and _secondary_ slots, set them aside.
+. Insert the _good_ shelf disk in the _primary_ slot, keyed-on.
+. Insert the disk that is next in cyclic order (from the ones set aside)  in the _secondary_ slot, keyed-off.
+. Reboot (_primary_ keyed-on, _secondary_ keyed-off)
+. Run _blank_secondary_
+. Key-on the _secondary_ slot when prompted
+. Answer `*y*` to blank
+. Run _refresh_secondary_
++
+Once the refresh has entered the recovery phase (the progress display is being shown onscreen), the system can
+be used for operations, if need be. In that case, the rest of this procedure can be completed when time allows.
+. Wait until the RAID is not recovering, check with _mdstat_
+. Shutdown the system, e.g., `shutdown -h now`
+. Take the disk from _primary_ slot, put it on the _shelf_
+. Move the disk from the _secondary_ slot to the _primary_ slot, keyed-on
+. Insert the remaining disk, that was set aside, in the _secondary_ slot, keyed-off.
+. Reboot (_primary_ keyed-on, _secondary_ keyed-off)
+. Run _blank_secondary_
+. Key-on the _secondary_ slot when prompted
+. Answer `*y*` to blank
+
+. Run _refresh_secondary_
+
++
+
+Once the refresh has entered the recovery phase (the progress display
+is being shown onscreen), the system can be used for operations, if
+need be.
+
+. When the refresh is complete, you have recovered to the state of the
+previous _good_ _shelf_ disk.
+
+== Initialize a new disk
+
+If one or more of the disks in the set for the RAID fails, you can
+initialize new ones to replace them.
+
+IMPORTANT: The new disks should be at least
+as large as the smallest of the remaining disks.
+
+The sub-sections below cover various scenarios for initializing one new
+disk to complete a set of three, i.e., one of three disks in a set has
+failed. It is assumed that you want to maintain the cyclic numbering
+of the disks for rotations (but that is not required). It should be
+straightforward to adapt them to other cases.
+
+If you need to initialize more than one disk, please follow the
+instructions in the <<installation.adoc#_setup_additional_disk,Setup
+additional disk>> section of the FSL10 Installation document.
+
+=== Currently two disks are running in the RAID
+
+This case corresponds to not having a good shelf disk.
+
+. Wait until the RAID is not recovering, check with _mdstat_
+. Shutdown the system, e.g., `shutdown -h now`
+
+If the disks are in cyclical order (i.e., primary, secondary are
+numbered in order: 1, 2, or 2, 3, or 3, 1), you should:
+
+. Take the disk from _primary_ slot, put it on the _shelf_
+. Move the disk from the _secondary_ slot to the _primary_ slot, keyed-on
+
+If the disks are not in cyclical order (i.e., primary, secondary are
+numbered in order: 1, 3, or 2, 1, or 3, 2), you should:
+    
+. Take the disk from _secondary_ slot, put it on the _shelf_
+    
+In either case, finish with:
+
+. Put the new disk in the _secondary_ slot, key-off.
+. Boot (_primary_ keyed-on, _secondary_ keyed-off)
+. Run _blank_secondary_
+. Key-on the _secondary_ slot when prompted
+. Answer `*y*` to blank
+. Run _refresh_secondary_
+. Once the refresh is complete, the disk can be used normally
+. Label the new disk with its system name, number, and serial number.
+
+=== Currently one disk is running in the RAID, but two are installed
+
+In this case, there is a good shelf disk. The strategy used avoids overwriting it until there are three functional disks again.
+
+. Use _mdstat_ to determine which disk is running, compare the serial number to those shown on the labels or inspect the disks to determine their serial numbers.
+. Shutdown the system, e.g., `shutdown -h now`
+. Remove the non-working disk.
+. Move the working disk to the _primary_ slot, if it isn't already there, keyed-on.
+. Put the new disk in the _secondary_ slot, keyed-off.
+. Boot (_primary_ keyed-on, _secondary_ keyed-off)
+. Run _blank_secondary_
+. Key-on the _secondary_ slot when prompted
+. Answer `*y*` to blank
+. Run _refresh_secondary_
+. Once the refresh is complete, the disk can be used normally
+. Label the new disk with its system name, number, and serial number.
+
+If the disks are not in cyclical order (i.e., primary, secondary are
+numbered in order: 1, 3, or 2, 1, or 3, 2), on the next disk rotation
+you should move the _secondary_ disk to the shelf instead of moving
+the _primary_.
+
+=== Currently one disk is installed and running
+
+In this case, the shelf disk is assumed to be healthy, but older.
+ Again, the strategy is to avoid overwriting it until there is a full
+ complement of disks available.
+
+If the working disk is not in the _primary_ slot:
+
+. Shutdown the system, e.g., `shutdown -h now`
+. Move the working disk to the _primary_ slot, keyed-on.
+. Boot (_primary_ keyed-on, _secondary_ empty)
+
+Then in any event:
+
+. Put the new disk in the _secondary_ slot, keyed-off.
+. Run _blank_secondary_
+. Key-on the _secondary_ slot when prompted
+. Answer `*y*` to blank
+. Run _refresh_secondary_
+. Once the refresh is complete, the disk can be used normally
+. Label the new disk with its system name, number, and serial number.
+
+If the disks are not in not in cyclical order (i.e., primary,
+secondary are numbered in order: 1, 3, or 2, 1, or 3, 2), on the next
+disk rotation you should move the _secondary_ the shelf instead of the
+_primary_.
+
+== Script descriptions
+
+This section describes the various scripts that are used for RAID maintenance.
+
+=== mdstat
+
+This script can be used by any user (not just _root_) to check the
+status of the RAID. It is most useful for checking whether a recovery
+is in process or has ended, but is also useful for showing the current
+state of the RAID, including any anomalies.
+
+The script also lists various useful details for all block devices (such
+as disks) that are currently connected, including their model and serial
+numbers where applicable.
+
+=== refresh_secondary
+
+This can be used to refresh a _shelf_ disk for the RAID as a new
+_secondary_ disk (_sdb_) as part of a standard three (or more) disk
+rotation.
+
+Initially, the script performs some sanity checks to confirm that the
+RAID _/dev/md0_:
+
+. Exists.
+. Is not a clean state, i.e., it needs recovery.
+. Is not already recovering, i.e., is in a recoverable state.
+
+Additional checks are performed to confirm that the content the script
+intends to copy is where it expects it to be and has the right form.
+Any _primary_ disk (_sda_) will be rejected that:
+
+. Is not part of the RAID (_md0_)
+. Has a boot scheme other than the BIOS or UEFI set up as described in the FSL10 Installation Document.
+
+To ensure that only an old _shelf_ disk for this system is
+overwritten, any _secondary_ disk (_sdb_) will be rejected that:
+
+. Was loaded (slot keyed-on) before starting the script
++
+Unless overridden by `-A` or previously loaded by this or the _blank_secondary_ script.
+
+. Is already part of RAID _md0_
+
++
+Which should only happen if run incorrectly with `-A` (or other
+interfering commands have been executed) or the disk has
+fallen out of the RAID due to failure.
+
+. Has a RAID from a different computer, i.e., foreign
++
+Technically this could also be another RAID from the same computer, but not of a
+properly set up FSL10 computer, which should have only the one RAID
+
+. Has any part already mounted
++
+Again catching misuse of the `-A` option.
+
+. Has a different boot scheme than the _primary_
++
+And hence is probably from a different computer.
+
+. Has a different RAID UUID
++
+This would be a disk from a different computer. Though whether this
+check can actually trigger after the test for a foreign RAID above
+remains to be seen.
+
+. Was last booted at a future `TIME` (possibly due to a mis-set clock or clocks)
+. Has a higher `EVENT` count, i.e., is newer (but see the *WARNING* item below)
+. Has been used (booted) separately by itself
+. Has a different partition layout from the _primary_
+. Is smaller than the size of the RAID on the primary disk.
+
+If any of the checks reject the disk, we recommend you seek expert
+advice; please record the error so it can be reported.
+
+The checks are included to make the refresh process as safe as
+possible, particular at a station with more than one FSL__x__ computer.
+We believe all the most common errors are trapped, but the script
+should still be used with care.
+
+WARNING: The check on the `EVENT` counter is intended to prevent accidentally using
+the _shelf_ disk to overwrite a newer disk from the RAID.  This check can be
+over-run if the _primary_ has run for a considerable period of time
+before the refresh is attempted.  This should not be an issue if the
+refresh is attempted promptly after the _shelf_ disk is booted for the
+first time by itself and the RAID was run on the other disks for more than a trivial
+amount of time beforehand.
+
+If the disk being refreshed is from the same computer and has just
+been on the _shelf_ unused since it was last rotated, it is safe to
+refresh and should be accepted by all the checks. In other words,
+        normal disk rotation should work with no problems.
+
+If the _primary_ and/or _secondary_ disks are removable, the user will
+be provided with some information about the disks and given an
+opportunity to continue with kbd:[Enter] or abort with kbd:[Ctrl+C].
+Typically, if a USB disk is identified as the _primary_ or
+_secondary_, one would not want to continue. However for some
+machines, the SATA disks that are the _primary_ and/or _secondary_ may
+be marked removable if they are hot swappable, but would still be
+appropriate to use.
+
+This script requires the _secondary_ disk (_sdb_) to not be loaded, i.e.,
+the slot turned off, when the script is started. However, it has an
+option, `-A` (use only with expert advice), to "`Allow`" an already
+loaded disk to be used. It is intended to make remote operation
+possible and must be used with extra care.
+
+If the disk is turned on (when prompted) during the script, it
+will automatically be "`Allowed`" by both this script and
+_blank_secondary_, which also supports this feature.  This allows
+(expert use only), after a failed _refresh_secondary_, running
+_blank_secondary_ then rerunning _refresh_secondary_, all without having to
+shutdown, turn the disk off, reboot, start the script, and turn the disk on for each.
+
+The refresh will take several hours. The script provides a progress
+indicator that can safely be aborted (using kbd:[Ctrl+C] as described
+    by the on-screen instructions) if that is preferred.  An active
+screen saver may make it difficult to see the progress after awhile,
+       but pressing kbd:[shift] or some other key should make it
+       visible again.  If you abort the progress indicator, you can
+       check the progress later with _mdstat_. The system can be used
+       normally while it refreshing, but it may be a little slow.
+
+Once the progress indicator is updating, it is safe to reboot the
+computer if it is needed.
+
+=== blank_secondary
+
+This script should only be used with expert advice.
+
+It can be used to make _any_ _secondary_ disk (_sdb_) refreshable, if
+it is big enough. It must be used with care and only on a _secondary_
+disk that you know is safe to erase. Generally speaking you don't want
+to use it with a disk from a different FSL__x__ computer, except for very
+unusual circumstances, see <<Recovery scenarios>> section for some example
+cases. It will ask you to confirm before blanking.
+
+It will reject any _secondary_ disk (_sdb_) that:
+
+. Was loaded (slot keyed-on) before starting the script
++
+Unless you have just loaded it through _refresh_secondary_'s auspices or used
+the `-A` option to "`Allow`" it (see below).
+
+. Is still part of the RAID _md0_
+
++
+Which should only happen if run incorrectly with `-A` (or other
+interfering commands have been executed).
+
+. Has any partition already mounted
++
+Again catching misuse of the `-A` option.
+
+. Has a partition that is in RAID _md0_
+
++
+
+This is essentially redundant with the "`Is still part of the RAID
+_md0_`" check above, but is included out of an abundance of caution.
+
+. Has a partition that is included in any RAID.
+
+If the _primary_ disk is removable, the user will be provided with some
+information about the disk and given an opportunity to continue with
+kbd:[Enter] or abort with kbd:[Ctrl+C].  Typically, if a USB disk is
+identified as the _primary_, one would not want to continue. However
+for some machines the SATA disk that is the _primary_ may be marked
+removable if it is hot swappable, but would still be appropriate to
+use. 
+
+This script requires the _secondary_ disk (_sdb_) to not be loaded, i.e.,
+the slot turned off, when the script is started. However, it has an
+option, `-A` (use only with expert advice), to "`Allow`" an already
+loaded disk to be used. It is intended to make remote operation
+possible and must be used with extra care.
+
+If the disk is turned on (when prompted) during the script, it will
+automatically be "`Allowed`" by both this script and
+_refresh_secondary_, which also supports this feature.  This allows
+you to then run _refresh_secondary_ immediately without having to
+shutdown, turn the disk off, reboot, start the script, and turn the disk on.
+
+NOTE: On the 32-bit _i386_ platform, due to a broken _vgremove_ binary, this
+script can give WARNINGs when erasing disks that were used for LVM.  These
+warnings can safely be ignored - the disk will be successfully blanked (despite
+_vgremove_ having segmentation-faulted instead of performing the requisite
+action thereby causing _pvremove_ to complain about the VG still being active.)
+
+=== drop_primary
+
+This script is only for use with expert advice.
+
+This script can be used to drop a _primary_ disk (_sda_) out of a RAID
+pair (by marking it as failed) so that it can act as a safety backup
+during major upgrades or other significant changes.
+
+Initially, the script performs some sanity checks to confirm that the
+RAID _/dev/md0_:
+
+. Exists.
+. Is in a clean state, i.e., both disks are present and no recovery is
+  currently in progress.
+. Contains the _primary_ disk (_sda_) as a member.
+
+If the _primary_ disk is removable, the user will be provided with some
+information about the disk and given an opportunity to continue with
+kbd:[Enter] or abort with kbd:[Ctrl+C].  Typically, if a USB disk is
+identified as the _primary_, one would not want to continue. However
+for some machines the SATA disk that is the _primary_ may be marked
+removable if it is hot swappable, but would still be appropriate to
+use. 
+
+NOTE: This script is non-destructive in nature and its effect can 
+easily be reversed by running the _recover_raid_ script mentioned
+below.
+
+=== recover_raid
+
+This script is only for use with expert advice.
+
+This script can be used to recover a disk (_sda_ or _sdb_) that has
+fallen out of the RAID array, becoming _inactive_.  A disk can _fall_ out of
+the array for several possible reasons, including:
+
+. A real disk fault of some sort, including one caused by turning it off
+  whilst it is still in use.
+. Using the _mdadm_ command with `-f` option to mark it as faulty.
+. Turning it off whilst the system is shutdown and booting without it.
+
+. Using the _drop_primary_ script.
+
+This script is designed to be used only with a
+set of disks that were most recently used _together_ in an active
+RAID.  It is recommended only to use this script if the key switches
+for the disks have not been manipulated since the _inactive_ disk fell
+out of the RAID; in this case it should always be safe.
+
+NOTE: The _inactive_ disk is either _failed_ or _missing_. It is
+_failed_ if it was either marked _failed_ by hand or dropped out of the RAID due to disk errors.
+It is _missing_ if either the system was rebooted with the disk
+_failed_ or physically missing or it was manually marked _removed_.  You
+can check which state an _inactive_ disk is in  with
+`*mdadm{nbsp}--detail{nbsp}/dev/md0*` -- which lists _failed_ as
+_faulty_ but a missing disk will not appear at all.
+
+NOTE: The _active_ disk is the one the system is still running on.
+
+TIP: It is okay to use this script even if the _inactive_ disk fell out
+the RAID a (long) long time ago (in a galaxy far, far away) and/or
+there have been extensive changes to the _active_ disk.
+It is also okay to use if the system
+was rebooted (even multiple times) or the _active_ disk was used
+(booted) separately by itself since the _inactive_ disk fell out of the
+RAID. 
+
+WARNING: This script must _NOT_ be used if the _inactive_ disk has
+been changed in any way e.g., by being used (booted) separately (which is
+    caught by the script) or refreshed against some other disk, or if
+the _active_ disk has been used to refresh any other disk in the
+interim.  In particular, the script must _NOT_ be used to refresh a
+_shelf_ disk -- only use _refresh_secondary_ for that purpose.
+
+It normally works on _md0_, but a different _md_ device can be specified as the first argument.
+
+It will refuse to recover the RAID if the RAID:
+
+. Does not need recovery
+. Is not in a recoverable state, e.g., is already recovering
+
+or if any _missing_ disk:
+
+[start=3]
+. Has a later modification `TIME` than the _active_ disk
+. Has a higher `EVENT` count, i.e., is newer,  than the _active_ disk
+. Has been used (booted) separately (as mentioned above in the *WARNING* item)
+
+or if no matching _missing_ disk can be found.
+
+The recovery may be fairly quick, as short as a few minutes, if the
+_inactive_ disk is relatively fresh.
+There is an ongoing progress display that can be
+terminated early with kbd:[Ctrl-C], without affecting the recovery.
+If you abort the progress indicator, you can check the progress with _mdstat_. The
+system can be used normally while it recovering, but it may be a
+little slow.
+
+=== raid-events
+
+The _mdmonitor_ service can be configured to use the _raid-events_
+script to send email reports on RAID rebuilds and checks. This is most
+useful for getting reports for the start and end of a RAID build
+triggered by _refresh_secondary_. The script will also report on the
+start and end of any other RAID rebuilds, including those triggered by
+the _recover_raid_ script. Checks are triggered periodically to verify
+the integrity of the RAIDs.
+
+The emails are sent to _root_, then typically redirected to _oper_,`
+and then forwarded to off-system accounts that may have their email
+read more frequently. There are four different possible subject lines
+used in the emails:
+
+* `Rebuild Running on _device_`
+
++
+
+NOTE: Sometimes for a rebuild started by _refresh_secondary_, this
+message may be sent about 20 minutes after the rebuild has started.
+The cause of this is not entirely understood, but the message is
+eventually sent.
+
+* `Rebuild Ended _state_ on _device_`
+
+* `Check Running on _device_`
+
+* `Check Ended _state_ on _device_`
+
+where:
+
+* `_device_` is the RAID device, e.g., _/dev/md/0_
+
+* `_state_` is `OKAY` if the final state was not degraded; `DEGRADED`,
+if it was degraded.
+
+The body of each email is the output of the _mdstat_ script at the
+time the message was sent.
+
+==== Checks
+
+The _checking_ process is triggered by _/etc/cron.d/mdadm_ on
+the first Sunday of each month. It uses the
+_/usr/share/mdadm/checkarray_ script and takes a similar amount of time
+as a rebuild of the RAID triggered by _refresh_secondary_.
+
+==== Installing raid-events
+
+To install the script, use the following commands as _root_:
+
+```
+cd /usr/local/sbin
+cp ~/fsl10/RAID/raid-events .
+chmod u+x raid-events
+cat <<EOF >>/etc/mdadm/mdadm.conf
+
+PROGRAM /usr/local/sbin/raid-events
+EOF
+```
+
+And then reboot.
+
+==== Disabling checking
+
+If the checking process causes performance problems at inconvenient
+times, there are at least three options for dealing with it:
+
+* Disable the `AUTOCHECK` option in _/etc/default/mdadm_
+
++
+
+This is suitable if the RAID is rebuilt monthly using
+_refresh_secondary_. In this case, the check is superfluous.
+
+* Change the time at which it runs as configured in
+_/etc/cron.d/mdadm_
+
+* Cancel a running check, with:
+
+  /usr/share/mdadm/checkarray --cancel --all
+
+=== refresh_spare_usr2
+
+This script is not part of RAID operations per se, but is included in
+this document for completeness. In a two system configuration
+(_operational_ and _spare_), it is used to make a copy of the
+_operational_ system's _/usr2_ partition on the _spare_ system.
+Normally this partition holds all the operational FS programs and
+data.
+
+A full description of the features of the script are available from
+the `*refresh_spare_usr2{nbsp}-h*` output.
+
+IMPORTANT: This script should be installed on the _spare_ system _only_.
+
+[TIP]
+====
+
+A recommended monthly backup strategy is to do a disk rotation on both
+systems. Once the RAIDs on both systems are _recovering_ you can
+log-out of both systems and then login into the _spare_ system again
+to start _refresh_spare_usr2_.
+
+While a _refresh_spare_usr2_  with two nearly synchronized _/usr2_
+partitions is fairly fast, the recovery of the RAIDs may increase the
+amount of time required by about a factor of three.
+
+Once _refresh_spare_usr2_ completes, it is safe to reboot, even if a
+recovery is still ongoing. The only requirement is to reboot the
+_spare_ system before the FS is run on it again.
+
+A feature of this approach is that it will make the _spare_ system
+shelf disk a deeper back-up than the _spare_ system RAID disks.
+
+====
+
+==== Installing refresh_spare_usr2
+
+WARNING: For this script to work most usefully, the _operational_ and
+_spare_ systems should have the same set-up including particularly the
+same user accounts with same UIDs and GIDs in parallel for all
+accounts, particularly for those that have home directories on
+_/usr2_, as well as other OS set-up information the FS may depend on
+such as _/etc/hosts_ and _/etc/ntp.conf_.
+
+TIP: If you are unwilling or unable to use the _forced command_
+approach below for the _root_ account, you may find the approach of
+using _sudo_ in a regular account a usable alternative. For details on
+that approach, please see the
+<<cis-setup.adoc#_installing_refresh_spare_usr2_with_cis_hardening,Installing
+refresh_spare_usr2 with CIS hardening>> subsection of the
+<<cis-setup.adoc#,CIS Hardening for FSL10>> document.
+
+All the steps below must be performed as _root_ on the specified
+system. You should read all of each step or sub-step before following
+it.
+
+. On the _spare_ system:
+
+.. Install _refresh_spare_usr2_. Execute:
+
+  cd /usr/local/sbin
+  cp -a /root/fsl10/RAID/refresh_spare_usr2 refresh_spare_usr2
+  chown root.root refresh_spare_usr2
+  chmod a+r,u+wx,go-wx refresh_spare_usr2
+
+.. Customize _refresh_spare_usr2_, following the directions in the
+comments in the script:
+
+... Comment-out the lines (add leading ``#``s):
+
++
+
+....
+echo "This script must be customized before use.  See script for details."
+exit 1
+....
+
+... Change the `operational` in the line:
+
++
+
+....
+remote_node=operational
+....
+
++
+
+to the alias (preferred), FQDN, or IP address of your _operational_
+system.
+
++
+
+.. Create and copy a key for _root_. Execute:
+
++
+
+[subs="+quotes"]
+----
+ssh-keygen
+ssh-copy-id root@_operational_
+----
+
++
+
+where `_operational_` is the alias, name, or IP of your _operational_
+system.
+
++
+
+NOTE: If _root_ already has a key, you only need the second command
+above to copy it to the _spare_ system.
+
++
+
++
+
+TIP: It is recommended to not set a passphrase.
+
+. On the _operational_ system:
+
+.. Install the _rrsync_ script. Execute:
+
++
+
+....
+gunzip -c /usr/share/doc/rsync/scripts/rrsync.gz >/usr/local/bin/rrsync
+ln -s /usr/local/bin/rrsync /usr/bin/rrsync
+chmod u+x,go-x /usr/local/bin/rrsync
+....
+
+.. Set the _root_ account to only allow a _forced command_ with _ssh_:
+
+... Replace the `ssh-rsa` at the start of the line (probably the only
+one) in _~root/.ssh/authorized_keys_ for the _root_ account on the
+_spare_ system with:
+
++
+
++
+
++
+
+`command="rrsync -ro /usr2" ssh-rsa`
+
++
+
++
+
++
+
+TIP: If your _spare_ system is registered with DNS, you can provide
+some additional security by adding ``from="__node__" `` {nbsp}(note
+the trailing space) at the start of the line, where `__node__` is the
+FQDN or IP address of the _spare_ system.  It may be necessary to
+provide the FQDN, IP address, and/or alias of the _spare_ system in a
+comma separated list in place of  `__node__` to get reliable
+operation.
+
+... Set _sshd_ to only allowed forced commands for _root_ by
+un-commenting the `PermitRootLogin` line and changing the second field
+from `prohibit-password` to `forced-commands-only`.
+
+... Restart `_sshd_. Execute:
+
+  systemctl restart sshd
+
+==== Using refresh_spare_usr2
+
+. As part of a monthly backup, you would usually start a disk rotation
+on both the _operational_ and _spare_ systems first. Once both systems
+are recovering, you should log out of both systems.
+
++
+
+IMPORTANT: Before proceeding, make sure that no one is logged into
+either system and that no processes are running on _/usr2_ on either
+system, particularly the FS.
+
+. Login on the _spare_ system. The best choice for this is as _root_
+on a local virtual console text terminal.
+
++
+
+TIP: Logging in as a non-_root_ user is acceptable. Any means can be
+used: a text console, _ssh_ from another system (preferably not the
+_operational_ system), or the graphics X display. In these cases, you
+must promote to _root_ using _su_ (or execute the script with _sudo_
+for CIS hardened systems).
+
+. Execute the script:
+
+  refresh_spare_usr2
+
++
+
+Answer the question `*y*` if it is safe to proceed.
+
++
+
+. Log out of the system.
+
+. Wait until the script has finished before logging in again and
+resuming other activities on the systems.
+
++
+
+An email will be sent to _root_ when the script finishes. If your
+email to _root_ is being forwarded to a mailbox off the system, you
+can use receipt of that message (and that it shows no errors) as the
+indication that it finished successfully.
+
++
+
+Alternatively, you can examine the logs (before starting the script)
+in _/root/refresh_spare_usr2_logs_ to see how long previous script
+uses took. When at least that much time has elapsed, you can login
+and can check the log for the current script use to verify that it has
+finished.
+
++
+
+[CAUTION]
+====
+
+Generally speaking, it is best to _not_ login to either the _spare_ or
+_operational_ system while the script is running. Under normal
+circumstances the script should run quickly enough that this does not
+cause a significant burden. If it is necessary to login to either
+system, the following paragraphs in this *CAUTION* cover the relevant
+considerations.
+
+If you do login to the _spare_ system, it is best to _not_ use an
+account with a home directory on the _/usr2_ partition (logging in as
+_root_ on a text console is okay) or otherwise access that partition
+while the script is running. In any event, activity on _/usr2_ should
+be minimized.
+
+It is possible to use the _operational_ system while the script is
+running if necessary, but this should be avoided if possible and
+activity on the _/usr2_ partition should be minimized. You should not
+expect any changes on the _operational_ system _/usr2_ that occur
+after the script starts to be propagated to the _spare_ system. If any
+files are deleted before they can be transferred, there will be a
+warning `file has vanished: "_file_"`, for each such `_file_`, and
+there will be a summary warning that starts with `rsync warning: some
+files vanished before they could be transferred`, but without
+additional warnings or errors, the transfer should otherwise be
+successful.
+
+In case you have logged into either system while the script is
+running, you can touch-up the copy on the _spare_ system, by rerunning
+the script after logging out.
+
+====
+
+. If the script finished with no problems, you can reboot the _spare_
+system as soon as is convenient. You may reboot even if the RAID is
+recovering, but you can wait until the recovery is complete. The only
+requirement is to reboot before the FS is run again on the _spare_
+system.
+
+== Multiple computer set-up
+
+You may have more than one FSL10 computer at a site, either an
+_operational_ and _spare_ for one system and/or additional computers for a
+additional systems. In this case, we recommend that you do a full setup of
+each computer from scratch from FSL10 installation notes. The main, but not only,
+reason for this is to make sure each RAID has a unique UUID, so the
+_refresh_secondary_ script will be able to help you avoid accidentally
+mixing disks while doing a refresh. While in principle is it possible
+to do one set-up and clone the configuration to more disks and then
+customize for each computer, we are not providing detailed
+instructions on how to do that at this time.
+
+It is recommended that the network configuration on each machine be
+made independent of the MAC address of the hardware. This will make it
+possible to move a RAID pair to a different computer and have it work
+on the network. Please note that the IP address and hostname is tied to
+the disks and not the computers. For information on how to configure this,
+    please see the (optional) <<installation.adoc#_network_configuration_changes,Network configuration changes>> section
+    of the FSL10 installation document.
+
+The configuration of the system outside of the _/usr2_ partition
+between _operational_ and _spare_ computers should be maintained in
+parallel so that the same capabilities are available on both. In
+particular, any packages installed on one should also be installed
+on the other.  In addition, it is important that the user and group
+IDs of all users on the operational and spare computers be same. It
+should not be necessary to maintain parallelism with OS updates, but that
+is recommended as well. It is recommended to maintain maintenance parallelism
+with other independent __operational__/__spare__ systems at a site as well (this may
+    enable additional recovery options in extreme cases).
+
+==  Recovery scenarios
+
+The setup provided by FSL10 provides several layers of recovery in
+case of problems with the computers or the disks. Each system has a
+_shelf_ disk, which can serve as a back-up. Additionally if there is a
+_spare_ computer for each _operational_ computer, there are additional
+recovery options. If there are other FSL10 computers at the site, it
+may be possible in extreme cases to press those computers and/or disks into
+service, particularly if they have been maintained in parallel.
+
+A few example recovery scenarios are described below in rough order of
+likelihood of being needed. None of them are very likely to be needed,
+particularly those beyond the first two.
+
+IMPORTANT: In any scenario, if disks and/or a computer have failed,
+  they should be repaired or replaced as soon as feasible.
+
+=== Operational computer failure
+
+This might be caused by a power supply or other hardware failure.
+If the contents of the _operational_ RAID are not damaged, the RAID pair
+can be moved to the _spare_ computer until the _operational_ computer is
+repaired. Once the RAID has been moved, whether the contents have
+been damaged can be assessed. It will be necessary to move
+connections for any serial/GPIB devices to the spare computer as well.
+
+[TIP]
+====
+
+If the disks do not connect to network after first
+booting in a different computer:
+
+. Shut the system down.
+. Remove the power cord.
+. Press and hold the power button for 15 or more seconds.
++
+The goal is drain any residual energy in the computer in order to completely
+reset the NIC.
+
+. Reboot and try again.
+
+This has been seen to solve the problem, perhaps because it forces the
+NIC to re-register with ARP. Waiting longer may also solve the problem.
+
+====
+
+=== One disk in the operational computer RAID fails
+
+This should not interrupt operations. The computer should continue to
+run seamlessly on the remaining disk.  If the system is rebooted in
+this state, it should use the working disk. At the first opportunity,
+     usually after operations, the _recover_raid_ script can be tried
+     to restore the disk to the RAID. If that doesn't work, the disk
+     may have failed and may need to replaced (it may worthwhile to
+         try blanking and refreshing it first). If the disk has
+     failed, it should be removed and a disk rotation should be
+     performed (with the still good disk in the _primary_ slot) to
+     refresh the _shelf_ disk and make a working RAID.  The failed
+     disk should be repaired or replaced with a new disk that is at
+     least as large. The _blank_secondary_ script should be used to
+     erase the new disk before it is introduced into the rotation
+     sequence. See the <<Initialize a new disk>> section above for
+     full details on initializing a new disk.
+
+=== Operational computer RAID corrupted
+
+As well as a large scale corruption, this can include recovery from
+accidental loss of important non-volatile files. This would generally
+not include _.skd_, _.snp_, and _.prc_ files; those can be more easily
+restored by generating them again. It also can be used to recover
+from a bad OS patch (which is extremely unlikely). That is easier to
+manage if the patches were applied just after a disk rotation (see
+also the <<Recoverable testing>> section).
+
+In this case, the _shelf_ disk can be used to restore the system to
+the state at the time of the most recent rotation.  To do this, follow
+the procedure in <<Recover from a shelf disk>> section above.  The
+system can be used for operations once the RAID is recovering for the
+first refresh in the procedure.  All needed volatile operational files that were
+created/modified after the last disk rotation will need to be
+recreated.  Then as time allows, the other disk can recovered by
+finishing the procedure in <<Recover from a shelf disk>> section.
+
+If the first disk that is tried for blanking and recovery doesn't work, the
+other one can be tried. If neither works, it should be possible to run on just
+what was the _shelf_ disk until a fuller recovery is possible, probably with
+replacements for the malfunctioning disks.
+
+This approach could also be used for a similar problem with the
+_spare_ computer and using its _shelf_ disk for recovery.
+
+This approach of this section should not be used if a problem with the _operational_
+computer caused the damage to its RAID. In that case, follow
+the <<Operational computer RAID corrupted and operational computer failure>> sub-section below.
+
+=== Operational computer RAID corrupted and operational computer failure
+
+This might happen if the operational computer is exposed to fire
+and/or water.  In this case, there are two options. One is switching to
+using the _spare_ computer as in the <<Loss of operational computer and all its disks>> sub-section below.
+The other is to use the _operational_ computer's
+_shelf_ disk in the _spare_ computer, either by itself or by making a
+ersatz RAID by blanking the _spare_ computer's _shelf_ disk and
+refreshing it from the _operational_ computer's _shelf_ disk.
+
+In the latter scenario, be sure to preserve the original working RAID
+from the _spare_ computer. All needed volatile operational files that
+were created/modified after the last _operational_ computer  disk
+rotation will need to be recreated.  It will be necessary to move
+connections for any serial/GPIB devices to the spare computer as well.
+However, it will not be necessary to enable any daemon's like
+_metserver_ and _metclient_ as it would be in the former scenario; this
+may be a significant time saver.
+
+=== Loss of all operational computer disks
+
+If the RAID and _shelf_ disk on the _operational_ computer are beyond
+recovery, the RAID pair from the _spare_ computer can be moved to the
+_operational_ computer. All needed volatile operational files that
+were created/modified after the last _refresh_spare_usr2_ will need to be
+recreated. If daemons like _metserver_ and _metclient_ are needed,
+  they will need to be enabled.
+
+This approach should not be used if a problem with the _operational_
+computer caused the damage to its RAID. In that case, follow the
+<<Operational computer RAID corrupted and operational computer failure>> sub-section above.
+
+=== Loss of operational computer and all its disks
+
+In this case, operations should be moved to the _spare_ computer until
+the _operational_ computer is repaired or replaced.  It will be
+necessary to move connections for any serial/GPIB devices to the
+_spare_ computer as well. If daemons like _metserver_ and
+_metclient_ are needed, they will need to be enabled. All needed
+volatile operational files that were created/modified after the last
+_refresh_spare_usr2_ will need to be recreated.
