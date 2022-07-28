@@ -18,45 +18,64 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 //
 
+:doctype: book
+
 = CIS hardening for FSL11
 :sectnums:
 :experimental:
+:toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.7.0 - July 2022
+Version 1.7.1 - July 2022
 
 == Introduction
 
 These notes detail adding extra security features to Field System
-Linux _10_ as advised by Center for Internet Security (CIS). With the
-exception of the partition configuration, all actions are to be
-performed post-installation (see the <<installation.adoc#,FSL10
-      Installation>> document). All tests that failed, topics that need
-to be discussed, and issues with the benchmark remediations are
-provided in separate sections. A final section covers additional
-steps that are needed for FS operations.
+Linux _11_, FSL11, as advised by Center for Internet Security (CIS).
+This is provided as an option for sites that might need additional
+security.
 
-This document  is based on the results for the "`CIS Debian Linux 9
+At the time of this writing, there is no CIS security benchmark for
+Debian _11_, which is what FSL11 is based on. Instead, the latest
+benchmark for Debian _10_ was used. Although this is not technically
+correct, the changes in the benchmark for Debian _10_ compared to
+Debian _9_ were relatively minor; primarily removal of items. It seems
+plausible that the Debian _10_ benchmark will be adequate for Debian
+_11_. In fact, all of the items that fail for FSL11 are either things
+that are required for  FS operation, items that appear to actually be
+secure despite the benchmark not recognizing them as such, and one
+change since Debian _10_ that we worked around.  However, we don't
+know what additional checks will be in Debian _11_ benchmark.
+
+With the exception of the partition configuration, all actions are to
+be performed post-installation (see the <<installation.adoc#,FSL10
+Installation>> document). Applying the remediations, the exceptions
+that are still present, all tests that failed, and problems with the
+benchmark remediations are provided in separate sections below. An
+appendix covers additional setup that is needed for FS operations
+after the remediations have been applied.
+
+This document  is based on the results for the "`CIS Debian Linux 10
 Benchmark v1.0.0 - Level 2 - Server`".
 
-== Partition Configuration
+== Applying CIS remediations
 
 === Installation partition configuration
 
 During installation, be sure to create the logical volumes marked
-optional during the partition section.
+optional in the partition setup section.
 
-== Post-installation changes
+=== Post-installation remediations
 
 All commands need to be run as _root_.
 
-=== Scripted changes
+==== Scripted remediations
 
-As many changes as possible are implemented by the _remediate_ script.
-The script is intended to be run after the "`Third Stage Installation`"
-steps in the FSL10 instructions, before any further changes have been
-made to the system (however initializing and adding other disks to the
-RAID can intervene).
+As many remediations as possible are implemented by the _remediate_
+script.  The script is intended to be run after the "`Third Stage
+Installation`" steps in the FSL10 instructions, before any further
+changes have been made to the system (however initializing and adding
+other disks to the RAID can intervene).
 
 ....
 cd /root/fsl10
@@ -73,76 +92,26 @@ went wrong if the script fails. The script itself uses the `-x` option
 to echo the commands as they are executed to make it easy to match the
 output with the commands being executed.
 
-=== Manual changes
+==== Reboot
 
-This section covers manual operations that are required _after_ running the script.
+The system should be rebooted to make sure all the remediations have
+been applied. Some aren't enforced until a reboot.
 
-1. Reboot and execute:
-+
-....
-aa-enforce /etc/apparmor.d/*
-....
+After the reboot, all the CIS remediations that can applied at this
+point have been completed. The next subsection describes some other
+policies that can be considered.
 
-All the CIS remediations that can applied at this point have been
-completed. The next section describes some other policies that can be
-considered.
+=== CIS issues that need to be addressed
 
-=== Other policies
+:sectnums!:
 
-This section describes other policies that may be desirable. Some
-are beyond the CIS benchmark.
+This section lists further topics related to the benchmark that should
+be discussed. The items are listed by benchmark section numbers.
 
-==== /etc/hosts.deny
+==== 1.5.2 Ensure bootloader password is set
 
-Add:
-
-....
-ALL:ALL
-....
-
-==== /etc/hosts.allow
-
-Add:
-
-....
-sshd:ALL
-....
-
-It is recommended that you further restrict _sshd_ to specific hosts and/or
-sub-domains.
-
-==== Password policies
-
-You may wish to set minimum password length to 12.
-
-You may wish to set password reuse remember to 24.
-
-==== Set remote log host and/or retention to a minimum of one year
-
-You may wish to configure a remote log host and/or set log retention
-period to at least one year.
-
-To set a remote log host, edit the _/etc/rsyslog.conf_ and
-_/etc/rsyslog.d/*.conf_ files and add the following line (where
-_loghost.example.com_ is the name of your central log host).
-
-....
-*.* @@loghost.example.com
-....
-
-Run the following command to reload the rsyslogd configuration:
-
-....
-kill -HUP rsyslogd
-....
-
-Set the retention period of system logs by editing
-_/etc/logrotate.d/rsyslog_. This should be configured to store logs
-for at least a minimum of a year (366 for daily 53 for weekly)..
-
-==== Bootloader password
-
-You may wish to create an encrypted password with grub-mkpasswd-pbkdf2:
+You may wish to create an encrypted password with
+grub-mkpasswd-pbkdf2:
 
 ....
 grub-mkpasswd-pbkdf2
@@ -151,8 +120,9 @@ Reenter password: <password>
 Your PBKDF2 is <encrypted-password>
 ....
 
-Add the following into _/etc/grub.d/00_header_ or a custom
-_/etc/grub.d_ configuration file:
+Add the following into  a custom _/etc/grub.d_ configuration file
+(don't use _/etc/grub.d/00_header_ as it can be overwritten by a
+package update):
 
 ....
 cat <<EOF
@@ -168,8 +138,8 @@ line `CLASS=`
 IMPORTANT: It is strongly recommended that booting without a password
 be permitted. Otherwise, if a reboot is required to continue
 operations it will not be possible unless some one with the password
-is available. If they aren't available, this could lead to loss of
-VLBI data and can be a safety issue.
+is available. If they aren't available, this could lead to a safety
+issue or loss of VLBI data.
 
 Example:
 
@@ -185,137 +155,283 @@ update-grub
 chmod go-rwx /boot/grub/grub.cfg
 ....
 
-== CIS Exceptions
+==== 1.8.1.2 Ensure the local login warning banner is configured properly
 
-This section addresses the tests that failed in the CIS benchmark
-after all the remediations in this document were applied.
+You may want to update _/etc/issue_ to have a more tailored message
+with sterner warnings. The message must not include use of `\m`, `\r`,
+`\s`, `\v`, or references to the OS platform.
 
-=== 1.4.2 Ensure bootloader password is set
+==== 1.8.1.3 Ensure the remote login warning banner is configured properly
 
-Must be set later by administrators.
+You may want to update _/etc/issue.net_ to have a more tailored
+message with sterner warnings. The message must not include use of
+`\m`, `\r`, `\s`, `\v`, or references to the OS platform.
 
-=== 2.2.2 Ensure X Window System is not installed
+==== 1.8.2 Ensure GDM login banner is configured properly
 
-X Window system is required for FS use.
+You may want to update _/etc/gdm3/greeter.dconf-defaults_ to have a
+more tailored message with sterner warnings.
 
-=== 2.2.4 Ensure CUPS is not enabled
+If desired, you can remove the Debian logo from the GUI login page by
+renaming the file specified for the `logo` option of the
+`[org/gnome/login-screen]` section in
+_/etc/gdm3/greeter/dconf-defaults_. For example, if appropriate, you
+might use:
 
-CUPS is required for operations.
+ cd /usr/share/images/vendor-logos
+ mv logo-text-version-64.png logo-text-version-64.png.bak
 
-=== 2.2.11 Ensure IMAP and POP3 server is not enabled
+If desired, you can remove the Debian logo from the _grub_ menu by
+renaming the file specified for in the `if` clause for the
+`background_image` file in the `/etc/grub.d/05_debian_theme` section
+of _/boot/grub/grub.cfg_. For example, if appropriate, you might use:
 
-Exim4 is required as MTA; it never accepts incoming remote connections
-(blocked at firewall).
+ cd /usr/share/desktop-base/homeworld-theme/grub
+ mv grub-4x3.png grub-4x3.png.bak
 
-=== 3.5 Firewall Configuration
+[IMPORTANT]
+====
 
-The firewall is configured with _ufw_ instead of _iptables_ and
-_ip6tables_. This causes four to six issues depending on the details
-of the installation, but _ufw_ provides the same security as the
-recommended remediations. The configuration is set to by default deny
-for incoming connections, enable incoming SSH connections, and sets
-logging for all connections. Setup:
+Caveat Emptor! The changes below in this *IMPORTANT* section may not
+be safe. Even if they appear to be successful, they may case problems
+later. The problems may include failure of automatic updates. They may
+also need to be reinstalled after updates.
 
-....
-apt-get -y install ufw
-ufw allow OpenSSH
-ufw logging on
-ufw --force enable
-....
+After making any or all of these changes, it is necessary to execute:
 
-=== 4.2.1.4 Ensure rsyslog is configured to send logs to a remote log host
+ update-grub
 
-A remote log server must be configured by system administrators later.
-	
-=== 4.2.4 Ensure permissions on all logfiles are configured
+for them to take effect.
 
-All files except _/var/log/wtmp_ have the requested permissions. That
-file changes on a reboot to `rw-rw-r--`, owned by `root.wtmp`. No
-sensitive information is stored in the file and making it readable for
-others allows commands like _last_ and _who_ to work.
+. In principle, you can remove the `Debian` label from the _grub_ boot
+menus by editing _/etc/default/grub_ and inserting a line:
 
-=== 5.2.6 Ensure SSH X11 forwarding is disabled
+ GRUB_DISTRIBTOR=FSL11
 
-We require _ssh_ X11 forwarding for use with FS for remote operations
-and testing.
++
 
-=== 5.4.2 Ensure system accounts are non-login
+immediately after the existing `GRUB_DISTRIBUTOR=...` line.
 
-System accounts (i.e., accounts with `UID` less than `1000`) _oper_
-and _prog_ are needed for compatibility with the wider VLBI community
-and are only used as service accounts from AUID accounts. They require
-a valid shell, but direct local login and _ssh_ login (including with
-    keys) are disabled for these two accounts. Note that _oper_ and
-_prog_ have no password expiration (they has no passwords) or
-inactivity time-out, like other system accounts.
+. In principle, you can remove the `GNU/Linux` label from the _grub_
+boot menus by editing _/etc/grub.d/10_linux_ and inserting a line:
 
-== CIS issues that need to be addressed
+ OS="${GRUB_DISTRIBUTOR}"
 
-This section lists further topics related to the benchmark that should be
-discussed.
++
 
-=== 2.2.1.2 Ensure ntp is configured
+immediately after the existing `OS="${GRUB_DISTRIBUTOR} GNU/Linux"`
+line.
 
-Need FS NTP configuration. That is more secure than the benchmark since
-it uses `ignore` by default.
 
-=== 2.3.4 Ensure telnet client is not installed
+. In principle, you can remove the `Linux` label from the lines
+displaying kernel image files, by editing _/etc/grub.d/10_linux_ and
+globally replacing `{nbsp}Linux{nbsp}` (not the single leading and
+single trailing spaces) with `{nbsp}FSL11{nbsp}` (not the single
+leading and single trailing spaces).
 
-Would prefer to keep the _telnet_ client, it is useful for debugging
-ASCII device protocol devices, which we have.  The security weakness
-is _telnetd_, which is not installed, nor does the benchmark test
-for it.
+====
 
-=== 4.1.1.2 Ensure system is disabled when audit logs are full
+==== 2.2.1.4 Ensure ntp is configured
+
+This needs the  FS NTP configuration. That is more secure than the
+benchmark since it uses `ignore` by default.
+
+==== 4.1.2.3 Ensure system is disabled when audit logs are full
 
 This may not be appropriate for an operational system.
 
-=== 5.2.13 Ensure only strong ciphers are used
+==== 4.2.1.5 Ensure rsyslog is configured to send logs to a remote host
 
-What ciphers should we use?
+To set a remote log host, edit the _/etc/rsyslog.conf_ and/or the
+_/etc/rsyslog.d/*.conf_ files and add lines like the following
+(replace angle bracket items, `<...>`, with your values):
 
-=== 5.2.14 Ensure only strong MAC algorithms are used
+....
+<files to sent to the remote log server> action(type="omfwd" target="<FQDN or ip of loghost>" port="<port number>" protocol="tcp"
+action.resumeRetryCount="<number of re-tries>"
+queue.type="linkList" queue.size=<number of messages to queue>")
+....
 
-What MAC algorithms should we use?
+or
 
-=== 5.2.15 Ensure only strong Key Exchange algorithms are used
+....
+*.* @@<FQDN or ip of loghost>
+....
 
-What Key Exchange algorithms should we use?
+Run the following command to reload the _rsyslog_ configuration:
 
-=== 5.2.16 Ensure SSH Idle Timeout Interval is configured
+....
+systemctl reload rsyslog
+....
 
-Five minutes is too short.
+==== 5.2.16 Ensure SSH Idle Timeout Interval is configured
 
-=== 5.3.1 Ensure password creation requirements are configured
+Five minutes is too short and is not commensurate with the recommended
+15 minute auto-logout interval.
 
-Should we use the NASA 12 character minimum?
+==== 5.3.1 Ensure password creation requirements are configured
 
-=== 5.4.1.4 Ensure inactive password lock is 30 days or less
+Should the minimum be reduced to 12 characters?
 
-This is too short for developers/troubleshooters
+==== 5.3.2 Ensure lockout for failed password attemtps is enabled
+
+The number of login failures before lock-out can cause a problem if it
+is set too low. The main issue is for an operator working at odd
+hours, alone, at a remote location, and dealing with multiple issue,
+which might include: power failures, equipment problems, and
+logistical issues. It can be a chaotic situation. Typing long and
+complicated passwords in the heat of battle, particularly if they vary
+between machines, can be error-prone. Being locked-out will make the
+situation more difficult and may increase the amount of data that will
+be lost.
+
+If you find that the number of login failures before lock-out is too
+small, you can increase it by increasing the value of the `deny`
+parameter (`5` in the example below, other typical parameters are
+omitted and should not be changed) in:
+
+./etc/pam.d/common-auth
+[source]
+----
+auth required pam_faillock.so deny=5
+----
+
+Small integer values (`20` or less) should not be a significant risk
+with long and complicated passwords and a unlock time of several
+minutes.
+
+==== 5.4.1.4 Ensure inactive password lock is 30 days or less
+
+This is too short for developers/troubleshooters. A value of `60`
+would be commensurate with the password reset interval.
+
+:sectnums:
+
+=== Other policies
+
+This subsection describes other policies beyond the CIS benchmark that
+may be desirable.
+
+==== TCP wrappers configuration
+
+You may wish to configure TCP wrappers.
+
+===== /etc/hosts.deny
+
+Add:
+
+....
+ALL:ALL
+....
+
+===== /etc/hosts.allow
+
+Add:
+
+....
+sshd:ALL
+....
+
+It is recommended that you further restrict _sshd_ to specific hosts
+and/or sub-domains.
+
+==== Set log retention period
+
+You may want to set the retention period of system logs by
+editing _/etc/logrotate.conf_ and/or _/etc/logrotate.d/*_, as
+appropriate.
+
+== CIS Exceptions
+
+:sectnums!:
+
+This section addresses the tests that failed in the CIS benchmark
+after all the remediations in this document were applied. The items
+are listed by benchmark section numbers.
+
+=== 1.5.2 Ensure bootloader password is set
+
+This must be set later by the system administrator.
+
+=== 2.2.2 Ensure X Window System is not installed
+
+The X11 Window system is required for FS use.
+
+=== 2.2.4 Ensure CUPS is not enabled
+
+The CUPS printing systems is required for operations.
+
+=== 3.5.2.5 Ensure firewall rules exist for all open ports
+
+There is a _ufw_ rule for _Openssh_ (port 22), but the benchmark
+doesn't accept that. Additional openings can be added as needed.
+
+=== 3.5.3.7 Ensure nftables service is enabled
+
+Although the benchmark also uses _ufw_, which is enabled and uses
+_nftables_, for some reason this is not recognized.
+
+=== 3.5.3.8 Ensure nftables rules are permanent
+
+Although the benchmark also uses _ufw_, which has permanent rules  and
+uses _nftables_, for some reason this is not recognized.
+
+=== 4.2.1.5 Ensure rsyslog is configured to send logs to a remote log host
+
+A remote log server must be configured later by the system
+administrator.
+
+=== 5.2.6 Ensure SSH X11 forwarding is disabled
+
+Using _ssh_ X11 forwarding is required for for remote FS operations
+and testing.
+
+=== 5.3.2 Ensure lockout for failed password attempts is configured
+
+The benchmark, which is for Debian _10_, uses _pam_tally2.so_ for
+this. However _pam_tally2.so_ is not available in Debian _11_, having
+been replaced with _pam_faillock.so_. The _remediate_ script
+implements the intent of the recommended _pam_tally2.so_ configuration
+with _pam_faillock.so_.
+
+NOTE: To reset a locked-out user after CIS hardening, as _root_  use
+`*faillock --user _username_  --reset*` where `*_username_*` is the
+user account. Leave off the `--reset` to see what the current failure
+count is.
+
+:sectnums:
 
 == CIS Remediation problems
 
-This section details problems with the recommended remediations.
+:sectnums!:
 
-=== 2.1.2 Ensure openbsd-inetd is not installed
+This section details problems with the recommended remediations.  The
+items are listed by benchmark section numbers.
 
-Remediation solves problem, but does not make the test pass. To do the
-latter required `purge`.
+Some problems were worked around by adding a boot time _systemd_
+service `CISfix` to correct changes that occur on a reboot.
 
-=== 2.2.1.2 Ensure ntp is configured
+=== 1.4.2 Ensure filesystem integrity is regularly checked
 
-Remediation makes it less secure. A default policy of `ignore` is better.
+The _/etc/crontab_ entry that should be added is missing the user
+(_root_) field.
 
-=== 2.3.4 Ensure telnet client is not installed
+=== 1.5.1 Ensure the permissions on the bootloader are configured
 
-The remediation does not make the test pass, that required `purge`.
+The permissions are reset every time _update-grub_ is run, e.g., for a
+kernel update. Fixing them was added to the `CISfix` _systemd_
+service at boot.
 
-=== 3.2.4 Ensure suspicious packets are logged
+=== 2.2.1.4 Ensure ntp is configured
 
-The remediation lines added in _/etc/sysctl.d/*_ are not respected at
-boot (unlike all others). To overcome this, the following lines are
-used in a new systemd service `CISfix` at boot.
+The remediation makes it less secure. A default policy of `ignore` is
+better.
+
+=== 3.3.4 Ensure suspicious packets are logged
+
+The remediation lines added in _/etc/sysctl.d/*_ for this issue are
+not respected at boot (unlike all others). To overcome this, the
+following lines are used in the `CISfix` _systemd_ service at boot.
 
 ....
 sysctl -w net.ipv4.conf.all.log_martians=1
@@ -323,57 +439,69 @@ sysctl -w net.ipv4.conf.default.log_martians=1
 sysctl -w net.ipv4.route.flush=1
 ....
 
-=== 4.1 Configure System Accounting (auditd)
+=== 4.1.5 Ensure events that modify the system's network environment are collected
 
-Many of the remedations are described in terms of the contents of
-_/etc/audit/audit.rules_. However, the contents of that file are
-auto-generated at boot from the files in _/etc/audit/rules.d_, which
-is where these remediations must go.
+The 64-bit remediation had the `b64` and the `b32` rules concatenated
+on one line.
 
-=== 4.1.6 Ensure events that modify the system's network environment are collected
+=== 4.1.16 Ensure kernel module loading and unloading is collected
 
-64-bit remediation had `b64` and `b32` rules concatenated on one line.
+The 64-bit remediation was missing the `b32` rule.
 
-=== 4.1.17 Ensure kernel module loading and unloading is collected
+=== 4.2.3 Ensure permissions on all logfiles are configured
 
-64-bit remediation was missing `b32` rule.
+There are two issues:
 
-== Additional set-up
+. The recommended remediation makes the entire directory tree
+_/var/log_ unsearchable by everyone except _root_. This breaks some
+functionality, in particular email. As a result, the remediation was
+scaled back to just the minimum required to pass the test, which was
+to just set the permission on the files themselves instead changing
+the directory permissions as well. This could be made more targeted.
+For example to allow email use, just _/var/log_ and _/var/log/exim4_
+could be made searchable.
+
+. The permissions for some logfiles are reset each time the system
+reboots. Fixing them was added to the `CISfix` _systemd_ service at
+boot.
+
+=== 6.1.6 Ensure permissions on /etc/passwd- are configured
+
+The permissions are reset each time the system reboots. Fixing them
+was added to the `CISfix` _systemd_ service at boot.
+
+=== 6.1.7 Ensure permissions on /etc/shadow- are configured
+
+The permissions are reset each time the system reboots. Fixing them
+was added to the `CISfix` _systemd_ service at boot.
+
+=== 6.1.8 Ensure permissions on /etc/group- are configured
+
+The permissions are reset each time the system reboots. Fixing them
+was added to the `CISfix` _systemd_ service at boot.
+
+=== 6.1.11 Ensure no unowned files or directories exist
+
+After each boot, the file _/var/cache/private/fwupdmgr_ has no owner.
+Fixing that was added to the `CISfix` _systemd_ service at boot.
+
+=== 6.1.12 Ensure no ungroup files or directories exist
+
+After each boot, the file _/var/cache/private/fwupdmgr_ has no group.
+Fixing that was added to the `CISfix` _systemd_ service at boot.
+
+:sectnums:
+
+[appendix]
+
+== Additional set-up for FS operations
 
 After the CIS hardening is completed, some additional set-up is needed.
 
 === Fix-ups
 
-There are three issues that need to be corrected after the CIS hardening.
-
-. The AIDE package used in CIS hardening adds a line to _/etc/crontab_
-to run _aide.wrapper_. Unfortunately at this time, the line inserted is
-incorrectly formatted, missing the "`user`" field, for Debian systems.
-This causes the _cron_ daemon to ignore the file, thereby breaking
-basic _cron_ functionality. This can be fixed by adding _root_ as the
-user in a new field after the fifth field on the _aide.wrapper_ line
-and then running:
-+
-....
-systemctl restart cron
-....
-
-. The CIS hardening configuration of PAM causes uses of _sudo_ that
-require a password to increment the failure count when a correct
-password is accepted, leading to eventual lock-out of the user using
-_sudo_ when the `deny` lock-out failure count is reached.  To make sure the
-`tally2` failure count is reset after a successful _sudo_ that
-required a password, add to:
-
-+
-./etc/pam.d/common-account
-[source,bash]
-```
-account required pam_tally2.so
-```
-+
-NOTE: To reset a locked-out user after CIS hardening, use `*/sbin/pam_tally2 -u _user_ --reset*`
-where `*_user_*` is the user account. Leave off the `--reset` to see what the current tally is.
+There are two issues that may need to be corrected after the CIS
+hardening.
 
 . Using the `noexec` option for _/tmp_ causes a problem for the
 package management system. The _dpkg-preconfigure_ program places and
@@ -386,11 +514,11 @@ this issue, you can exeucte:
 
 +
 
-The _root_tmp_ script will do three things:
+The _root_tmp_ script performs three actions:
 
-.. Create a one time service at boot to clean the _/root/tmp_ directory
-.. Set _dpkg-preconfigure_ to use _/root/tmp_ for temporary files
-.. Create an initial _/root/tmp_ directory
+.. Creates a one time service at boot to clean the _/root/tmp_ directory
+.. Sets _dpkg-preconfigure_ to use _/root/tmp_ for temporary files
+.. Creates an initial _/root/tmp_ directory
 
 +
 
@@ -413,17 +541,17 @@ _after_ _ufw_ has been started.
 
 === Enabling user promotion to oper/prog and root
 
-The model of FSL assumes _oper_ and _prog_ accounts will be used for
-operations and programming respectively. However, some organizations may
-have security and auditing restrictions that mean operators must
-log-in using their own account (possibly named with their Agency User ID,
-    AUID).  As the Field System currently operates, users will then
-need to switch to the _oper_ or _prog_ account after login. Likewise,
-     if a user is allowed to elevate to _root_, they will need to do
-     so after log-in to their own account. This sub-section covers how to
-     enable this capability. The next sub-section <<Adding AUID accounts>> covers how to add an
-     AUID account. The method described here, and in the next sub-section,
-     uses _dhorsley_ as an example user.
+The model used in the FS assumes _oper_ and _prog_ accounts will be
+used for operations and programming respectively. However, some
+organizations may have security and auditing restrictions that mean
+operators must login using their own account (possibly named with
+their Agency User ID, or AUID). As the FS currently operates, users
+will then need to switch to the _oper_ or _prog_ account after login.
+Likewise, if a user is allowed to elevate to _root_, they will need to
+do so after logging into their own account. This subsection covers how
+to enable this capability. The next subsection <<Adding AUID
+accounts>> covers how to add an AUID account. The method described
+here, and in the next subsection, uses _dhorsley_ as an example user.
 
 For _oper_ and _prog_, we suggest creating two groups that can _sudo_
 to the accounts.
@@ -464,6 +592,7 @@ If they don't already, make sure _oper_ and _prog_ have usable shells:
 
 If the accounts haven't been disabled for login already, do so:
 
+    usermod -L desktop
     usermod -L oper
     usermod -L prog
 
@@ -474,7 +603,7 @@ NOTE: If you used the CIS _remediate_ script, you should comment out
 the line: `DenyGroup rtx` as well.
 
 ....
-DenyUsers oper prog
+DenyUsers desktop oper prog
 ....
 
 And restart _sshd_ with:
@@ -552,14 +681,15 @@ with:
 
 === Adding AUID accounts
 
-This sub-section describes how to add AUID accounts to be used with the
+This subsection describes how to add AUID accounts to be used with the
 ability to promote to _oper_, _prog_, and _root_ as described in the
-previous sub-section. As in the previous sub-section, the following method
-uses _dhorsley_ as an example user.
+previous subsection. As in the previous subsection, the following
+method uses _dhorsley_ as an example user.
 
 . Add any needed user accounts as appropriate:
 
     adduser dhorsley --home /usr2/dhorsley
+    chmod 0750 /usr2/dhorsley
 
 +
 IMPORTANT: If you are configuring a spare computer, you will need to
@@ -574,9 +704,10 @@ of _/usr2_ to work properly.
 For normal operations, AUID users' home directories should be on
 _/usr2_. However, for some maintenance accounts, it may make sense to
 have the home directory some where else, typically on _/home_. In that
-case, use this command instead:
+case, use these commands instead:
 
     adduser dhorsley
+    chmod 0750 /home/dhorsley
 
 The final step of this section will need to be adjusted accordingly.
 
@@ -586,12 +717,19 @@ between the two computers.
 ====
 
 . Add each user to these groups as appropriate, e.g.:
+
 +
-NOTE: This step assumes that the _operators_ and _programmers_ groups have been created as described in the previous sub-section <<Enabling user promotion to oper/prog and root>>.
+
+NOTE: This step assumes that the _operators_ and _programmers_ groups
+have been created as described in the previous subsection
+<<Enabling user promotion to oper/prog and root>>.
+
 +
     adduser dhorsley operators
 +
+
 and/or:
+
 +
     adduser dhorsley programmers
 
@@ -619,42 +757,18 @@ _/home_, the following commands should be used instead:
     cd /usr2/fs/st.default/auid
     find . -print|cpio -pmdu /home/dhorsley
     chown -R dhorsley.dhorsley /home/dhorsley
+    chmod 0750 /home/dhorsley
 ====
-
-=== Adjust number of login failures before lock-out
-
-The number of login failures before lock-out can cause a problem if it
-is set too low.  The main issue is for an operator working at odd
-hours, alone, at a remote location, who is dealng with multiple
-issue, which might include: power failures, equipment problems, and
-logistical issues. It can be a chaotic situation. Typing long and
-complicated passwors in the heat of battle, particularly if they vary
-between machines, can be error-prone. Being locked-out will make the
-situation more difficult and increase the amount of data that will be
-lost.
-
-If you find the number of login failures before lock-out too small,
-you can increase it by increasing the value of the `deny` parameter
-(`5` in the example below, other typical parameters are omitted and
-should not be changed) in:
-
-./etc/pam.d/common-auth
-[source]
-----
-auth required pam_tally2.so deny=5
-----
-
-Small integer values (20 or less) should not be a signficant risk with
-long and complicated passwords and a lock-out of several minutes.
 
 === Setting hostname alias
 
 These steps set a more user friendly alias for the computers of the
-form _fs1-<xx>_ and _fs2-<xx>_ where _<xx>_ is the station's two letter
-code.  This provides a compact alias for local usage, even for sites
-with more than one system, and makes the system identifiable for
-remote users in a systematic way. These steps should be executed for
-both the _operational_ and _spare_ computers.
+form _fs1-<xx>_ and _fs2-<xx>_ where _<xx>_ is the station's two
+letter code.  This provides a compact alias for local usage, even for
+sites with more than one system, and makes the system identifiable for
+remote users in a systematic way. Except as noted below, these steps
+should be executed for both the _operational_ and _spare_ computers.
+
 
 . Edit _/etc/hosts_ and add the new aliases to the appropriate lines.
 +
@@ -665,6 +779,7 @@ If you have two computers, add the aliases for both to the file on each computer
 +
     cd /etc
     cp hostname hostname_alias
+    chmod a+r hostname_alias
 
 .. Edit the new file and change the contents to the new alias.
 . Change the system's mailname
@@ -683,25 +798,13 @@ hosts or mail lists. If so,
 <<installation.adoc#_generate_fqdn_in_helo_for_outgoing_mail,Generate FQDN in HELO for outgoing mail>>
 in the FSL10 Installation document may also be helpful.
 
-.. Edit _/etc/exim4/update-exim4.conf.conf_, change the value of `hostnames=` to the new alias
+.. Edit _/etc/exim4/update-exim4.conf.conf_, change the value of
+`dc_other_hostnames=` to the new alias
+
 .. Execute
 +
      update-exim4.conf
      systemctl restart exim4
-
-. For the _spare_ computer only:
-
-.. Update _/usr/local/sbin/refresh_spare_usr2_ to use the new alias of the _operational_ computer in the _ssh_ line.
-
-.. You will need to update the new alias for the _operational_
-computer to be recognized as a known host to the _root_ account on the
-_spare_ computer. You can do that by using _ssh_ to
-`spare@operational` where `operational` is new alias for the
-_operational_ computer. The command will give you guidance for which
-lines need to be deleted in _/root/.ssh/known_hosts_. After deleting
-those lines, reconnect using the same _ssh_ command and answer `*yes*`
-to confirm connecting. Finally, logout of the _spare_ account on
-_operational_ computer.
 
 . Use the new alias in the user prompts and _xterm_ titles for _oper_, _prog_, and all non-system-administrator AUID accounts. In the
 `.bashrc` file for each user to be changed:
