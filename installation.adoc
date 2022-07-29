@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.5 - July 2022
+Version 0.0.6 - July 2022
 
 :sectnums:
 :experimental:
@@ -743,6 +743,15 @@ up and finish with _fsadapt_.
 
 Note that the _fsadapt_ script can be re-run at a later date should you need to
 change the adaptations.
+
+=== Disable suspend
+
+To disable system suspend for console inactivity, execute:
+
+ ~/fsl11/disable_suspend
+
+#TODO: Eliminate the need for this script by implementing a proper
+fix, possibly in _fsadapt_.#
 
 === Set Passwords
 
