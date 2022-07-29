@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.4 - July 2022
+Version 0.0.5 - July 2022
 
 :sectnums:
 :experimental:
@@ -686,6 +686,10 @@ So that the update mechanism will work correctly, run
 In the _/root/fsl11_ directory, start _fsadapt_ with
 
     ./fsadapt
+
+Press kbd:[Return] to proceed after Debian/kernel version warning.
+
+#TODO: Eliminate need to use kbd:[Return], by eliminating warning.#
 
 ==== FS Adaptation: Modifications (Window 1)
 
