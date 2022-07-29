@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.11 - July 2022
+Version 0.0.12 - July 2022
 
 :sectnums:
 :experimental:
@@ -1052,6 +1052,21 @@ some careless errors.
 3. Add the command `set -o noclobber` to avoid accidently overwriting
 existing files with I/O redirection. Other options to consider setting
 are `physical` and `ignoreeof`.
+
+=== Setup /etc/hosts
+
+You may want to add more hosts to the _/etc/hosts_, especially if do
+not have DNS. This will allow you to give a short alias to use when
+referring to other local machines. Even if you have DNS, you may wish
+to add additional aliases for your local hosts.
+
+For use with `ntpq -p`, is recommended that you use a short alias as
+the _canonical name_ (the first one after the IP address) for other
+local machines (and possibly remote ones as well). This will make the
+_ntpq_ output easier to understand, particularly if the canonical
+names of the local machines only differ at the end of their names.
+That may make the differences hard to see given the short field
+available for the `remote` node ID in the _ntpq_ output.
 
 === Network configuration changes
 
