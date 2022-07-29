@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.12 - July 2022
+Version 0.0.13 - July 2022
 
 :sectnums:
 :experimental:
@@ -659,14 +659,18 @@ or, for _i386_
 
 
 . Start the additional package installation with
+
 +
+
     apt-get dselect-upgrade
+
 +
-then press kbd:[Enter] to confirm any updating of installed packages (where
-you have an Internet connection) and the installation of currently
-~212 new packages (downloading
-~196 MB from the Internet and/or DVDs) for _amd64_, somewhat more for
-_i386_ -- unless you did not select the Desktop or added other tasks earlier.
+
+then press kbd:[Enter] to confirm any updating of installed packages
+(where you have an Internet connection) and the installation of
+currently ~191 new packages (downloading ~184 MB from the Internet
+and/or DVDs) for _amd64_ -- probably different for _i386_ -- unless
+you did not select the Desktop or added other tasks earlier.
 
 Downloading commences for up to half an hour (depending on your Internet
 access and the exact revision of DVDs used).
