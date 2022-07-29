@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.7 - July 2022
+Version 0.0.8 - July 2022
 
 :sectnums:
 :experimental:
@@ -1761,6 +1761,28 @@ using a RAID, you should consider using the
 procedure to give more, and easier, options for recovery in case there
 is a problem.  That procedure contains special instructions for kernel
 update testing.
+
+[NOTE]
+====
+When a kernel update is available, you may see messages at the start of the _cron_ job output similar to:
+
+[source,options="nowrap"]
+----
+apt-listchanges: Unable to retrieve changelog for package linux-headers-amd64; 'apt-get changelog' failed with: E: Version '5.10.120+1' for 'linux-headers-amd64' was not found
+E: No packages found
+
+apt-listchanges: Unable to retrieve changelog for package linux-image-amd64; 'apt-get changelog' failed with: E: Version '5.10.120+1' for 'linux-image-amd64' was not found
+E: No packages found
+
+apt-listchanges: Reading changelogs...
+Calling ['apt-get', '-qq', 'changelog', 'linux-headers-amd64=5.10.120+1'] to retrieve changelog
+Calling ['apt-get', '-qq', 'changelog', 'linux-image-amd64=5.10.120+1'] to retrieve changelog
+----
+
+These appear to be benign. Our only advice at this time is to ignore
+them.
+
+====
 
 If there is a kernel update available, the weekly _cron_ job output
 will include a warning at the end with additional instructions
