@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.10 - July 2022
+Version 0.0.11 - July 2022
 
 :sectnums:
 :experimental:
@@ -403,7 +403,7 @@ optional unless you are applying CIS hardening.
 |3 |_/home_          | `home`     | 4 G
 |4 |_/var/log_       | `log` *     | 4 G
 |5 |_/_              | `root`     | 50 G
-|6 |_swap_           | `swap`     | 8 G
+|6 |                 | `swap`     | 8 G
 |7 |_/tmp_           | `tmp`      | 8 G
 |8 |_/var_           | `var` *     | 8 G
 |9 |_/var/tmp_       | `vartmp` *  | 8 G
