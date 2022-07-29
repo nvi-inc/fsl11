@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.1 - July 2022
+Version 0.0.2 - July 2022
 
 :sectnums:
 :experimental:
@@ -81,6 +81,7 @@ explanations that impact what you actually type.
 |          | _jessie_     |     _8.0_      | _3.16.0_ |
 |  _10_    | _stretch_    |     _9.0_      | _4.9.0_  | 2020
 |          | _buster_     |    _10.0_      | _4.19.0_ |
+|  _11_    | _bullseye_  |     _11.0_      | _5.10.0_ | 2022
 |=============================================================
 
 The FSL11 documents follow the FS font conventions, which can be found
@@ -99,7 +100,7 @@ but requires use of the `Legacy` (or `BIOS`) boot mode in most cases.
 The _amd64_ installation media will fail to boot on a system that is
 32-bit only.
 
-To install Debian _9_, you can either use a DVD or USB drive. The latter is
+To install Debian _11_, you can either use a DVD or USB drive. The latter is
 faster, and also easier if you wish to use UEFI. Directions for creating your
 installation media can be found online. 
 
@@ -109,13 +110,11 @@ Ryzen, Epyc, Core, and Xeon. The naming scheme dates back to when Intel had a
 competing and incompatible 64-bit architecture _ia64_.
 
 You can install from a DVD drive, USB device, or over the network. Any revision of
-_9.<x>_ installer from _9.7_ onwards should work fine, but older revisions will want to download
-many security patches from the network which may already be included in the
-latest revision. Revisions before _9.7_ had a serious security flaw in the package
-installer. Note also that installing from DVDs as described here is
+_11.<x>_ installer should work fine.
+Note also that installing from DVDs as described here is
 recommended mainly for sites with little to poor Internet connectivity (even
 then, use of a single DVD may suffice) and the equivalent use of a Debian
-GNU/Linux _9.<x>_ "`Stretch`" - Official _i386_/_amd64_ _netinst_ CD would suffice for
+GNU/Linux _11.<x>_ "`Bullseye`" - Official _i386_/_amd64_ _netinst_ CD would suffice for
 installation at most sites with good connectivity. Official images for the installer
 can be found at: https://cdimage.debian.org/cdimage/archive/ or alternatively,
 should your hardware require non-free firmware, unofficial images for the
@@ -147,7 +146,7 @@ installation.
 |=============================================================
 | Directory | Hardware |Issue
 
-| https://github.com/nvi-inc/fsl10/tree/master/X11SCA-F[X11SCA-F] | Supermicro X11SCA-F motherboard|Newer driver required for Intel 1000e NIC
+| | | None at this time
 |=============================================================
 
 ====
@@ -456,7 +455,7 @@ For each additional DVD you wish to scan, insert it in the drive, select
 will need to use `*eject /dev/cdrom*` from another virtual console to do this)
 
 Select `No` and press  kbd:[Enter]  to continue once you are done.
-If prompted, insert the "`Debian GNU/Linux _9.<x>_ Stretch - Official _i386_/_amd64_
+If prompted, insert the "`Debian GNU/Linux _11.<x>_ Bullseye - Official _i386_/_amd64_
 Binary-1 DVD`" back into the DVD-ROM drive and press  kbd:[Enter].
 
 WARNING: If you do scan additional DVDs, the following useful dialogue
@@ -529,7 +528,7 @@ where `*_N_*` is the number of the virtual console.
 
 === Login as root 
 
-TIP: Previous versions of Debian ran X11 on virtual console 7. As of
+TIP: Versions before Debian 9 ran X11 on virtual console 7. As of
 Debian 9, the graphical environment login is on virtual console 1.
 Each login there for a different user creates a session on the next
 unused virtual console.
@@ -636,7 +635,7 @@ NOTE: It is also possible to add additional DVDs at this stage using the
 +
 or, for _i386_
 
-   dpkg --set-selections < selections/fsl11_i386.selections
+#TODO:   dpkg --set-selections < selections/fsl11_i386.selections#
 
 
 . Start the additional package installation with
@@ -761,13 +760,13 @@ See also the <<Setup additional disk>> sub-section in the <<Post Install>> secti
    git checkout -q _tag_
 ....
 
-where `_tag_` is the latest available release, be it _10.0.0_ or
+where `_tag_` is the latest available release, be it _10.1.0_ or
 later.
 
 [IMPORTANT]
 ====
 
-Although _10.0.0_ is the current release at the time this was written,
+Although _10.1.0_ is the current release at the time this was written,
 and should suffice for an initial installation, it may well not be the
 most up-to-date release when you are installing. To find more recent
 releases, go to:
