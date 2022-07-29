@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.8 - July 2022
+Version 0.0.9 - July 2022
 
 :sectnums:
 :experimental:
@@ -432,13 +432,6 @@ If you start from a _netinst_ CD image, the installer now
 assumes you will install only from the network, and jumps straight to
 the `Choose your country...` part of the dialogue as detailed below.
 
-Select the fastest Debian mirror from those available.
-
-TIP: The new `deb.debian.org` mirror is a good choice for most
-sites as it uses DNS to find a local mirror.
-
-Enter any necessary `HTTP` proxy information (usually left blank.)
-
 If you are using DVD installer you will be prompted to scan additional DVDs.
 Scanning the additional DVDs (and obtaining copies of them in the
 first place) is entirely optional, and is only useful if you don't have a
@@ -464,9 +457,17 @@ list may be suppressed.
 
 Select `Yes` and press  kbd:[Enter]  to use a network mirror (unless you
 have inadequate Internet access - but then you must scan all DVDs.)
-Choose your country from the list if available and press  kbd:[Enter].
-(If your country is not available choose the country nearest to you in a
-network connectivity sense.)
+
+`Choose your country` from the list if available and press
+kbd:[Enter]. (If your country is not available choose the country
+nearest to you in a network connectivity sense.)
+
+Select the fastest Debian mirror from those available.
+
+TIP: The new `deb.debian.org` mirror is a good choice for most
+sites as it uses DNS to find a local mirror.
+
+Enter any necessary `HTTP` proxy information (usually left blank).
 
 === Do not participate in popularity-contest
 
