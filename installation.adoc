@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.9 - July 2022
+Version 0.0.10 - July 2022
 
 :sectnums:
 :experimental:
@@ -372,7 +372,8 @@ of devices and `*0*` as number of spares.
 
 . Select the RAID partitions we just created by pressing kbd:[Space]
 -- these should be _sda2_ and _sdb2_, if you have just one disk, just
-pick _sda2_ -- then press kbd:[Enter] to continue
+pick _sda2_ -- then press kbd:[Enter] to continue. Select `yes` if
+prompted to write changes to disk.
 
 . Select `Finish`.
 
