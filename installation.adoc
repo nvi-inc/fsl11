@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.3 - July 2022
+Version 0.0.4 - July 2022
 
 :sectnums:
 :experimental:
@@ -775,8 +775,11 @@ See also the <<Setup additional disk>> sub-section in the <<Post Install>> secti
    cd /usr2
    git clone https://github.com/nvi-inc/fs fs-git
    cd /usr2/fs-git
-   git checkout -q _tag_
+   git checkout -q ed/fs111
 ....
+
+#TODO: restore using `git checkout -q _tag_` when a FS that supports
+FSL11 is released.#
 
 where `_tag_` is the latest available release, be it _10.1.0_ or
 later.
