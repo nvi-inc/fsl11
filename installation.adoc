@@ -20,9 +20,9 @@
 
 :doctype: book
 
-= FS Linux 10 Installation Guide
+= FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.6.0 - January 2022
+Version 0.0.1 - July 2022
 
 :sectnums:
 :experimental:
@@ -47,7 +47,7 @@ not want to use the software RAID.
 
 If you are using the RAID configuration, you may wish to review the
 <<raid.adoc#_recommended_practices,Recommended practices>> sub-section
-of the <<raid.adoc#,RAID notes for FSL10>> document before installing.
+of the <<raid.adoc#,RAID notes for FSL11>> document before installing.
 However, all of the practices listed there can implemented after the
 installation steps below are complete.
 
@@ -83,7 +83,7 @@ explanations that impact what you actually type.
 |          | _buster_     |    _10.0_      | _4.19.0_ |
 |=============================================================
 
-The FSL10 documents follow the FS font conventions, which can be found
+The FSL11 documents follow the FS font conventions, which can be found
 at: https://nvi-inc.github.io/fs/misc/font_conventions.html.
 
 == Choosing architecture and creating installation media
@@ -134,7 +134,7 @@ https://www.debian.org/releases/stretch/installmanual
 
 Some hardware may require special procedures. For cases we know about,
 instructions are provided in top-level sub-directories of the
-repository, which is visible at https://github.com/nvi-inc/fsl10. In
+repository, which is visible at https://github.com/nvi-inc/fsl11. In
 addition to special instructions, there may be needed software/drivers
 in the sub-directories. The following table lists the cases that are
 currently covered. Some of these solutions may be useful for other
@@ -185,7 +185,7 @@ TIP: Installing to a single disk initially is recommended and has some
 advantages. It is faster and you can control when the syncing for the
 second disk occurs, such as when you leave for the evening.  The
 set-up of additional disks is covered in the <<Post Install>> section
-(which references the <<raid.adoc#,RAID notes for FSL10>> document).
+(which references the <<raid.adoc#,RAID notes for FSL11>> document).
 As mentioned in the warning above, you should start with the smallest disk.
 
 
@@ -354,7 +354,7 @@ fine, just be sure to choose the large `FREE SPACE` at the end of the disk.
 
 . Select `Use as: physical volume for RAID`, then `Done setting up the partition`
 
-NOTE: If you physically only have one disk bay and wish to construct a FSL10 `test-bed`,
+NOTE: If you physically only have one disk bay and wish to construct a FSL11 `test-bed`,
 it is possible to avoid using the software RAID layer entirely.  Simply select `Use as: physical volume for LVM`
 for this partition instead and skip ahead to <<Setup Logical Volume Manager (LVM)>> below.
 However, please note that a single disk setup is not recommended for any _operational_ system.
@@ -613,7 +613,7 @@ Next tell APT to update its internal source list of packages using
 NOTE: It is also possible to add additional DVDs at this stage using the
 `*apt-cdrom add*` command.
 
-=== Download the FS Linux 10 package selections
+=== Download the FS Linux 11 package selections
 
 . Install _git_ and _dselect_
 +
@@ -626,17 +626,17 @@ NOTE: It is also possible to add additional DVDs at this stage using the
 . Get the selections by downloading this repository:
 +
     cd /root
-    git clone https://github.com/nvi-inc/fsl10
-    cd fsl10
+    git clone https://github.com/nvi-inc/fsl11
+    cd fsl11
 
 . Feed the package selections into _dpkg_ using the command, for _amd64_
 +
-   dpkg --set-selections < selections/fsl10_amd64.selections
+   dpkg --set-selections < selections/fsl11_amd64.selections
 
 +
 or, for _i386_
 
-   dpkg --set-selections < selections/fsl10_i386.selections
+   dpkg --set-selections < selections/fsl11_i386.selections
 
 
 . Start the additional package installation with
@@ -666,7 +666,7 @@ So that the update mechanism will work correctly, run
 
 === fsadapt
 
-In the _/root/fsl10_ directory, start _fsadapt_ with
+In the _/root/fsl11_ directory, start _fsadapt_ with
 
     ./fsadapt
 
@@ -736,7 +736,7 @@ entering the passwords twice as prompted.
 
 You can install some useful tools for working with the RAID, if you're actually using it, with:
 
-   ~/fsl10/RAID/install_tools
+   ~/fsl11/RAID/install_tools
 
 The rest of this document assumes the first three of these tools have
 been installed.  The five tools are:
@@ -747,7 +747,7 @@ been installed.  The five tools are:
    * _drop_primary_ allows _root_ deliberately to drop the primary disk out of the RAID for use as a backup
    * _recover_raid_ allows _root_ to re-add a disk that fell out of (or was removed from) the RAID back into it
 
-TIP: More information about RAID operation can be found in the <<raid.adoc#,RAID notes for FSL10>> document.
+TIP: More information about RAID operation can be found in the <<raid.adoc#,RAID notes for FSL11>> document.
 
 See also the <<Setup additional disk>> sub-section in the <<Post Install>> section below.
 
@@ -940,14 +940,14 @@ _root_ permissions.
 
 For stations that wish to conform to the additional security
 recommendations of the Center for Internet Security (CIS), move on to
-the <<cis-setup.adoc#,CIS hardening FSL10>> document.
+the <<cis-setup.adoc#,CIS hardening FSL11>> document.
 
 ==== Alternate hardening
 
 If you don't want the complete CIS hardening, which creates some
 inconveniences and is only required in certain environments, you may
 still be interested in applying a subset of the remediations. You can
-pick and choose those from the <<cis-setup.adoc#,CIS hardening FSL10>>
+pick and choose those from the <<cis-setup.adoc#,CIS hardening FSL11>>
 document and its script.
 
 A useful minimum set of features to apply would be to install _ufw_
@@ -1652,7 +1652,7 @@ when Rebuilds (and array checks) start and end. For full details on
 the script and installation instructions, please see the
 <<raid.adoc#_raid_events,raid-events>> sub-section in the
 <<raid.adoc#_script_descriptions,Script descriptions>> section of the
-<<raid.adoc#,RAID Notes for FSL 10>> document.
+<<raid.adoc#,RAID Notes for FSL 11>> document.
 
 === Add refresh_spare_usr2
 
@@ -1663,7 +1663,7 @@ the _spare_ system. For full details on the script and installation
 instructions, please see the
 <<raid.adoc#_refresh_spare_usr2,refresh_spare_usr2>> sub-section in
 the <<raid.adoc#_script_descriptions,Script descriptions>> section of
-the <<raid.adoc#,RAID Notes for FSL 10>> document.
+the <<raid.adoc#,RAID Notes for FSL 11>> document.
 
 [appendix]
 
@@ -1687,7 +1687,7 @@ the weekly _cron_ job is described below in the section
 
 TIP: It is recommended that a disk rotation be performed before any
 update is installed. This will make recovery much easier if a problem with the
-update is discovered.  Please see the FSL10 Raid document section
+update is discovered.  Please see the FSL11 Raid document section
 <<raid.adoc#_recoverable_testing,Recoverable testing>> for a
 streamlined method to manage testing of updates.
 
@@ -1781,7 +1781,7 @@ When a ABI update is installed, it will be necessary to update any,
 so-called, _out-of-tree_ modules that use the kernel ABI. This must be
 done _after_ rebooting with the new kernel installed.
 
-For a normal FSL10 installations, unless you have installed other
+For a normal FSL11 installations, unless you have installed other
 out-of-tree modules, the only module that needs to be rebuilt is the
 GPIB driver (if it is installed).  You will need to recompile it (usually using _fsadapt_,
         `Window 2`, `config_gpib` only) _after_ the initial reboot
@@ -1795,10 +1795,10 @@ appropriately _after_ the initial reboot and then (to keep these
 ===  Recovery from a failed update
 
 If an update fails, e.g., an updated kernel fails to boot or another problem is discovered,
-you can recover as described in FSL10 RAID document
+you can recover as described in FSL11 RAID document
 <<raid.adoc#_recoverable_testing,Recoverable testing>>
 section, if you were following that method, or from a shelf disk
-according to the FSL10 RAID document <<raid.adoc#_recover_from_a_shelf_disk,Recover from
+according to the FSL11 RAID document <<raid.adoc#_recover_from_a_shelf_disk,Recover from
 a shelf disk>> section if not and you have a good shelf disk.
 
 ==== Additional recovery option for a failed ABI kernel update
@@ -1835,7 +1835,7 @@ you want to make sure you have the very latest updates when you
 install them, you can run the distributed copy of the weekly update
 script manually to check for updates:
 
-    /root/fsl10/etc_cron.weekly_apt-show-upgradeable
+    /root/fsl11/etc_cron.weekly_apt-show-upgradeable
 
 If there is no output, there are no updates to install.
 
@@ -1856,7 +1856,7 @@ packages to be updated. If you would like to see any NEWS items more
 distinctly after the previous command and before installing the
 updates, you can run the script again using the `--which=news` option:
 
-    /root/fsl10/etc_cron.weekly_apt-show-upgradeable --which=news
+    /root/fsl11/etc_cron.weekly_apt-show-upgradeable --which=news
 
 If there are updates available and no NEWS items, you will only get
 the installation instructions.
@@ -1922,7 +1922,7 @@ NOTE: If your computer's _setup_ utility is locked with a password, you
 may need that password to select booting from your installation media.
 
 NOTE: You should provide suitable values for your system when a
-specific value is required. Values that agree with the FSL10 install
+specific value is required. Values that agree with the FSL11 install
 described in this document (or reasonable defaults) are shown in parentheses.
 
 . Boot from installation media

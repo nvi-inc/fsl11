@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 1.7.0 - July 2022
+Version 0.0.1 - July 2022
 
 :sectnums:
 :experimental:
@@ -31,7 +31,7 @@ Version 1.7.0 - July 2022
 == Introduction
 
 These notes are intended to cover, albeit tersely, the major issues
-for RAID operations with FSL10 (see the <<installation.adoc#,FSL10
+for RAID operations with FSL11 (see the <<installation.adoc#,FSL11
       Installation>> document). The disk lay-out has changed
 significantly since FSL9, which required updating the scripts that are
 used. In addition, the scripts have been extensively revised to
@@ -42,8 +42,8 @@ unless otherwise indicated.
 
 == Guidelines for RAID operations
 
-The FSL10 RAID configuration normally uses two disks configured
-according to the FSL10 installation instructions (see the <<installation.adoc#,FSL10
+The FSL11 RAID configuration normally uses two disks configured
+according to the FSL11 installation instructions (see the <<installation.adoc#,FSL11
       Installation>> document). Below are mandatory
 and recommended guidelines.
 
@@ -268,7 +268,7 @@ straightforward to adapt them to other cases.
 
 If you need to initialize more than one disk, please follow the
 instructions in the <<installation.adoc#_setup_additional_disk,Setup
-additional disk>> section of the FSL10 Installation document.
+additional disk>> section of the FSL11 Installation document.
 
 === Currently two disks are running in the RAID
 
@@ -381,7 +381,7 @@ intends to copy is where it expects it to be and has the right form.
 Any _primary_ disk (_sda_) will be rejected that:
 
 . Is not part of the RAID (_md0_)
-. Has a boot scheme other than the BIOS or UEFI set up as described in the FSL10 Installation Document.
+. Has a boot scheme other than the BIOS or UEFI set up as described in the FSL11 Installation Document.
 
 To ensure that only an old _shelf_ disk for this system is
 overwritten, any _secondary_ disk (_sdb_) will be rejected that:
@@ -400,7 +400,7 @@ fallen out of the RAID due to failure.
 . Has a RAID from a different computer, i.e., foreign
 +
 Technically this could also be another RAID from the same computer, but not of a
-properly set up FSL10 computer, which should have only the one RAID
+properly set up FSL11 computer, which should have only the one RAID
 
 . Has any part already mounted
 +
@@ -691,7 +691,7 @@ To install the script, use the following commands as _root_:
 
 ```
 cd /usr/local/sbin
-cp ~/fsl10/RAID/raid-events .
+cp ~/fsl11/RAID/raid-events .
 chmod u+x raid-events
 cat <<EOF >>/etc/mdadm/mdadm.conf
 
@@ -770,7 +770,7 @@ using _sudo_ in a regular account a usable alternative. For details on
 that approach, please see the
 <<cis-setup.adoc#_installing_refresh_spare_usr2_with_cis_hardening,Installing
 refresh_spare_usr2 with CIS hardening>> subsection of the
-<<cis-setup.adoc#,CIS Hardening for FSL10>> document.
+<<cis-setup.adoc#,CIS Hardening for FSL11>> document.
 
 All the steps below must be performed as _root_ on the specified
 system. You should read all of each step and sub-step before following
@@ -808,7 +808,7 @@ a simple alias for routine use.
 .. Install _refresh_spare_usr2_. Execute:
 
   cd /usr/local/sbin
-  cp -a /root/fsl10/RAID/refresh_spare_usr2 refresh_spare_usr2
+  cp -a /root/fsl11/RAID/refresh_spare_usr2 refresh_spare_usr2
   chown root.root refresh_spare_usr2
   chmod a+r,u+wx,go-wx refresh_spare_usr2
 
@@ -1028,10 +1028,10 @@ system.
 
 == Multiple computer set-up
 
-You may have more than one FSL10 computer at a site, either an
+You may have more than one FSL11 computer at a site, either an
 _operational_ and _spare_ for one system and/or additional computers for a
 additional systems. In this case, we recommend that you do a full setup of
-each computer from scratch from FSL10 installation notes. The main, but not only,
+each computer from scratch from FSL11 installation notes. The main, but not only,
 reason for this is to make sure each RAID has a unique UUID, so the
 _refresh_secondary_ script will be able to help you avoid accidentally
 mixing disks while doing a refresh. While in principle is it possible
@@ -1045,7 +1045,7 @@ possible to move a RAID pair to a different computer and have it work
 on the network. Please note that the IP address and hostname is tied to
 the disks and not the computers. For information on how to configure this,
     please see the (optional) <<installation.adoc#_network_configuration_changes,Network configuration changes>> section
-    of the FSL10 installation document.
+    of the FSL11 installation document.
 
 The configuration of the system outside of the _/usr2_ partition
 between _operational_ and _spare_ computers should be maintained in
@@ -1060,11 +1060,11 @@ with other independent __operational__/__spare__ systems at a site as well (this
 
 ==  Recovery scenarios
 
-The setup provided by FSL10 provides several layers of recovery in
+The setup provided by FSL11 provides several layers of recovery in
 case of problems with the computers or the disks. Each system has a
 _shelf_ disk, which can serve as a back-up. Additionally if there is a
 _spare_ computer for each _operational_ computer, there are additional
-recovery options. If there are other FSL10 computers at the site, it
+recovery options. If there are other FSL11 computers at the site, it
 may be possible in extreme cases to press those computers and/or disks into
 service, particularly if they have been maintained in parallel.
 
