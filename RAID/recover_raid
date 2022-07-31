@@ -21,8 +21,27 @@
 
 # Recover any failed and/or missing devices back into an active RAID
 
-if [ $# -gt 0 ]; then
-	raid=/dev/$1
+usage() {
+	echo "Usage: $0 [-p]"
+	echo -e "  where\t-h\tdisplay this help and exit"
+	echo -e "  \t-p\tdisplay prgress meter while recovering"
+}
+
+PROGRESS_METER=0
+while getopts "hp" arg; do
+	case $arg in
+		p)
+			PROGRESS_METER=1
+			;;
+		h | *)
+			usage
+			exit 0
+			;;
+	esac
+done
+ARG1=${@:$OPTIND:1}
+if [ "$ARG1" ]; then
+	raid="/dev/$ARG1"
 else
 	raid=/dev/md0
 fi
@@ -82,7 +101,6 @@ else
 	echo "Re-adding missing device(s) to RAID array $raid ... "
 	mdadm $raid --re-add missing
 fi
-echo "(This may safely be interrupted with 'Control-C' if you don't want to wait)"
 sleep 1
 
 mdadm --detail $raid; echo
@@ -91,14 +109,19 @@ if ! mdadm --detail $raid | grep -q ", recovering $"; then
 	exit 1
 fi
 
-while ! grep -q recovery /proc/mdstat; do 
-	echo "Waiting for recovery ..."
-	sleep 1;
-done
+if [ "$PROGRESS_METER" -ne 0 ]; then
+	echo "(This may safely be interrupted with 'Control-C' if you don't want to wait)"
+	while ! grep -q recovery /proc/mdstat; do
+		echo "Waiting for recovery ... "
+		sleep 1;
+	done
 #
-while grep -q recovery /proc/mdstat; do 
-	recovery=$(grep recovery /proc/mdstat | cut -c32-)
-	echo -e -n "\r$recovery"
-	sleep 1;
-done
-echo -e "\ndone."
+	while grep -q recovery /proc/mdstat; do
+		recovery=$(grep recovery /proc/mdstat | cut -c32-)
+		echo -e -n "\r$recovery"
+		sleep 1;
+	done
+	echo -e "\ndone."
+else
+	echo "You check on the recovery progress with 'mdstat'."
+fi

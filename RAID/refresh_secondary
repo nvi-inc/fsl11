@@ -23,13 +23,22 @@
 # the second disk (if missing), rebuilds the boot sector and adds the RAID
 # partition back into the array as a spare to be rebuilt.
 
-usage() { echo "Usage: $0 [-A][-h]"; echo -e "  where\t-A\tAllow \"Secondary\" disk to be loaded at start"; echo -e "  \t-h\tdisplay this help and exit"; }
+usage() {
+	echo "Usage: $0 [-A][-h][-p]"
+	echo -e "  where\t-A\tAllow \"Secondary\" disk to be loaded at start"
+	echo -e "  \t-h\tdisplay this help and exit"
+	echo -e "  \t-p\tdisplay prgress meter while recovering"
+}
 
 ACCEPT_LOAD=0
-while getopts "Ah" arg; do
+PROGRESS_METER=0
+while getopts "Ahp" arg; do
 	case $arg in
 		A)
 			ACCEPT_LOAD=1
+			;;
+		p)
+			PROGRESS_METER=1
 			;;
 		h | *)
 			usage
@@ -218,7 +227,6 @@ fi
 
 # Then add the Secondary RAID partition as a replacement into the RAIO
 echo "Adding \"Secondary\" disk $part2 to RAID array /dev/md0 ... "
-echo "(This may safely be interrupted with 'Control-C' if you don't want to wait)"
 mdadm --zero-superblock $part2 2> /dev/null	# will fail if disk is blank
 mdadm /dev/md0 --add-spare $part2
 sleep 1
@@ -233,14 +241,20 @@ fi
 rm -f $lockf
 
 # Finally report on recovery progress until it completes
-while ! grep -q recovery /proc/mdstat; do 
-	echo "Waiting for recovery ... "
-	sleep 1;
-done
+if [ "$PROGRESS_METER" -ne 0 ]; then
+	echo "(This may safely be interrupted with 'Control-C' if you don't want to wait)"
+	while ! grep -q recovery /proc/mdstat; do
+		echo "Waiting for recovery ... "
+		sleep 1;
+	done
 #
-while grep -q recovery /proc/mdstat; do 
-	recovery=$(grep recovery /proc/mdstat | cut -c32-)
-	echo -e -n "\r$recovery"
-	sleep 1;
-done
-echo -e "\ndone."
+	while grep -q recovery /proc/mdstat; do
+		recovery=$(grep recovery /proc/mdstat | cut -c32-)
+		echo -e -n "\r$recovery"
+		sleep 1;
+	done
+	echo -e "\ndone."
+else
+	echo "You check on the recovery progress with 'mdstat'."
+
+fi
