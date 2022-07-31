@@ -1,8 +1,8 @@
 //
-// Copyright (c) 2020 NVI, Inc.
+// Copyright (c) 2020, 2022 NVI, Inc.
 //
-// This file is part of the FSL10 Linux distribution.
-// (see http://github.com/nvi-inc/fsl10).
+// This file is part of the FSL11 Linux distribution.
+// (see http://github.com/nvi-inc/fsl11).
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,4 +27,4 @@ is a tried-and-tested setup for robust VLBI operations.
 Using this guide will make it easier to
 ask the community for help.
 
-Follow the https://nvi-inc.github.io/fsl10[installation notes] to get started.
+Follow the https://nvi-inc.github.io/fsl11[installation notes] to get started.
