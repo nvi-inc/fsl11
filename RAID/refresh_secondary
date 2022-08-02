@@ -255,6 +255,6 @@ if [ "$PROGRESS_METER" -ne 0 ]; then
 	done
 	echo -e "\ndone."
 else
-	echo "You check on the recovery progress with 'mdstat'."
+	echo "You can check on the recovery progress with 'mdstat'."
 
 fi
