@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.13 - July 2022
+Version 0.0.14 - August 2022
 
 :sectnums:
 :experimental:
@@ -123,7 +123,7 @@ https://cdimage.debian.org/cdimage/unofficial/non-free/cd-including-firmware/arc
 
 The details of creating your installation media can be found in the Debian
 installation guide available from:
-https://www.debian.org/releases/stretch/installmanual
+https://www.debian.org/releases/bullseye/installmanual
 
 
 == Motherboard setup
@@ -169,8 +169,8 @@ TIP: For UEFI, some motherboards may switch to booting to the UEFI
 shell if they fail to find a hard disk that will boot. This might
 happen, for example, if you attempt to boot from a blank disk. If you
 become stuck booting to the UEFI shell, you may need to enter the
-motherboard's _setup_ utility `boot` menu and restore booting from the
-hard disks.
+motherboard's _setup_ utility to restore booting from the hard disks.
+The `Boot` menu may be where this is set.
 
 == First Stage Installation
 
@@ -187,7 +187,6 @@ set-up of additional disks is covered in the <<Post Install>> section
 (which references the <<raid.adoc#,RAID notes for FSL11>> document).
 As mentioned in the warning above, you should start with the smallest disk.
 
-
 === Boot from the installation medium
 
 Connect an active network cable to your lowest numbered interface
@@ -195,9 +194,16 @@ Connect an active network cable to your lowest numbered interface
 
 Insert/plug-in your installation media and reboot.
 
-To boot of the installation media you may need to bring up your motherboards
-`boot` menu, which is typically accessed by pressing kbd:[F11] or kbd:[F12].
+To boot from the installation media you may need to bring up your
+motherboard's _setup_ utility, which is typically accessed by pressing
+kbd:[F11] or kbd:[F12]. From there you may need to access a menu such
+as `Save{nbsp}&{nbsp}Exit` (or `Boot`), to select overriding to boot
+with the installation media.
 
+TIP: If the system was most recently booted from a hard disk, you may
+need to boot one time with no hard disk installed to get it to
+recognize using the USB installer as a valid override in the
+motherboard's _setup_ utility.
 
 === Set boot options and boot installer
 
@@ -316,7 +322,14 @@ When prompted, select `Manual`
     press kbd:[Enter]
 .. Installer may warn: `You have selected an entire device to partition…`. Select `Yes`
 
-. Select the `FREE SPACE` under the first device
++
+
++
+
+If you are asked to remove existing software RAID partition, select
+`Yes`.
+
+. Select the `FREE SPACE` under your disk.
 +
 NOTE: If some other file system, like `xfs`, or other old setup is
 displayed, you will need to delete it first.  You may be able to do
@@ -329,7 +342,7 @@ SPACE` area.  For more complicated layouts, it may be more expedient,
     such as listed above, do not select a RAID or your installation
     media device.  Then select `All files in one partition
     (recommended for new users)`.  You may be prompted to confirm
-    deleting RAID and/or LVM, which you must do to continue.  Then you
+    deleting RAID partitions and/or logical volume data, which you must do to continue.  Then you
     should be able to continue with step 1 above, by selecting your disk.
 
 . Select `Create a new partition`
@@ -342,7 +355,7 @@ SPACE` area.  For more complicated layouts, it may be more expedient,
 ** UEFI: Select `Use as` then select `EFI System Partition (ESP)`
 ** BIOS: Select `Use as` then select `Reserved BIOS boot area`, or alternatively `Do not use the partition` if the former option is not available.
 
-. Now press `Done setting up the partition`.
+. Now select `Done setting up the partition`.
 
 . Next select the `FREE SPACE` and `Create a new partition` again.
 +
@@ -351,7 +364,8 @@ fine, just be sure to choose the large `FREE SPACE` at the end of the disk.
 
 . This time choose the whole amount of free space (the default) and choose `Primary` for the partition type if asked.
 
-. Select `Use as: physical volume for RAID`, then `Done setting up the partition`
+. Select `Use as`, then select `Physical volume for RAID`, then `Done
+setting up the partition`
 
 NOTE: If you physically only have one disk bay and wish to construct a FSL11 `test-bed`,
 it is possible to avoid using the software RAID layer entirely.  Simply select `Use as: physical volume for LVM`
@@ -364,8 +378,8 @@ Repeat the process for the second disk, if present.
 
 ==== Setup RAID
 
-. Select `Configure software RAID`, select `Yes` to write the changes
-  to the disks.
+. Select `Configure software RAID`. Then select `Yes` to write the
+  changes to the disks.
 
 . Select `Create MD device`, choose `RAID1` and enter `*2*` as number
 of devices and `*0*` as number of spares.
@@ -377,13 +391,16 @@ prompted to write changes to disk.
 
 . Select `Finish`.
 
-. Back in partitioning, Select the space _under_ `RAID1 device #0` and press kbd:[Enter]
+. Back in partitioning, select the space _under_ `RAID1 device #0` and press kbd:[Enter]
 
-. Select `use as` then select `Physical volume for LVM` then `Done setting up the partition`
+. Select `Use as`, then select `Physical volume for LVM`, then `Done
+setting up the partition`
 
 ==== Setup Logical Volume Manager (LVM)
 
-. Now choose `Configure the Logical Volume Manager` and select `yes` if prompted to write the changes to disk
+. Now choose `Configure the Logical Volume Manager` and select `Yes`
+if prompted to write the changes to disk or to configure LVM.
+
 
 . Choose `Create volume group`
 . Enter a name appropriate for the machine and group, e.g., `*vg0*`, and press kbd:[Enter]
@@ -403,8 +420,8 @@ optional unless you are applying CIS hardening.
 |3 |_/home_          | `home`     | 4 G
 |4 |_/var/log_       | `log` *     | 4 G
 |5 |_/_              | `root`     | 50 G
-|6 |                 | `swap`     | 8 G
-|7 |_/tmp_           | `tmp`      | 8 G
+|6 |(swap)           | `swap`     | 8 G
+|7 |_/tmp_           | `tmp`      | 50 G
 |8 |_/var_           | `var` *     | 8 G
 |9 |_/var/tmp_       | `vartmp` *  | 8 G
 |10|_/usr2_          | `usr2`     | remaining disk space _less ~50 GB_
@@ -504,6 +521,9 @@ primary disk.
 
 === Disable Wayland (optional)
 
+This step can easily be performed when the installation stops for
+input in the next step, <<Remove installation media>>.
+
 IMPORTANT: `Wayland` is enabled by default. If your CPU does not
 include a GPU, you will probably need to disable it. If you don't, the
 console may be nearly impossible to work with after rebooting. On the
@@ -514,9 +534,9 @@ work well, you may need to reinstall from scratch to try the other.
 
 To disable `Wayland`:
 
-. Press kbd:[Ctrl+Alt+F2] to switch to a new terminal.
+. Press kbd:[Ctrl+Alt+F2] to switch to a different console.
 
-. Press kbd:[Return] to open the terminal.
+. Press kbd:[Enter] to activate the console.
 
 . Edit _/target/etc/gdm3/daemon.config_, uncomment `Wayland=False`,
 and save the file.
@@ -596,28 +616,30 @@ to use a proxy _proxy.some.where_ at port `8080` for example.
 
 === Edit /etc/apt/sources.list
 
-Using your favourite text editor, eg _vi_, and comment out all `cdrom` entries
-(unless you don't have a decent Internet connection and need to use DVDs,
-whereupon the dialogue presented below may differ) and check you have the
-equivalent of the following entries towards the top of the file, adding
-in `contrib` and/or `non-free` as needed:
+Using your favourite text editor, eg _vi_, and comment out all `cdrom`
+entries (unless you don't have a decent Internet connection and need
+to use DVDs, whereupon the dialogue presented below may differ) and
+check you have the equivalent of the following entries towards the top
+of the file, adding in `contrib` and/or `non-free` as needed:
 
-   deb http://deb.debian.org/debian/ stretch main contrib non-free
-   deb-src http://deb.debian.org/debian/ stretch main contrib non-free
+   deb http://deb.debian.org/debian/ bullseye main contrib non-free
+   deb-src http://deb.debian.org/debian/ bullseye main contrib non-free
 
-and likewise the equivalent of the following entries towards the bottom of
-the file, again adding in `contrib` and/or `non-free` as needed:
+and likewise the equivalent of the following entries towards the
+bottom of the file, again adding in `contrib` and/or `non-free` as
+needed:
 
-   deb http://deb.debian.org/debian/ stretch-updates main contrib non-free
-   deb-src http://deb.debian.org/debian/ stretch-updates main contrib non-free
+   deb http://deb.debian.org/debian/ bullseye-updates main contrib non-free
+   deb-src http://deb.debian.org/debian/ bullseye-updates main contrib non-free
 
 (where you can use any suitable mirror instead of _deb.debian.org_)
 
 Also add `contrib` and/or `non-free` to the lines referring to the
 _security.debian.org_ mirror in the middle of the file.
 
-WARNING: you _MUST_ use `stretch` and _NOT_ `stable` for the distribution in
-all these entries (but CD/DVD entries might use `unstable`.)
+WARNING: you _MUST_ use `bullseye` and _NOT_ `stable` for the
+distribution in all these entries (but CD/DVD entries might use
+`unstable`.)
 
 === Update APT's list of packages
 
@@ -668,7 +690,7 @@ or, for _i386_
 
 then press kbd:[Enter] to confirm any updating of installed packages
 (where you have an Internet connection) and the installation of
-currently ~191 new packages (downloading ~184 MB from the Internet
+currently ~191 new packages (downloading ~185 MB from the Internet
 and/or DVDs) for _amd64_ -- probably different for _i386_ -- unless
 you did not select the Desktop or added other tasks earlier.
 
@@ -693,15 +715,14 @@ In the _/root/fsl11_ directory, start _fsadapt_ with
 
     ./fsadapt
 
-Press kbd:[Return] to proceed after Debian/kernel version warning.
+Press kbd:[Enter] to proceed after the Debian/kernel version warning.
 
-#TODO: Eliminate need to use kbd:[Return], by eliminating warning.#
+#TODO: Eliminate need to use kbd:[Enter], by eliminating warning.#
 
 ==== FS Adaptation: Modifications (Window 1)
 
 Using the arrow keys and kbd:[Space] make your selections and press kbd:[Enter].
 
-*  For government computers select `govt` and `noident`.
 *  If you are not using a GPIB board or USB dongle, you can deselect the GPIB option.
 
 ==== FS Adaptation: Setup (Window 2)
@@ -841,16 +862,15 @@ and enter `*y*` to confirm installation.
 To set the correct default desktop (it will be remembered per user):
 
 . Press kbd:[Ctrl+Alt+F1] to get to the GUI login.
-. Enter _oper_ as the `Username`.
-. Select the gear in the lower right-hand corner.
+. Select `FS Operator`.
+. Select the "`gear`" icon in the lower right-hand corner.
 . Select `System X11 Default`.
 . Complete logging in with the password.
 . Logout with `exit`.
-. Repeat the above steps for _prog_.
+. Repeat the above steps for `FS Programmer`.
 
 #TODO: Eliminate the need for these steps by implementing a proper
 fix, possibly in _fsadapt_.#
-
 
 === Make the FS
 
@@ -1089,48 +1109,58 @@ This is useful both to make the connection appear on only one
 interface and/or make it the same interface if the computer (or NIC)
 is changed.
 
-1. Select your connection snd click `Edit`.
+. Select your connection and click the "`gear`" icon.
 
-2. Select the `Ethernet` tab.
+. Select the `Ethernet` tab.
 
-3. Change the `Device` field to just list the name of the interface (typically `eno1`) by removing the MAC address in parentheses.
+. Use the drop-down for the `Device` field to select your device
+(typically `eno1` with the MAC address in parentheses). Then edit the
+field to just list the name of the interface (typically `eno1`) by
+removing the MAC address in parentheses.
 
-4. You may want to also set the `IPv6 Settings` to use `Method: Ignore`.
+. You may want to also set the `IPv6 Settings` to use `Method:
+Disabled`.
 
-5. Click `Save`.
+. Click `Save`.
 
-6. Click `Close`.
+. Close the window by pressing kbd:[Esc] (while the focus is on that
+window).
 
 ==== Disable the second Ethernet port
 
-This may be useful if your second port has a IPMI interface and the
-kernel detected a connection there and it is interferring with the
-normal or the IPMI connection.
+This may be useful, for example, if your second port has a IPMI
+interface and the kernel detected a connection there and it is
+interfering with the normal or the IPMI connection.
 
-1. If there is no `Wired connection 2`, click `Add`. Otherwise select
-that connection, click `Edit`, and skip to step 4.  It _may_ be benign
-to `Delete` any other connections _except_ `Wired connection 1`.
+. If there is no `Wired connection 2`, click the `+` icon. Otherwise
+select that connection, click the "`gear`" icon, and skip to step 4.
+It _may_ be benign to delete (`-` icon) any other connections _except_
+`Wired connection 1`.
 
-2. Make sure `Ethernet` is selected in the drop down box and click `Create...`.
+. Make sure `Ethernet` is selected in the drop down box and click
+`Create...`.
 
-3. Change the `Connection name:` to `Wired connection 2`.
+. Change the `Connection name` to `Wired connection 2`.
 
-4. Select the `Ethernet` tab.
+. Select the `Ethernet` tab.
 
-5. Make sure the `Device` field just lists the second ethernet
-device (typically `eno2`) with no MAC address in parentheses.
+. Use the drop-down for the `Device` field to select your device
+(typically `eno2` with the MAC address in parentheses). Then edit the
+field to just list the name of the interface (typically `eno2`) by
+removing the MAC address in parentheses.
 
-6. Select the `IPv4 Settings` tab.
+. Select the `IPv4 Settings` tab.
 
-7. For `Method` select `Disabled`.
+. For `Method` select `Disabled`.
 
-8. Select the `IPv6 Settings` tab.
+. Select the `IPv6 Settings` tab.
 
-9. For `Method` select `Ignore`.
+. For `Method` select `Disabled`.
 
-10. Click `Save`.
+. Click `Save`.
 
-11. Click `Close`.
+. Close the window by pressing kbd:[Esc] (while the focus is on that
+window).
 
 ==== Update IP address, hostname, FQDN, and other network information
 
@@ -1140,17 +1170,20 @@ reason. This is typically not needed if you use DHCP, which may still
 require some of the changes in step 6 (please let us know if you gain
 experience).
 
-1. Select your connection and click `Edit`.
+. Select your connection and click the "`gear`" icon.
 
-2. Select the `IPv4 Settings` (or `IPv6 Settings` if you are using IPv6) tab.
+. Select the `IPv4 Settings` (or `IPv6 Settings` if you are using
+IPv6) tab.
 
-3. Adjust your `Manual` Method configuration: `Addresses`, `DNS Servers` (comma separated), and `Search domains`.
+. Adjust your `Manual` Method configuration: `Addresses`, `DNS
+Servers` (comma separated), and `Search domains`.
 
-4. Click `Save`.
+. Click `Save`.
 
-5. Click `Close`.
+. Close the window by pressing kbd:[Esc] (while the focus is on that
+window).
 
-6. Modify other system files
+. Modify other system files
 
 +
 Update the information as appropriate. The system may have initially
@@ -1161,10 +1194,19 @@ been installed with the default hostname _debian_ and no domain name.
 Change your hostname
 +
 ./etc/hosts
+
 +
-Update your IP address, FQDN (canonical name), and alias (typically the hostname,
-but multiple aliases/nicknames are allowed).
+
+Update your IP address, FQDN (canonical name), and alias (typically
+the hostname, but multiple aliases/nicknames are allowed).
+
 +
+
+If you moved your computer to a new LAN environment, you may also want
+to update the nodes and aliases listed, see also <<Setup /etc/hosts>>.
+
++
+
 ./etc/networks
 +
 Use your local subnet (class A, B, or C) for the _localnet_ line.
@@ -1941,7 +1983,7 @@ available.
 
 === End of security updates
 
-When support for _stretch_ ends, currently expected in June 2022,
+When support for _bullseye_ ends, currently expected in June 2022,
 there will be no more security updates.  At that time, the existing
 packages will be migrated to the Debian archive site. This will be
 visible in the output from the weekly _cron_ job script as errors that
@@ -1958,22 +2000,22 @@ site. Although there will be no more security updates, this will enable
 downloading of additional packages if they are needed. The new lines that
 should replace the corresponding lines are:
 +
-   deb http://archive.debian.org/debian/ stretch main contrib non-free
-   deb http://archive.debian.org/debian-security stretch/updates main contrib non-free
-   deb http://archive.debian.org/debian-volatile stretch/volatile main contrib non-free
+   deb http://archive.debian.org/debian/ bullseye main contrib non-free
+   deb http://archive.debian.org/debian-security bullseye/updates main contrib non-free
+   deb http://archive.debian.org/debian-volatile bullseye/volatile main contrib non-free
 +
 And if you are using `deb-src` lines:
 +
-   deb-src http://archive.debian.org/debian/ stretch main contrib non-free
-   deb-src http://archive.debian.org/debian-security stretch/updates main contrib non-free
-   deb-src http://archive.debian.org/debian-volatile stretch/volatile main contrib non-free
+   deb-src http://archive.debian.org/debian/ bullseye main contrib non-free
+   deb-src http://archive.debian.org/debian-security bullseye/updates main contrib non-free
+   deb-src http://archive.debian.org/debian-volatile bullseye/volatile main contrib non-free
 +
 Otherwise the `deb-src` lines can be commented out (with a leading `#`).
 +
 In addition, if you want to install packages from more recent
-distributions that have been backported to _stretch_ you can add:
+distributions that have been backported to _bullseye_ you can add:
 +
-  deb http://archive.debian.org/debian-backports stretch-backports main contrib non-free
+  deb http://archive.debian.org/debian-backports bullseye-backports main contrib non-free
 +
 However, the "`backports`" are not normally needed.
 +

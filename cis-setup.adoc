@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 0.0.1 - July 2022
+Version 0.0.2 - July 2022
 
 == Introduction
 
@@ -45,7 +45,21 @@ _11_. In fact, all of the items that fail for FSL11 are either things
 that are required for  FS operation, items that appear to actually be
 secure despite the benchmark not recognizing them as such, and one
 change since Debian _10_ that we worked around.  However, we don't
-know what additional checks will be in Debian _11_ benchmark.
+know what additional checks will be in the Debian _11_ benchmark.
+
+[NOTE]
+====
+
+Additional steps needed to use the benchmark:
+
+. Install the package `default-jre` with _apt-get_.
+
+. Disable the _java_ version check in _CIS-CAT.sh_.
+
+. Change `ignore.platform.mismatch` to `true` in
+_misc/ciscat.properties_.
+
+====
 
 With the exception of the partition configuration, all actions are to
 be performed post-installation (see the <<installation.adoc#,FSL11
@@ -709,7 +723,8 @@ case, use these commands instead:
     adduser dhorsley
     chmod 0750 /home/dhorsley
 
-The final step of this section will need to be adjusted accordingly.
+The step for setting the contents of the home directory below will
+need to be adjusted accordingly, see <<note,NOTE>>.
 
 The `UID` and `GID` of the account should still be kept in agreement
 between the two computers.
@@ -749,8 +764,9 @@ _/usr2/dhorsley_ with a useful skeleton for use with the FS (you will
 [NOTE]
 ====
 
-If the user's home directory is not on _/usr2_, but is for example on
-_/home_, the following commands should be used instead:
+[[note]]<<note,NOTE>>: If the user's home directory is not on _/usr2_,
+but is for example on _/home_, the following commands should be used
+instead:
 
     cd /home
     mv dhorsley dhorsley.FSCOPY
@@ -759,6 +775,24 @@ _/home_, the following commands should be used instead:
     chown -R dhorsley.dhorsley /home/dhorsley
     chmod 0750 /home/dhorsley
 ====
+
+. Set default desktop
+
++
+
+To set the correct default desktop (it is remembered per user):
+
+.. Press kbd:[Ctrl+Alt+F1] to get to the GUI login.
+.. Enter `*dhorsley*` as the `Username`.
+.. Select the "`gear`" icon in the lower right-hand corner.
+.. Select `System X11 Default`.
+.. Complete logging in with the password.
+.. Logout with `exit`.
+
++
+
+#TODO: Eliminate the need for these steps by implementing a proper
+fix, possibly in _fsadapt_.#
 
 === Setting hostname alias
 
