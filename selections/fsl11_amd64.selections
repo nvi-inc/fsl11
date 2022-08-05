@@ -1001,6 +1001,7 @@ libmysofa1:amd64				install
 libmythes-1.2-0:amd64				install
 libnatpmp1:amd64				install
 libnautilus-extension1a:amd64			install
+libncurses-dev:amd64				install
 libncurses6:amd64				install
 libncursesw6:amd64				install
 libndp0:amd64					install
@@ -1139,8 +1140,8 @@ librasqal3:amd64				install
 libraw1394-11:amd64				install
 libraw20:amd64					install
 librdf0:amd64					install
-libreadline8:amd64				install
 libreadline-dev:amd64				install
+libreadline8:amd64				install
 librecode0:amd64				install
 libreoffice-base-core				install
 libreoffice-calc				install
@@ -1537,7 +1538,6 @@ perl-base					install
 perl-modules-5.32				install
 perl-openssl-defaults:amd64			install
 perl-tk						install
-pgplot5						install
 pinentry-gnome3					install
 pipewire:amd64					install
 pipewire-bin					install
@@ -1557,6 +1557,7 @@ pulseaudio-module-bluetooth			install
 pulseaudio-utils				install
 pv						install
 python-apt-common				install
+python-pip-whl					install
 python3						install
 python3-apt					install
 python3-brlapi:amd64				install
@@ -1571,6 +1572,7 @@ python3-debian					install
 python3-debianbts				install
 python3-distro					install
 python3-distro-info				install
+python3-distutils				install
 python3-gi					install
 python3-gi-cairo				install
 python3-gpg					install
@@ -1578,11 +1580,12 @@ python3-httplib2				install
 python3-ibus-1.0				install
 python3-idna					install
 python3-ldb					install
+python3-lib2to3					install
 python3-louis					install
 python3-mako					install
 python3-markupsafe				install
 python3-minimal					install
-python3-numpy:amd64				install
+python3-numpy					install
 python3-pkg-resources				install
 python3-pyatspi					install
 python3-pycurl					install
@@ -1603,6 +1606,7 @@ python3-venv					install
 python3-xdg					install
 python3.9					install
 python3.9-minimal				install
+python3.9-venv					install
 quadrapassel					install
 rake						install
 rcs						install
