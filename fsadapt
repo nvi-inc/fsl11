@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2020 NVI, Inc.
+# Copyright (c) 2020-2022 NVI, Inc.
 #
 # This file is part of FSL10 Linux distribution.
 # (see http://github.com/nvi-inc/fsl10).
@@ -19,11 +19,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-# fsadapt  -- adapt a Debian 9.x installation for FS Linux 10
-# $Id: fsadapt,v 10.0 2019/10/30 16:05:30 jfq Exp $
+# fsadapt  -- adapt a Debian 11.x installation for FS Linux 11
+# $Id: fsadapt,v 11.0 2022/08/04 14:19:30 jfq Exp $
 
 # What          When                  Who
 # $Log: fsadapt,v $
+# Revision 11.0 2022/08/04 14:19:30  jfhq
+# Initial release for FS Linux 10
+#
 # Revision 10.0 2019/10/30 16:05:30  jfhq
 # Initial release for FS Linux 10
 #
@@ -181,16 +184,18 @@
 # Ensure dialog is installed or things will go very wrong!
 dialog --version > /dev/null || exit
 
-readonly DIALOG="dialog --backtitle FS/Debian/Linux-fsadapt-10.0"
+readonly DIALOG="dialog --backtitle FS/Debian/Linux-fsadapt-11.0"
 readonly PATCHOPTS="-s -p1 --set-utc"
 
-FSMESS="We are about to update a Debian 9.x + Linux 4.9.0 (FS Linux 10)"
-FSLINUX00=$(cut -c1-2 < /etc/debian_version)
-FSLINUX01=$(uname -r | cut -c1-5)
-  if [ "${FSLINUX00}" != "9."  -o "${FSLINUX01}" != "4.9.0" ]; then
+readonly DEBIANVER="11."
+readonly KERNELVER="5.10.0"
+FSMESS="We are about to update a Debian ${DEBIANVER}x + Linux ${KERNELVER} (FS Linux 11)"
+FSLINUX00=$(cut -c1-3 < /etc/debian_version)
+FSLINUX01=$(uname -r | cut -c1-6)
+  if [ "${FSLINUX00}" != "${DEBIANVER}"  -o "${FSLINUX01}" != "${KERNELVER}" ]; then
       echo -n "WARNING: Could not find Debian version or "
       echo "did not find an approved FS kernel.";
-      echo -n "I will run fsadapt as kernel 4.9.0 FS Linux 10"; read -r ans
+      echo -n "I will run fsadapt as kernel ${KERNELVER} FS Linux 11"; read -r ans
   fi
 
 # Default verbosity (none).
