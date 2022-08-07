@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 0.0.2 - July 2022
+Version 0.0.3 - August 2022
 
 == Introduction
 
@@ -429,6 +429,19 @@ service `CISfix` to correct changes that occur on a reboot.
 
 The _/etc/crontab_ entry that should be added is missing the user
 (_root_) field.
+
+Debian no longer provides _aide.wrapper_, which is used in the
+_/etc/crontab_. A script _/usr/bin/aide.wrapper_ was added that
+creates the same _effective_ functionality. The lock file
+functionality is not included, but _apparently_ that is no longer
+needed, which is _apparently_ why _aide.wrapper_ was not provided by
+Debian. The contents of the added script are:
+
+./usr/bin/aide.wrapper
+ #!/bin/sh
+ #
+ /usr/bin/aide "$@"
+ RET=$?
 
 === 1.5.1 Ensure the permissions on the bootloader are configured
 
