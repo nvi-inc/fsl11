@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.14 - August 2022
+Version 0.0.15 - August 2022
 
 :sectnums:
 :experimental:
@@ -261,12 +261,19 @@ kbd:[Enter] to continue.  It may well be simpler just to use the unofficial
 installer images mentioned above that include all available non-free firmware.
 
 === If you are presented with a dialog asking which interface to use 
+
 Typically only shown if two or more network interfaces are
 found, which might include a virtual firewire interface in some cases.
 Select the interface you require (usually `eno1`) and press  kbd:[Enter].
 
+=== Configure the network
+
 Unless you are using DHCP (which is not advisable) you will be
 prompted to:
+
+NOTE: If you are only using the installer to initialize new disks, you
+may want to use `Go Back` and directly select `Detect disks` from the
+main menu to skip forward to <<Setup partitions>> below.
 
 . Type in the required static IP address in the form `_xxx.xxx.xxx.xxx_`
 (where each `_xxx_` is any integer from 0 - 255 inclusive) and press
@@ -282,10 +289,6 @@ and press kbd:[Enter].
 . Type in the required nameserver IP addresses, space separated, in
 the form `_xxx.xxx.xxx.xxx_` (where each `_xxx_` is any integer from 0 - 255
 inclusive) and press kbd:[Enter].
-
-Alternatively, if you are only using the installer to initialize new disks,
-you may want to use `Go Back` and directly select `Detect disks` from the
-main menu to skip forward to <<Setup partitions>> below.
 
 === Set a hostname
 Backspace over the default hostname _debian_ and type in the name
@@ -367,6 +370,8 @@ fine, just be sure to choose the large `FREE SPACE` at the end of the disk.
 . Select `Use as`, then select `Physical volume for RAID`, then `Done
 setting up the partition`
 
++
+
 NOTE: If you physically only have one disk bay and wish to construct a FSL11 `test-bed`,
 it is possible to avoid using the software RAID layer entirely.  Simply select `Use as: physical volume for LVM`
 for this partition instead and skip ahead to <<Setup Logical Volume Manager (LVM)>> below.
@@ -446,9 +451,9 @@ usually only takes a few minutes.
 
 === Configure the package manager
 
-If you start from a _netinst_ CD image, the installer now
-assumes you will install only from the network, and jumps straight to
-the `Choose your country...` part of the dialogue as detailed below.
+If you start from a _netinst_ CD image, the installer now assumes you
+will install only from the network, and jumps straight to the "`Choose your `Debian
+archive mirror country``" part of the dialogue as detailed below.
 
 If you are using DVD installer you will be prompted to scan additional DVDs.
 Scanning the additional DVDs (and obtaining copies of them in the
@@ -476,9 +481,9 @@ list may be suppressed.
 Select `Yes` and press  kbd:[Enter]  to use a network mirror (unless you
 have inadequate Internet access - but then you must scan all DVDs.)
 
-`Choose your country` from the list if available and press
-kbd:[Enter]. (If your country is not available choose the country
-nearest to you in a network connectivity sense.)
+Choose your `Debian archive mirror country` from the list if available
+and press kbd:[Enter]. (If your country is not available choose the
+country nearest to you in a network connectivity sense.)
 
 Select the fastest Debian mirror from those available.
 
@@ -677,6 +682,7 @@ NOTE: It is also possible to add additional DVDs at this stage using the
 +
 or, for _i386_
 
++
 #TODO:   dpkg --set-selections < selections/fsl11_i386.selections#
 
 
@@ -691,12 +697,17 @@ or, for _i386_
 then press kbd:[Enter] to confirm any updating of installed packages
 (where you have an Internet connection) and the installation of
 currently ~191 new packages (downloading ~185 MB from the Internet
-and/or DVDs) for _amd64_ -- probably different for _i386_ -- unless
-you did not select the Desktop or added other tasks earlier.
+and/or DVDs) for _amd64_ with UEFI -- probably different for _i386_
+and/or BIOS -- unless you did not select the Desktop or added other
+tasks earlier.
+
++
 
 Downloading commences for up to half an hour (depending on your Internet
 access and the exact revision of DVDs used).
-   
+
++
+
 Installation runs to completion.
 
 
@@ -925,9 +936,9 @@ Ensure the RAID is synced by checking that
 
     mdstat
 
-shows no recovery in progress. If there is none, shut down the
-machine safely. If you installed with a second disk, remove it and place
-it on the shelf.
+shows no recovery in progress. If there is none, shut down the machine
+safely. If you installed with a second disk (_secondary_), remove it
+and place it on the shelf.
 
 ==== Initialize new disk
 
