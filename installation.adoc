@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.15 - August 2022
+Version 0.0.16 - August 2022
 
 :sectnums:
 :experimental:
@@ -46,7 +46,7 @@ back-up method and can install the system to a single disk if you do
 not want to use the software RAID.
 
 If you are using the RAID configuration, you may wish to review the
-<<raid.adoc#_recommended_practices,Recommended practices>> sub-section
+<<raid.adoc#_recommended_practices,Recommended practices>> subsection
 of the <<raid.adoc#,RAID notes for FSL11>> document before installing.
 However, all of the practices listed there can implemented after the
 installation steps below are complete.
@@ -113,8 +113,8 @@ You can install from a DVD drive, USB device, or over the network. Any revision 
 _11.<x>_ installer should work fine.
 Note also that installing from DVDs as described here is
 recommended mainly for sites with little to poor Internet connectivity (even
-then, use of a single DVD may suffice) and the equivalent use of a Debian
-GNU/Linux _11.<x>_ "`Bullseye`" - Official _i386_/_amd64_ _netinst_ CD would suffice for
+then, use of a single DVD may suffice) and the equivalent use of a "`Debian
+GNU/Linux _11.<x>_ Bullseye - Official _i386_/_amd64_ netinst CD`" would suffice for
 installation at most sites with good connectivity. Official images for the installer
 can be found at: https://cdimage.debian.org/cdimage/archive/ or alternatively,
 should your hardware require non-free firmware, unofficial images for the
@@ -170,7 +170,8 @@ shell if they fail to find a hard disk that will boot. This might
 happen, for example, if you attempt to boot from a blank disk. If you
 become stuck booting to the UEFI shell, you may need to enter the
 motherboard's _setup_ utility to restore booting from the hard disks.
-The `Boot` menu may be where this is set.
+The `Boot` menu may be where this is set. You may able able to disable
+use of the UEFI Shell, which may eliminate this situation.
 
 == First Stage Installation
 
@@ -182,10 +183,11 @@ single disk (for a test install etc.) is also annotated below.
 
 TIP: Installing to a single disk initially is recommended and has some
 advantages. It is faster and you can control when the syncing for the
-second disk occurs, such as when you leave for the evening.  The
-set-up of additional disks is covered in the <<Post Install>> section
-(which references the <<raid.adoc#,RAID notes for FSL11>> document).
-As mentioned in the warning above, you should start with the smallest disk.
+second disk occurs, such as when you leave for the evening. The setup
+of additional disks is covered in the <<Post Install>> section (which
+references the <<raid.adoc#,RAID notes for FSL11>> document). As
+mentioned in the warning above, you should start with the smallest
+disk.
 
 === Boot from the installation medium
 
@@ -201,9 +203,12 @@ as `Save{nbsp}&{nbsp}Exit` (or `Boot`), to select overriding to boot
 with the installation media.
 
 TIP: If the system was most recently booted from a hard disk, you may
-need to boot one time with no hard disk installed to get it to
-recognize using the USB installer as a valid override in the
-motherboard's _setup_ utility.
+need to boot one time with no hard disk installed for the
+motherboard's _setup_ utility to recognize the USB drive as a valid
+boot override option. If the _setup_ utility does not recognize the
+USB drive at all, it may be necessary to turn the power off, remove
+the USB drive, reinsert it, and then reboot. Making the USB the first
+boot device _temporarily_ may be necessary.
 
 === Set boot options and boot installer
 
@@ -247,24 +252,28 @@ The installer will now boot.
 
 === Select a keyboard layout
 
-Find your keyboard on the keymap list and press  kbd:[Enter]. (The most common one is `American English`)
+Find your keyboard on the `Keymap` list, highlight it, and press
+kbd:[Enter]. (The most common one is `American English`)
 
-The installation media is now scanned and additional installer components loaded.
+The installation media is now scanned and additional installer
+components loaded.
 
 === If you are presented with a dialog asking for non-free firmware files
 
-You may need to locate the files requested (especially if they relate to
-your network or disk-drive interfaces)  and place them on a USB stick which
-should be inserted at this stage.  If you do have the required files select
-`Yes`, otherwise press kbd:[Tab] to select `No` then press
-kbd:[Enter] to continue.  It may well be simpler just to use the unofficial
-installer images mentioned above that include all available non-free firmware.
+You may need to locate the files requested (especially if they relate
+to your network or disk-drive interfaces) and place them on a USB
+stick which should be inserted at this stage. If you do have the
+required files select `Yes`, otherwise press kbd:[Tab] to select `No`
+then press kbd:[Enter] to continue. It may well be simpler just to use
+the unofficial installer images mentioned above that include all
+available non-free firmware.
 
 === If you are presented with a dialog asking which interface to use 
 
-Typically only shown if two or more network interfaces are
-found, which might include a virtual firewire interface in some cases.
-Select the interface you require (usually `eno1`) and press  kbd:[Enter].
+Typically only shown if two or more network interfaces are found,
+which might include a virtual FireWire interface in some cases.
+Select the interface you require (usually `eno1`) and press
+kbd:[Enter].
 
 === Configure the network
 
@@ -320,33 +329,33 @@ When prompted, select `Manual`
 
 ==== Setup the first disk
 
-. If needed create a new partition table by:
-.. Select first disk, something like `SCSI1 (0,0,0) (sda) - 4 TB ATA SATA HARDDISK`, and
-    press kbd:[Enter]
-.. Installer may warn: `You have selected an entire device to partition…`. Select `Yes`
+. If needed, create a new partition table by:
+
+.. Select your disk, something like `SCSI1 (0,0,0) (sda) - 4 TB ATA
+SATA HARDDISK`, and press kbd:[Enter]
 
 +
 
 +
 
-If you are asked to remove existing software RAID partition, select
-`Yes`.
+NOTE: If some other file system, like `xfs`, or other old setup is
+displayed, you will need to delete it first. You may be able to do
+this by deleting individual partitions until you have a single `FREE
+SPACE` area. For more complicated layouts, it may be more expedient,
+and it may be necessary, to use `Guided partitioning` to delete the
+existing configuration (and temporarily create new partitions). In
+this case, select `Guided partitioning`, then select `Guided - use
+entire disk`. Then select your disk, such as listed above, do not
+select a RAID or your installation media device. Then select `All
+files in one partition (recommended for new users)`. You may be
+prompted to confirm deleting RAID partitions and/or removing logical
+volume data, which you must do to continue. Then you should be able to
+continue with selecting your disk, as above.
+
+.. The installer may warn: `You have selected an entire device to
+partition…`. If so, select `Yes`
 
 . Select the `FREE SPACE` under your disk.
-+
-NOTE: If some other file system, like `xfs`, or other old setup is
-displayed, you will need to delete it first.  You may be able to do
-this by deleting individual partitions until you have a single `FREE
-SPACE` area.  For more complicated layouts, it may be more expedient,
-    and it may be necessary, to use `Guided partitioning` to delete
-    the existing configuration (and temporarily create new
-            partitions). In this case, select `Guided partitioning`,
-    then select `Guided - use entire disk`.  Then select your disk,
-    such as listed above, do not select a RAID or your installation
-    media device.  Then select `All files in one partition
-    (recommended for new users)`.  You may be prompted to confirm
-    deleting RAID partitions and/or logical volume data, which you must do to continue.  Then you
-    should be able to continue with step 1 above, by selecting your disk.
 
 . Select `Create a new partition`
 
@@ -355,8 +364,8 @@ SPACE` area.  For more complicated layouts, it may be more expedient,
 ** BIOS: Enter `*1MB*` in the size, choose `Primary` (rather than `Logical`) if asked for the partition type, then select `Beginning` of the disk.
 
 . Then for
-** UEFI: Select `Use as` then select `EFI System Partition (ESP)`
-** BIOS: Select `Use as` then select `Reserved BIOS boot area`, or alternatively `Do not use the partition` if the former option is not available.
+** UEFI: Select `Use as` then select `EFI System Partition`
+** BIOS: Select `Use as` then select `Reserved BIOS boot area`, or alternatively `do not use the partition` if the former option is not available.
 
 . Now select `Done setting up the partition`.
 
@@ -367,13 +376,13 @@ fine, just be sure to choose the large `FREE SPACE` at the end of the disk.
 
 . This time choose the whole amount of free space (the default) and choose `Primary` for the partition type if asked.
 
-. Select `Use as`, then select `Physical volume for RAID`, then `Done
+. Select `Use as`, then select `physical volume for RAID`, then `Done
 setting up the partition`
 
 +
 
 NOTE: If you physically only have one disk bay and wish to construct a FSL11 `test-bed`,
-it is possible to avoid using the software RAID layer entirely.  Simply select `Use as: physical volume for LVM`
+it is possible to avoid using the software RAID layer entirely. Simply select `Use as`, then select `physical volume for LVM`
 for this partition instead and skip ahead to <<Setup Logical Volume Manager (LVM)>> below.
 However, please note that a single disk setup is not recommended for any _operational_ system.
 
@@ -398,13 +407,14 @@ prompted to write changes to disk.
 
 . Back in partitioning, select the space _under_ `RAID1 device #0` and press kbd:[Enter]
 
-. Select `Use as`, then select `Physical volume for LVM`, then `Done
+. Select `Use as`, then select `physical volume for LVM`, then `Done
 setting up the partition`
 
 ==== Setup Logical Volume Manager (LVM)
 
 . Now choose `Configure the Logical Volume Manager` and select `Yes`
-if prompted to write the changes to disk or to configure LVM.
+if prompted to write the changes to disk or to keep the current layout
+and configure LVM.
 
 
 . Choose `Create volume group`
@@ -492,14 +502,17 @@ sites as it uses DNS to find a local mirror.
 
 Enter any necessary `HTTP` proxy information (usually left blank).
 
+Software is downloaded briefly.
+
 === Do not participate in popularity-contest
 
 When prompted to join the popularity-contest, select `No` and press kbd:[Enter]
 
 === Choose your packages
 
-When prompted to choose packages, select `SSH server` by highlighting it with
-the arrow keys and pressing kbd:[Space] on it (unless you don't want it). 
+When prompted to choose packages, select `SSH server` by moving to
+that row with the arrow keys and pressing kbd:[Space] on it (unless
+you don't want it).
 
 TIP: If you have a small disks and are worried about space, then you can
 also press kbd:[Space] on `Desktop Environment` to unselect it (which may
@@ -526,8 +539,8 @@ primary disk.
 
 === Disable Wayland (optional)
 
-This step can easily be performed when the installation stops for
-input in the next step, <<Remove installation media>>.
+This step should be executed when the installation stops for input in
+the next step, <<Remove installation media>>.
 
 IMPORTANT: `Wayland` is enabled by default. If your CPU does not
 include a GPU, you will probably need to disable it. If you don't, the
@@ -557,15 +570,16 @@ The only editor available at this point may be _nano_.
 
 . Press kbd:[Ctrl+Alt+F1] to return to the Installer dialog.
 
-
 === Remove installation media 
-Remove the DVD from the DVD-ROM drive (it should be auto-ejected), or unplug the
-USB drive and press  kbd:[Enter]  to reboot into the newly installed system.
 
-TIP: It would generally be wise to disable booting from DVD-ROM and floppy i.e.,
-anything other than the hard drive, in the BIOS just in case someone
-leaves something nasty in the machine's removable drives by mistake.
+Remove the DVD from the DVD-ROM drive (it should be auto-ejected), or
+unplug the USB drive, and press  kbd:[Enter]  to reboot into the newly
+installed system.
 
+TIP: It would generally be wise to disable booting from DVD-ROM and
+floppy i.e., anything other than the hard drive, in the BIOS just in
+case someone leaves something nasty in the machine's removable drives
+by mistake.
 
 == Second Stage Installation
 
@@ -676,14 +690,14 @@ NOTE: It is also possible to add additional DVDs at this stage using the
     cd fsl11
 
 . Feed the package selections into _dpkg_ using the command, for _amd64_
-+
+
    dpkg --set-selections < selections/fsl11_amd64.selections
 
 +
+
 or, for _i386_
 
-+
-#TODO:   dpkg --set-selections < selections/fsl11_i386.selections#
+   dpkg --set-selections < selections/fsl11_i386.selections
 
 
 . Start the additional package installation with
@@ -725,10 +739,6 @@ So that the update mechanism will work correctly, run
 In the _/root/fsl11_ directory, start _fsadapt_ with
 
     ./fsadapt
-
-Press kbd:[Enter] to proceed after the Debian/kernel version warning.
-
-#TODO: Eliminate need to use kbd:[Enter], by eliminating warning.#
 
 ==== FS Adaptation: Modifications (Window 1)
 
@@ -816,8 +826,6 @@ been installed.  The five tools are:
    * _recover_raid_ allows _root_ to re-add a disk that fell out of (or was removed from) the RAID back into it
 
 TIP: More information about RAID operation can be found in the <<raid.adoc#,RAID notes for FSL11>> document.
-
-See also the <<Setup additional disk>> sub-section in the <<Post Install>> section below.
 
 === Download the Field System
 
@@ -929,30 +937,43 @@ NOTE: You will need to have hot-swapping enabled in your motherboard's
 setup menu, at least for the secondary controller (it should also be
 enabled for the primary).
 
-NOTE: This sub-section assumes you have followed the directions in the <<Install tools for RAID (Optional)>>
-section above.
+NOTE: This subsection assumes you have followed the directions in the
+<<Install tools for RAID (Optional)>> section above.
 
-Ensure the RAID is synced by checking that
+If you have a second disk (_secondary_) in the RAID, either because
+you installed with it or because you have just set it up,  make sure
+the RAID is synced by checking that
 
     mdstat
 
-shows no recovery in progress. If there is none, shut down the machine
-safely. If you installed with a second disk (_secondary_), remove it
-and place it on the shelf.
+shows no recovery in progress. _When_ there is none, shut down the
+machine safely. Remove the second disk and place it on the shelf.
+Proceed to the next step, <<Initialize new disk>>.
 
 ==== Initialize new disk
 
-WARNING: Do not initialize a disk unless you are sure there is no
+IMPORTANT: Do not initialize a disk unless you are sure there is no
 data on it that you need to preserve.
 
 For the first time use of an additional disk with a new install, the
 disk should be initialized to make sure it has no already existing
-structure.  This should be done even if the disk has been used in a
+structure. This should be done even if the disk has been used in a
 different FS computer or a previous install on this computer.
 
-Boot with just the primary disk installed. Use the script:
+Follow these steps:
+
+. Boot with just the primary disk installed. 
+
++
+
+TIP: If your system is already running with no second disk
+(_secondary_) installed, you can skip booting.
+
+. Use the script:
 
    blank_secondary
+
++
 
 The script will wait for the new disk to be turned on. Insert a new
 disk in the secondary slot. Turn the key to turn the disk on. There
@@ -963,49 +984,25 @@ answer `*n*`.
 
 ==== Refresh secondary disk
 
-WARNING: You can refresh a disk if it has been erased or has
-previously been used in this RAID and is older than the current
-primary.  If it is newer than the current primary (maybe from a failed
-    FS upgrade that needs to be abandoned) or comes from a different
-RAID (i.e., system) or has a different structure (i.e., was previously
-    used for something else), it will have to be erased first. The
-script should detect these conditions and stop with an appropriate
-message. In that case, consider carefully if it is safe to erase the
-disk (probably not). If you determine it is safe, follow the
-instructions for <<Initialize new disk>>.
-
-Boot with only the primary disk installed. The new secondary disk must
-be keyed off or removed. The script will refuse to run if there is a
-second disk already turned on. This will ensure that no other disk is
-installed and mistaken for the disk to be refreshed.
-
-NOTE: With the RAID now missing a disk, you may see
-~20 of the `volume group
-not found` error messages, then the machine will boot. These error
-messages  only appear like this the first time a disk
-from the RAID is booted without its partner.
-
-Once booted, login as _root_.
+CAUTION: As written, this subsection is only to be used immediately
+after the previous subsection, <<Initialize new disk>>.
 
 Run the script:
 
     refresh_secondary
   
-When the script says it is waiting for the second disk, key it on.
+Once you reach the message that you can check on the recovery with
+_mdstat_ , you can resume using the computer as usual. You can safely
+reboot at this point, if it is needed; just don't remove either disk
+until the recovery is finished.
 
-Once you reach the message that it is recovering, you can resume using
-the computer as usual. You can stop the updating of the recovery
-message with kbd:[Ctrl+C] as described in the output. You can also
-safely reboot at this point, if it is needed.
-
-If later you want to check the progress of the status of the RAID
-re-sync, you can use:
+You can check the progress of the recovery with:
 
     mdstat
 
-When the syncing is complete, you can repeat the process of the
-previous sub-section and this sub-section if you have a third disk that needs
-to be set-up.
+When the recovery is complete, you can repeat the process of the
+entire subsection, <<Setup additional disk>>, if you have a third disk
+that needs to be setup.
 
 === Consider additional customizations
 
@@ -1040,9 +1037,10 @@ A useful minimum set of features to apply would be to install _ufw_
 and block everything except _ssh_ and further restrict _ssh_ access with
 TCP Wrappers.
 
-===== ufw set-up
+===== ufw setup
 
-To install and configure _ufw_ to only allow _ssh_ for incoming conections, use the commands:
+To install and configure _ufw_ to only allow _ssh_ for incoming
+connections, use the commands:
 
 ....
 apt-get -y install ufw
@@ -1050,11 +1048,12 @@ ufw allow OpenSSH
 ufw --force enable
 ....
 
-Addition set-up for _ufw_ is covered below in the <<More firewall rules>> sub-section.
+Addition setup for _ufw_ is covered below in the <<More firewall
+rules>> subsection.
 
-===== TCP Wrappers set-up
+===== TCP Wrappers setup
 
-A base set-up for TCP Wrappers is
+A base setup for TCP Wrappers is
 
 ./etc/hosts.deny
 ----
@@ -1105,14 +1104,11 @@ available for the `remote` node ID in the _ntpq_ output.
 
 === Network configuration changes
 
-This sub-section requires using _nm-connection-editor_ on a graphic
+This subsection requires using _nm-connection-editor_ on a graphic
 display (_nmtui_ may be an option on a text terminal, but it has not
-been fully verified). You will probably need to be _root_ or
-_desktop_ to do this. When you run this program and select a
-connection, e.g., `Wired connection 1` under `Ethernet`, the `Edit`
-button should become active.  If it stays greyed out, you don't have
-sufficent permission. All the sub-sections below assume you are in
-program and have sufficent permision,
+been fully verified). You may need to be _root_ or _desktop_ to do
+this.  All the subsections below assume you are in program and have
+sufficient permissions.
 
 ==== Make the connection always appear on the same interface regardless of the MAC address.
 
@@ -1331,24 +1327,27 @@ mail, reply-to-filter, and modified user names), provides
 good support of the FS _msg_ and _rdbemsg_ utilities.
 
 . As `root`, enter:
-+
-   dpkg-reconfigure exim4-config
-+
-to change the set-up. Typically you should select `internet site`, use
-your host name in place of _debian_ when it occurs, and otherwise
-select defaults at all the other prompts.  (The only other recommended
-    choices are `local delivery only` or `mail sent by smarthost;
-    received via SMTP or fetchmail`.)  If you want to receive incoming
-mail, you will also need to enable SMTP connections in `Window 4` of
-_fsadapt_ (and if you are using a firewall, you will need to enable
-    such connections for it).  We recommend that you NOT receive
-incoming mail on this computer.
 
-. If you follow the recommendation not to receive incoming mail
-and your system is not set-up for `local delivery only`, you
-should set the `Reply-To` address for outgoing messages to a
-real e-mail account at your institution that is read
-regularly.  You can do this by (all as _root_):
+   dpkg-reconfigure exim4-config
+
++
+
+to change the setup. Typically you should select `internet site`, use
+your host name in place of _debian_ when it occurs, and otherwise
+select defaults at all the other prompts. (The only other recommended
+choices are `local delivery only` or `mail sent by smarthost; received
+via SMTP or fetchmail`.) If you want to receive incoming mail, you
+will also need to enable SMTP connections in `Window 4` of _fsadapt_
+(and if you are using a firewall, you will need to enable such
+connections for it). We recommend that you NOT receive incoming mail
+on this computer.
+
+. If you follow the recommendation not to receive incoming mail and
+your system is not setup for `local delivery only`, you should set the
+`Reply-To` address for outgoing messages to a real e-mail account at
+your institution that is read regularly. You can do this by (all as
+_root_):
+
 +
 .. Create a file with contents
 (four lines):
@@ -1390,15 +1389,15 @@ system_filter = /etc/exim4/reply-to-filter
 
 This is recommended as a "`catch all`" since the _oper_ account is
 presumably under regular use and any messages sent there are likely to
-be noticed.  This is particularly important for system error messages
+be noticed. This is particularly important for system error messages
 since they should be delivered to a mail box on the system in case
 there is a network problem that might prevent them from being
-delivered off system.  You can however add additional off machine
+delivered off system. You can however add additional off machine
 delivery of these messages to whatever addressees you wish and we
-recommend this as well.  These should include an e-mail account at
-your institution that is read regularly (maybe the same address as the
-    `Reply-To` address you may have set above would be a good choice).
-To do this, create a _.forward_ file in _oper_'s home directory. The
+recommend this as well. These should include an e-mail account at your
+institution that is read regularly (maybe the same address as the
+`Reply-To` address you may have set above would be a good choice).  To
+do this, create a _.forward_ file in _oper_'s home directory. The
 permissions should be `-rw-r--r--`. The contents should be similar to
 (left justified):
 
@@ -1753,7 +1752,7 @@ If your system is using a RAID configuration, you may want to install
 the _raid-events_ script. The script provides email notifications of
 when Rebuilds (and array checks) start and end. For full details on
 the script and installation instructions, please see the
-<<raid.adoc#_raid_events,raid-events>> sub-section in the
+<<raid.adoc#_raid_events,raid-events>> subsection in the
 <<raid.adoc#_script_descriptions,Script descriptions>> section of the
 <<raid.adoc#,RAID Notes for FSL 11>> document.
 
@@ -1764,18 +1763,18 @@ want to install the _refresh_spare_usr2_ script. The script can be
 used to backup the _/usr2_ partition on the _operational_ system to
 the _spare_ system. For full details on the script and installation
 instructions, please see the
-<<raid.adoc#_refresh_spare_usr2,refresh_spare_usr2>> sub-section in
-the <<raid.adoc#_script_descriptions,Script descriptions>> section of
-the <<raid.adoc#,RAID Notes for FSL 11>> document.
+<<raid.adoc#_refresh_spare_usr2,refresh_spare_usr2>> subsection in the
+<<raid.adoc#_script_descriptions,Script descriptions>> section of the
+<<raid.adoc#,RAID Notes for FSL 11>> document.
 
 [appendix]
 
 == Managing Security Updates
 
 It is strongly recommended that you use the weekly _cron_ update
-download (the "`weekly _cron_ job`") as configured according to the `Window 2` sub-section in
-the <<_fsadapt>> section above. This will keep you informed of the
-available updates on a weekly basis.
+download (the "`weekly _cron_ job`") as configured according to the
+`Window 2` subsection in the <<_fsadapt>> section above. This will
+keep you informed of the available updates on a weekly basis.
 
 It is also recommended that you remove _anacron_ as described in the
 <<_remove_anacron_package>> section below. This will cause the updates
@@ -1800,10 +1799,10 @@ instructions on how to install the updates. You can choose a
 convenient time, when not in (or about to start) operations, to install
 the updates and test the system.
 
-IMPORTANT: The weekly _cron_ job
-message will include instructions for handling a kernel update if one is available.
- See the <<Kernel updates>> sub-section below for additional
-considerations for kernel updates.
+IMPORTANT: The weekly _cron_ job message will include instructions for
+handling a kernel update if one is available.  See the
+<<Kernel updates>> subsection below for additional considerations for
+kernel updates.
 
 The commands for installing the updates given by the message are (note
         the use of _apt_ instead of _apt-get_):
@@ -1888,7 +1887,7 @@ Be sure to allow time to follow the instructions when planning to
 install these updates.  As described in the ABI update warning, you
 will need to rebuild any out-of-tree modules after rebooting for that
 case. This is discussed in the <<Updating out-of-tree modules>>
-sub-section below.
+subsection below.
 
 CAUTION: In extreme circumstances, an ABI (but _not_ a non-ABI) kernel
 update can be deferred to a later date when more extensive testing can
@@ -1964,12 +1963,12 @@ script manually to check for updates:
 
 If there is no output, there are no updates to install.
 
-If there is output, there are updates to install.
-You can install them by following the installation procedure in
-sub-section <<Installing updates (Upgrading)>> above, except you will use the
+If there is output, there are updates to install. You can install them
+by following the installation procedure in subsection
+<<Installing updates (Upgrading)>> above, except you will use the
 instructions from the output of the script above instead of from the
-weekly _cron_ job (the outputs should be equivalent for the same set of
-        updates). Additionally, please read the following *NOTE*.
+weekly _cron_ job (the outputs should be equivalent for the same set
+of updates).  Additionally, please read the following *NOTE*.
 
 NOTE: If the weekly _cron_ job has not been installed, you may not get a
     display of NEWS items and a chance to abort when you install the updates. You
