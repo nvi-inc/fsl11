@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.16 - August 2022
+Version 0.0.17 - August 2022
 
 :sectnums:
 :experimental:
@@ -1010,6 +1010,7 @@ Please refer to the appendix <<Additional Setup Items>> below for
 customizations that your system may need or that you may find useful.
 
 [appendix]
+:sectnumlevels: 4
 
 == Additional Setup Items
 
@@ -1048,8 +1049,8 @@ ufw allow OpenSSH
 ufw --force enable
 ....
 
-Addition setup for _ufw_ is covered below in the <<More firewall
-rules>> subsection.
+Addition setup for _ufw_ is covered below in the
+<<More firewall rules>> subsection.
 
 ===== TCP Wrappers setup
 
@@ -1069,6 +1070,26 @@ It is recommend that you further restrict _sshd_ by using specific
 hosts and/or sub-domains instead of `ALL`. Please use
 `*man{nbsp}hosts_access*` for more information about configuring TCP
 Wrappers
+
+===== More firewall rules
+
+The following tersely summarizes some _ufw_ settings that may be
+useful:
+
+....
+#SSH
+ufw allow OpenSSH
+#NTP
+ufw allow ntp
+#remote access to metserver (or gromet) on port 50001
+ufw allow 50001
+#anywhere from subnet
+ufw allow from 192.168.4.0/24
+#RDBE multicast to addresses from subnet
+ufw allow in proto udp to 239.0.2.0/24 from 192.168.4.0/24
+#? RDBE multicast to group from subnet ?
+#ufw allow in proto igmp to 239.0.2.0/24 from 192.168.4.0/24
+....
 
 === Customize root's .bashrc file
 
@@ -1102,12 +1123,12 @@ names of the local machines only differ at the end of their names.
 That may make the differences hard to see given the short field
 available for the `remote` node ID in the _ntpq_ output.
 
-=== Network configuration changes
+=== Stabilize network configuration
 
 This subsection requires using _nm-connection-editor_ on a graphic
 display (_nmtui_ may be an option on a text terminal, but it has not
 been fully verified). You may need to be _root_ or _desktop_ to do
-this.  All the subsections below assume you are in program and have
+this. All the subsections below assume you are in the program and have
 sufficient permissions.
 
 ==== Make the connection always appear on the same interface regardless of the MAC address.
@@ -1169,86 +1190,6 @@ removing the MAC address in parentheses.
 . Close the window by pressing kbd:[Esc] (while the focus is on that
 window).
 
-==== Update IP address, hostname, FQDN, and other network information
-
-This is useful if the computer is physically moved to a different
-site or its network information needs to be be updated for a different
-reason. This is typically not needed if you use DHCP, which may still
-require some of the changes in step 6 (please let us know if you gain
-experience).
-
-. Select your connection and click the "`gear`" icon.
-
-. Select the `IPv4 Settings` (or `IPv6 Settings` if you are using
-IPv6) tab.
-
-. Adjust your `Manual` Method configuration: `Addresses`, `DNS
-Servers` (comma separated), and `Search domains`.
-
-. Click `Save`.
-
-. Close the window by pressing kbd:[Esc] (while the focus is on that
-window).
-
-. Modify other system files
-
-+
-Update the information as appropriate. The system may have initially
-been installed with the default hostname _debian_ and no domain name.
-+
-./etc/hostname
-+
-Change your hostname
-+
-./etc/hosts
-
-+
-
-Update your IP address, FQDN (canonical name), and alias (typically
-the hostname, but multiple aliases/nicknames are allowed).
-
-+
-
-If you moved your computer to a new LAN environment, you may also want
-to update the nodes and aliases listed, see also <<Setup /etc/hosts>>.
-
-+
-
-./etc/networks
-+
-Use your local subnet (class A, B, or C) for the _localnet_ line.
-+
-./etc/mailname
-+
-Use fully qualified node name.
-+
-[NOTE]
-====
-
-If your system doesn't have a FQDN or you don't want to show it in
-e-mail messages, you may be able to use a fake one. A FQDN may be
-necessary to allow messages to be sent successfully to some remote
-hosts and _mailman_ mail lists. A possible strategy for this is to
-append _.net_ to the node name you use in this file and the next. The
-node name in these two files can be different than the official
-hostname. However, these two mail related files should be consistent.
-You might consider _fs1-<xx>.net_ (or _fs2-<xx>.net_), where _<xx>_ is
-your station two letter code (lower case).
-
-====
-+
-./etc/exim4/update-exim4.conf.conf
-+
-Look for `hostnames=`, use fully qualified domain name.
-+
-Then execute:
-+
-....
-update-exim4.conf
-....
-+
-When finished, reboot.
-
 === Disable Desktop User
 
 If you do not need the functionality available in the Desktop
@@ -1298,25 +1239,6 @@ command:
 
 ....
 apt-get purge anacron
-....
-
-=== More firewall rules
-
-The following tersely summarizes some _ufw_ settings that may be useful:
-
-....
-#SSH
-ufw allow OpenSSH
-#NTP
-ufw allow ntp
-#remote access to metserver (or gromet) on port 50001
-ufw allow 50001
-#anywhere from subnet
-ufw allow from 192.168.4.0/24
-#RDBE multicast to addresses from subnet
-ufw allow in proto udp to 239.0.2.0/24 from 192.168.4.0/24
-#? RDBE multicast to group from subnet ?
-#ufw allow in proto igmp to 239.0.2.0/24 from 192.168.4.0/24
 ....
 
 === Configure e-mail
@@ -1766,6 +1688,101 @@ instructions, please see the
 <<raid.adoc#_refresh_spare_usr2,refresh_spare_usr2>> subsection in the
 <<raid.adoc#_script_descriptions,Script descriptions>> section of the
 <<raid.adoc#,RAID Notes for FSL 11>> document.
+
+:sectnumlevels: 3
+[appendix]
+
+== Maintenance procedures
+
+This appendix covers procedures for maintaining your system that go
+beyond the initial setup.
+
+=== Update IP address, hostname, FQDN, and other network information
+
+This is useful if the computer is physically moved to a different site
+or its network information needs to be be updated for a different
+reason. This is typically not needed if you use DHCP, which may still
+require some of the changes in the
+<<sysfiles,Modify other system files>> step below (please let us know
+if you gain experience).
+
+This subsection requires using _nm-connection-editor_ on a graphic
+display (_nmtui_ may be an option on a text terminal, but it has not
+been fully verified). You may need to be _root_ or _desktop_ to do
+this. This subsection assumes you are in the program and have
+sufficient permissions.
+
+. Select your connection and click the "`gear`" icon.
+
+. Select the `IPv4 Settings` (or `IPv6 Settings` if you are using
+IPv6) tab.
+
+. Adjust your `Manual` Method configuration: `Addresses`, `DNS
+Servers` (comma separated), and `Search domains`.
+
+. Click `Save`.
+
+. Close the window by pressing kbd:[Esc] (while the focus is on that
+window).
+
+. <<sysfiles,Modify other system files>>[[sysfiles]]:
+
++
+Update the information as appropriate. The system may have initially
+been installed with the default hostname _debian_ and no domain name.
++
+./etc/hostname
++
+Change your hostname
++
+./etc/hosts
+
++
+
+Update your IP address, FQDN (canonical name), and alias (typically
+the hostname, but multiple aliases/nicknames are allowed).
+
++
+
+If you moved your computer to a new LAN environment, you may also want
+to update the nodes and aliases listed, see also <<Setup /etc/hosts>>.
+
++
+
+./etc/networks
++
+Use your local subnet (class A, B, or C) for the _localnet_ line.
++
+./etc/mailname
++
+Use fully qualified node name.
++
+[NOTE]
+====
+
+If your system doesn't have a FQDN or you don't want to show it in
+e-mail messages, you may be able to use a fake one. A FQDN may be
+necessary to allow messages to be sent successfully to some remote
+hosts and _mailman_ mail lists. A possible strategy for this is to
+append _.net_ to the node name you use in this file and the next. The
+node name in these two files can be different than the official
+hostname. However, these two mail related files should be consistent.
+You might consider _fs1-<xx>.net_ (or _fs2-<xx>.net_), where _<xx>_ is
+your station two letter code (lower case).
+
+====
++
+./etc/exim4/update-exim4.conf.conf
++
+Look for `hostnames=`, use fully qualified domain name.
++
+Then execute:
++
+....
+update-exim4.conf
+....
++
+When finished, reboot.
 
 [appendix]
 
