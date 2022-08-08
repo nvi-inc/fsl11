@@ -106,7 +106,7 @@ sed -i '/^Defaults\tenv_reset/a Defaults\tuse_pty\nDefaults\tlogfile="/var/log/s
 apt-get -y install aide aide-common
 aideinit
 #
-# 1.3.2 Ensure filesystem integrity is regularly checked
+# 1.4.2 Ensure filesystem integrity is regularly checked
 #
 # 'root' was missing
 touch /etc/crontab
@@ -184,7 +184,7 @@ touch /etc/motd
 # 1.8.1.2 Ensure local login warning banner is configured properly
 #
 mv /etc/issue /etc/issue.CIS
-echo "Authorized uses only. All activity may be monitored and reported." > /etc/issue
+echo "Authorized uses only. All activity may be monitored and reported. \l" > /etc/issue
 #
 # 1.8.1.3 Ensure remote login warning banner is configured properly
 #
