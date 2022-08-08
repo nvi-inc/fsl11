@@ -62,7 +62,8 @@ EOT
 #
 sed -i 's/ \/tmp \+ext4 \+defaults/&,nodev,nosuid,noexec/' /etc/fstab
 #
-mount -o remount,nodev,nosuid,noexec /tmp
+# moved to end because it interfers with needed 'apt-get install' commands
+#mount -o remount,nodev,nosuid,noexec /tmp
 #
 # 1.1.8-10 Ensure nodevi,nosuid,noexec options set on /var/tmp partition
 #
@@ -816,3 +817,8 @@ exit 0
 EOT
 chmod u+x /usr/local/sbin/CISfix
 systemctl enable CISfix.service
+#
+# 1.1.3-1.1.5 Ensure nodevi,nosuid,noexec options set on /tmp partition
+#
+# moved to end because it interfers with needed 'apt-get install' commands
+mount -o remount,nodev,nosuid,noexec /tmp
