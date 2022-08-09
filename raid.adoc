@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 0.0.1 - July 2022
+Version 0.0.2 - August 2022
 
 :sectnums:
 :experimental:
@@ -125,7 +125,9 @@ with the _old_ _shelf_ disk.
 . Run _refresh_secondary_
 . Key-on the _secondary_ slot when prompted
 . If the script rejects the disk (and stops with an error), seek expert advice. Be sure to note any messages so they can be reported.
-. If the disk is accepted, let the refresh run to completion (the progress report can be aborted as indicated). The system can be used in the meantime, but may be a little slow.
+. If the disk is accepted, let the refresh run to completion. You can
+check its progress with _mdstat_. The system can be used in the
+meantime, but may be a little slow.
 
 == Recoverable testing
 
@@ -176,7 +178,9 @@ If the update is deemed _successful_:
 The _recover_raid_ script will fail if the disk hasn't spun up and been recognized by the kernel. It is perfectly
 fine to try several times until it succeeds.
 
-. Once the recovery completes (this may only take a few minutes), reboot the system.
+. Once the recovery completes (this may only take a few minutes),
+reboot the system. You can check the recovery progress with _mdstat_.
+
 +
 This step is necessary to return the disk in the primary slot to be _sda_.
 
@@ -194,8 +198,12 @@ Alternatively, if the update is deemed to have _failed_, the system can be
 . Key-on the _secondary_ slot when prompted
 . Answer `*y*` to blank
 . Run _refresh_secondary_
-. Once the refresh is complete (this may take several hours), you have recovered to the original state.
+. Once the refresh is complete (this may take several hours), you have
+recovered to the original state. You can check the progress with
+_mdstat_.
+
 +
+
 The system can be used for operations while the refresh is in progress.
 
 == Recover from a shelf disk
@@ -228,9 +236,13 @@ the _primary_ controller).
 . Key-on the _secondary_ slot when prompted
 . Answer `*y*` to blank
 . Run _refresh_secondary_
+
 +
-Once the refresh has entered the recovery phase (the progress display is being shown onscreen), the system can
-be used for operations, if need be. In that case, the rest of this procedure can be completed when time allows.
+
+Once the refresh has entered the recovery phase, the system can be
+used for operations, if need be. In that case, the rest of this
+procedure can be completed when time allows.
+
 . Wait until the RAID is not recovering, check with _mdstat_
 . Shutdown the system, e.g., `shutdown -h now`
 . Take the disk from _primary_ slot, put it on the _shelf_
@@ -245,12 +257,15 @@ be used for operations, if need be. In that case, the rest of this procedure can
 
 +
 
-Once the refresh has entered the recovery phase (the progress display
-is being shown onscreen), the system can be used for operations, if
-need be.
+Once the refresh has entered the recovery phase, the system can be
+used for operations, if need be.
 
 . When the refresh is complete, you have recovered to the state of the
 previous _good_ _shelf_ disk.
+
++
+
+You can check the recovery progress with _mdstat_.
 
 == Initialize a new disk
 
@@ -296,7 +311,10 @@ In either case, finish with:
 . Key-on the _secondary_ slot when prompted
 . Answer `*y*` to blank
 . Run _refresh_secondary_
-. Once the refresh is complete, the disk can be used normally
+
+. Once the refresh is complete, the disk can be used normally. You can
+check the recovery progress with _mdstat_.
+
 . Label the new disk with its system name, number, and serial number.
 
 === Currently one disk is running in the RAID, but two are installed
@@ -313,7 +331,10 @@ In this case, there is a good shelf disk. The strategy used avoids overwriting i
 . Key-on the _secondary_ slot when prompted
 . Answer `*y*` to blank
 . Run _refresh_secondary_
-. Once the refresh is complete, the disk can be used normally
+
+. Once the refresh is complete, the disk can be used normally. You can
+check the recovery progress with _mdstat_.
+
 . Label the new disk with its system name, number, and serial number.
 
 If the disks are not in cyclical order (i.e., primary, secondary are
@@ -340,7 +361,10 @@ Then in any event:
 . Key-on the _secondary_ slot when prompted
 . Answer `*y*` to blank
 . Run _refresh_secondary_
-. Once the refresh is complete, the disk can be used normally
+
+. Once the refresh is complete, the disk can be used normally. You can
+check the recovery progress with _mdstat_.
+
 . Label the new disk with its system name, number, and serial number.
 
 If the disks are not in not in cyclical order (i.e., primary,
@@ -465,17 +489,14 @@ _blank_secondary_, which also supports this feature.  This allows
 _blank_secondary_ then rerunning _refresh_secondary_, all without having to
 shutdown, turn the disk off, reboot, start the script, and turn the disk on for each.
 
-The refresh will take several hours. The script provides a progress
-indicator that can safely be aborted (using kbd:[Ctrl+C] as described
-    by the on-screen instructions) if that is preferred.  An active
-screen saver may make it difficult to see the progress after awhile,
-       but pressing kbd:[shift] or some other key should make it
-       visible again.  If you abort the progress indicator, you can
-       check the progress later with _mdstat_. The system can be used
-       normally while it refreshing, but it may be a little slow.
+The refresh will take several hours. You can check the progress with
+_mdstat_. If you prefer, you can run the script with the `-p` option
+to display a progress meter. The system can be used normally while it
+refreshing, but it may be a little slow.
 
-Once the progress indicator is updating, it is safe to reboot the
-computer if it is needed.
+The system can rebooted while the refresh is still active, as long as
+the neither disk is removed until it is finished. The refresh will
+resume automatically after the reboot.
 
 === blank_secondary
 
@@ -631,12 +652,10 @@ or if any _missing_ disk:
 or if no matching _missing_ disk can be found.
 
 The recovery may be fairly quick, as short as a few minutes, if the
-_inactive_ disk is relatively fresh.
-There is an ongoing progress display that can be
-terminated early with kbd:[Ctrl-C], without affecting the recovery.
-If you abort the progress indicator, you can check the progress with _mdstat_. The
-system can be used normally while it recovering, but it may be a
-little slow.
+_inactive_ disk is relatively fresh. You can check the progress with
+_mdstat_. If you prefer, you can run the script with the `-p` option
+to display a progress meter. The system can be used normally while it
+recovering, but it may be a little slow.
 
 === raid-events
 
