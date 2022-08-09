@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 1.7.0 - July 2022
+Version 0.0.2 - August 2022
 
 :sectnums:
 :experimental:
@@ -31,7 +31,7 @@ Version 1.7.0 - July 2022
 == Introduction
 
 These notes are intended to cover, albeit tersely, the major issues
-for RAID operations with FSL10 (see the <<installation.adoc#,FSL10
+for RAID operations with FSL11 (see the <<installation.adoc#,FSL11
       Installation>> document). The disk lay-out has changed
 significantly since FSL9, which required updating the scripts that are
 used. In addition, the scripts have been extensively revised to
@@ -42,8 +42,8 @@ unless otherwise indicated.
 
 == Guidelines for RAID operations
 
-The FSL10 RAID configuration normally uses two disks configured
-according to the FSL10 installation instructions (see the <<installation.adoc#,FSL10
+The FSL11 RAID configuration normally uses two disks configured
+according to the FSL11 installation instructions (see the <<installation.adoc#,FSL11
       Installation>> document). Below are mandatory
 and recommended guidelines.
 
@@ -125,7 +125,9 @@ with the _old_ _shelf_ disk.
 . Run _refresh_secondary_
 . Key-on the _secondary_ slot when prompted
 . If the script rejects the disk (and stops with an error), seek expert advice. Be sure to note any messages so they can be reported.
-. If the disk is accepted, let the refresh run to completion (the progress report can be aborted as indicated). The system can be used in the meantime, but may be a little slow.
+. If the disk is accepted, let the refresh run to completion. You can
+check its progress with _mdstat_. The system can be used in the
+meantime, but may be a little slow.
 
 == Recoverable testing
 
@@ -176,7 +178,9 @@ If the update is deemed _successful_:
 The _recover_raid_ script will fail if the disk hasn't spun up and been recognized by the kernel. It is perfectly
 fine to try several times until it succeeds.
 
-. Once the recovery completes (this may only take a few minutes), reboot the system.
+. Once the recovery completes (this may only take a few minutes),
+reboot the system. You can check the recovery progress with _mdstat_.
+
 +
 This step is necessary to return the disk in the primary slot to be _sda_.
 
@@ -194,8 +198,12 @@ Alternatively, if the update is deemed to have _failed_, the system can be
 . Key-on the _secondary_ slot when prompted
 . Answer `*y*` to blank
 . Run _refresh_secondary_
-. Once the refresh is complete (this may take several hours), you have recovered to the original state.
+. Once the refresh is complete (this may take several hours), you have
+recovered to the original state. You can check the progress with
+_mdstat_.
+
 +
+
 The system can be used for operations while the refresh is in progress.
 
 == Recover from a shelf disk
@@ -228,9 +236,13 @@ the _primary_ controller).
 . Key-on the _secondary_ slot when prompted
 . Answer `*y*` to blank
 . Run _refresh_secondary_
+
 +
-Once the refresh has entered the recovery phase (the progress display is being shown onscreen), the system can
-be used for operations, if need be. In that case, the rest of this procedure can be completed when time allows.
+
+Once the refresh has entered the recovery phase, the system can be
+used for operations, if need be. In that case, the rest of this
+procedure can be completed when time allows.
+
 . Wait until the RAID is not recovering, check with _mdstat_
 . Shutdown the system, e.g., `shutdown -h now`
 . Take the disk from _primary_ slot, put it on the _shelf_
@@ -245,12 +257,15 @@ be used for operations, if need be. In that case, the rest of this procedure can
 
 +
 
-Once the refresh has entered the recovery phase (the progress display
-is being shown onscreen), the system can be used for operations, if
-need be.
+Once the refresh has entered the recovery phase, the system can be
+used for operations, if need be.
 
 . When the refresh is complete, you have recovered to the state of the
 previous _good_ _shelf_ disk.
+
++
+
+You can check the recovery progress with _mdstat_.
 
 == Initialize a new disk
 
@@ -268,7 +283,7 @@ straightforward to adapt them to other cases.
 
 If you need to initialize more than one disk, please follow the
 instructions in the <<installation.adoc#_setup_additional_disk,Setup
-additional disk>> section of the FSL10 Installation document.
+additional disk>> section of the FSL11 Installation document.
 
 === Currently two disks are running in the RAID
 
@@ -296,7 +311,10 @@ In either case, finish with:
 . Key-on the _secondary_ slot when prompted
 . Answer `*y*` to blank
 . Run _refresh_secondary_
-. Once the refresh is complete, the disk can be used normally
+
+. Once the refresh is complete, the disk can be used normally. You can
+check the recovery progress with _mdstat_.
+
 . Label the new disk with its system name, number, and serial number.
 
 === Currently one disk is running in the RAID, but two are installed
@@ -313,7 +331,10 @@ In this case, there is a good shelf disk. The strategy used avoids overwriting i
 . Key-on the _secondary_ slot when prompted
 . Answer `*y*` to blank
 . Run _refresh_secondary_
-. Once the refresh is complete, the disk can be used normally
+
+. Once the refresh is complete, the disk can be used normally. You can
+check the recovery progress with _mdstat_.
+
 . Label the new disk with its system name, number, and serial number.
 
 If the disks are not in cyclical order (i.e., primary, secondary are
@@ -340,7 +361,10 @@ Then in any event:
 . Key-on the _secondary_ slot when prompted
 . Answer `*y*` to blank
 . Run _refresh_secondary_
-. Once the refresh is complete, the disk can be used normally
+
+. Once the refresh is complete, the disk can be used normally. You can
+check the recovery progress with _mdstat_.
+
 . Label the new disk with its system name, number, and serial number.
 
 If the disks are not in not in cyclical order (i.e., primary,
@@ -381,7 +405,7 @@ intends to copy is where it expects it to be and has the right form.
 Any _primary_ disk (_sda_) will be rejected that:
 
 . Is not part of the RAID (_md0_)
-. Has a boot scheme other than the BIOS or UEFI set up as described in the FSL10 Installation Document.
+. Has a boot scheme other than the BIOS or UEFI set up as described in the FSL11 Installation Document.
 
 To ensure that only an old _shelf_ disk for this system is
 overwritten, any _secondary_ disk (_sdb_) will be rejected that:
@@ -400,7 +424,7 @@ fallen out of the RAID due to failure.
 . Has a RAID from a different computer, i.e., foreign
 +
 Technically this could also be another RAID from the same computer, but not of a
-properly set up FSL10 computer, which should have only the one RAID
+properly set up FSL11 computer, which should have only the one RAID
 
 . Has any part already mounted
 +
@@ -465,17 +489,14 @@ _blank_secondary_, which also supports this feature.  This allows
 _blank_secondary_ then rerunning _refresh_secondary_, all without having to
 shutdown, turn the disk off, reboot, start the script, and turn the disk on for each.
 
-The refresh will take several hours. The script provides a progress
-indicator that can safely be aborted (using kbd:[Ctrl+C] as described
-    by the on-screen instructions) if that is preferred.  An active
-screen saver may make it difficult to see the progress after awhile,
-       but pressing kbd:[shift] or some other key should make it
-       visible again.  If you abort the progress indicator, you can
-       check the progress later with _mdstat_. The system can be used
-       normally while it refreshing, but it may be a little slow.
+The refresh will take several hours. You can check the progress with
+_mdstat_. If you prefer, you can run the script with the `-p` option
+to display a progress meter. The system can be used normally while it
+refreshing, but it may be a little slow.
 
-Once the progress indicator is updating, it is safe to reboot the
-computer if it is needed.
+The system can rebooted while the refresh is still active, as long as
+the neither disk is removed until it is finished. The refresh will
+resume automatically after the reboot.
 
 === blank_secondary
 
@@ -631,12 +652,10 @@ or if any _missing_ disk:
 or if no matching _missing_ disk can be found.
 
 The recovery may be fairly quick, as short as a few minutes, if the
-_inactive_ disk is relatively fresh.
-There is an ongoing progress display that can be
-terminated early with kbd:[Ctrl-C], without affecting the recovery.
-If you abort the progress indicator, you can check the progress with _mdstat_. The
-system can be used normally while it recovering, but it may be a
-little slow.
+_inactive_ disk is relatively fresh. You can check the progress with
+_mdstat_. If you prefer, you can run the script with the `-p` option
+to display a progress meter. The system can be used normally while it
+recovering, but it may be a little slow.
 
 === raid-events
 
@@ -691,7 +710,7 @@ To install the script, use the following commands as _root_:
 
 ```
 cd /usr/local/sbin
-cp ~/fsl10/RAID/raid-events .
+cp ~/fsl11/RAID/raid-events .
 chmod u+x raid-events
 cat <<EOF >>/etc/mdadm/mdadm.conf
 
@@ -770,7 +789,7 @@ using _sudo_ in a regular account a usable alternative. For details on
 that approach, please see the
 <<cis-setup.adoc#_installing_refresh_spare_usr2_with_cis_hardening,Installing
 refresh_spare_usr2 with CIS hardening>> subsection of the
-<<cis-setup.adoc#,CIS Hardening for FSL10>> document.
+<<cis-setup.adoc#,CIS Hardening for FSL11>> document.
 
 All the steps below must be performed as _root_ on the specified
 system. You should read all of each step and sub-step before following
@@ -808,7 +827,7 @@ a simple alias for routine use.
 .. Install _refresh_spare_usr2_. Execute:
 
   cd /usr/local/sbin
-  cp -a /root/fsl10/RAID/refresh_spare_usr2 refresh_spare_usr2
+  cp -a /root/fsl11/RAID/refresh_spare_usr2 refresh_spare_usr2
   chown root.root refresh_spare_usr2
   chmod a+r,u+wx,go-wx refresh_spare_usr2
 
@@ -1028,10 +1047,10 @@ system.
 
 == Multiple computer set-up
 
-You may have more than one FSL10 computer at a site, either an
+You may have more than one FSL11 computer at a site, either an
 _operational_ and _spare_ for one system and/or additional computers for a
 additional systems. In this case, we recommend that you do a full setup of
-each computer from scratch from FSL10 installation notes. The main, but not only,
+each computer from scratch from FSL11 installation notes. The main, but not only,
 reason for this is to make sure each RAID has a unique UUID, so the
 _refresh_secondary_ script will be able to help you avoid accidentally
 mixing disks while doing a refresh. While in principle is it possible
@@ -1045,7 +1064,7 @@ possible to move a RAID pair to a different computer and have it work
 on the network. Please note that the IP address and hostname is tied to
 the disks and not the computers. For information on how to configure this,
     please see the (optional) <<installation.adoc#_network_configuration_changes,Network configuration changes>> section
-    of the FSL10 installation document.
+    of the FSL11 installation document.
 
 The configuration of the system outside of the _/usr2_ partition
 between _operational_ and _spare_ computers should be maintained in
@@ -1060,11 +1079,11 @@ with other independent __operational__/__spare__ systems at a site as well (this
 
 ==  Recovery scenarios
 
-The setup provided by FSL10 provides several layers of recovery in
+The setup provided by FSL11 provides several layers of recovery in
 case of problems with the computers or the disks. Each system has a
 _shelf_ disk, which can serve as a back-up. Additionally if there is a
 _spare_ computer for each _operational_ computer, there are additional
-recovery options. If there are other FSL10 computers at the site, it
+recovery options. If there are other FSL11 computers at the site, it
 may be possible in extreme cases to press those computers and/or disks into
 service, particularly if they have been maintained in parallel.
 

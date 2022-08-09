@@ -20,9 +20,9 @@
 
 :doctype: book
 
-= FS Linux 10 Installation Guide
+= FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.6.0 - January 2022
+Version 0.0.17 - August 2022
 
 :sectnums:
 :experimental:
@@ -46,8 +46,8 @@ back-up method and can install the system to a single disk if you do
 not want to use the software RAID.
 
 If you are using the RAID configuration, you may wish to review the
-<<raid.adoc#_recommended_practices,Recommended practices>> sub-section
-of the <<raid.adoc#,RAID notes for FSL10>> document before installing.
+<<raid.adoc#_recommended_practices,Recommended practices>> subsection
+of the <<raid.adoc#,RAID notes for FSL11>> document before installing.
 However, all of the practices listed there can implemented after the
 installation steps below are complete.
 
@@ -81,9 +81,10 @@ explanations that impact what you actually type.
 |          | _jessie_     |     _8.0_      | _3.16.0_ |
 |  _10_    | _stretch_    |     _9.0_      | _4.9.0_  | 2020
 |          | _buster_     |    _10.0_      | _4.19.0_ |
+|  _11_    | _bullseye_  |     _11.0_      | _5.10.0_ | 2022
 |=============================================================
 
-The FSL10 documents follow the FS font conventions, which can be found
+The FSL11 documents follow the FS font conventions, which can be found
 at: https://nvi-inc.github.io/fs/misc/font_conventions.html.
 
 == Choosing architecture and creating installation media
@@ -99,7 +100,7 @@ but requires use of the `Legacy` (or `BIOS`) boot mode in most cases.
 The _amd64_ installation media will fail to boot on a system that is
 32-bit only.
 
-To install Debian _9_, you can either use a DVD or USB drive. The latter is
+To install Debian _11_, you can either use a DVD or USB drive. The latter is
 faster, and also easier if you wish to use UEFI. Directions for creating your
 installation media can be found online. 
 
@@ -109,13 +110,11 @@ Ryzen, Epyc, Core, and Xeon. The naming scheme dates back to when Intel had a
 competing and incompatible 64-bit architecture _ia64_.
 
 You can install from a DVD drive, USB device, or over the network. Any revision of
-_9.<x>_ installer from _9.7_ onwards should work fine, but older revisions will want to download
-many security patches from the network which may already be included in the
-latest revision. Revisions before _9.7_ had a serious security flaw in the package
-installer. Note also that installing from DVDs as described here is
+_11.<x>_ installer should work fine.
+Note also that installing from DVDs as described here is
 recommended mainly for sites with little to poor Internet connectivity (even
-then, use of a single DVD may suffice) and the equivalent use of a Debian
-GNU/Linux _9.<x>_ "`Stretch`" - Official _i386_/_amd64_ _netinst_ CD would suffice for
+then, use of a single DVD may suffice) and the equivalent use of a "`Debian
+GNU/Linux _11.<x>_ Bullseye - Official _i386_/_amd64_ netinst CD`" would suffice for
 installation at most sites with good connectivity. Official images for the installer
 can be found at: https://cdimage.debian.org/cdimage/archive/ or alternatively,
 should your hardware require non-free firmware, unofficial images for the
@@ -124,7 +123,7 @@ https://cdimage.debian.org/cdimage/unofficial/non-free/cd-including-firmware/arc
 
 The details of creating your installation media can be found in the Debian
 installation guide available from:
-https://www.debian.org/releases/stretch/installmanual
+https://www.debian.org/releases/bullseye/installmanual
 
 
 == Motherboard setup
@@ -134,7 +133,7 @@ https://www.debian.org/releases/stretch/installmanual
 
 Some hardware may require special procedures. For cases we know about,
 instructions are provided in top-level sub-directories of the
-repository, which is visible at https://github.com/nvi-inc/fsl10. In
+repository, which is visible at https://github.com/nvi-inc/fsl11. In
 addition to special instructions, there may be needed software/drivers
 in the sub-directories. The following table lists the cases that are
 currently covered. Some of these solutions may be useful for other
@@ -147,7 +146,7 @@ installation.
 |=============================================================
 | Directory | Hardware |Issue
 
-| https://github.com/nvi-inc/fsl10/tree/master/X11SCA-F[X11SCA-F] | Supermicro X11SCA-F motherboard|Newer driver required for Intel 1000e NIC
+| | | None at this time
 |=============================================================
 
 ====
@@ -170,8 +169,9 @@ TIP: For UEFI, some motherboards may switch to booting to the UEFI
 shell if they fail to find a hard disk that will boot. This might
 happen, for example, if you attempt to boot from a blank disk. If you
 become stuck booting to the UEFI shell, you may need to enter the
-motherboard's _setup_ utility `boot` menu and restore booting from the
-hard disks.
+motherboard's _setup_ utility to restore booting from the hard disks.
+The `Boot` menu may be where this is set. You may able able to disable
+use of the UEFI Shell, which may eliminate this situation.
 
 == First Stage Installation
 
@@ -183,11 +183,11 @@ single disk (for a test install etc.) is also annotated below.
 
 TIP: Installing to a single disk initially is recommended and has some
 advantages. It is faster and you can control when the syncing for the
-second disk occurs, such as when you leave for the evening.  The
-set-up of additional disks is covered in the <<Post Install>> section
-(which references the <<raid.adoc#,RAID notes for FSL10>> document).
-As mentioned in the warning above, you should start with the smallest disk.
-
+second disk occurs, such as when you leave for the evening. The setup
+of additional disks is covered in the <<Post Install>> section (which
+references the <<raid.adoc#,RAID notes for FSL11>> document). As
+mentioned in the warning above, you should start with the smallest
+disk.
 
 === Boot from the installation medium
 
@@ -196,9 +196,19 @@ Connect an active network cable to your lowest numbered interface
 
 Insert/plug-in your installation media and reboot.
 
-To boot of the installation media you may need to bring up your motherboards
-`boot` menu, which is typically accessed by pressing kbd:[F11] or kbd:[F12].
+To boot from the installation media you may need to bring up your
+motherboard's _setup_ utility, which is typically accessed by pressing
+kbd:[F11] or kbd:[F12]. From there you may need to access a menu such
+as `Save{nbsp}&{nbsp}Exit` (or `Boot`), to select overriding to boot
+with the installation media.
 
+TIP: If the system was most recently booted from a hard disk, you may
+need to boot one time with no hard disk installed for the
+motherboard's _setup_ utility to recognize the USB drive as a valid
+boot override option. If the _setup_ utility does not recognize the
+USB drive at all, it may be necessary to turn the power off, remove
+the USB drive, reinsert it, and then reboot. Making the USB the first
+boot device _temporarily_ may be necessary.
 
 === Set boot options and boot installer
 
@@ -242,26 +252,37 @@ The installer will now boot.
 
 === Select a keyboard layout
 
-Find your keyboard on the keymap list and press  kbd:[Enter]. (The most common one is `American English`)
+Find your keyboard on the `Keymap` list, highlight it, and press
+kbd:[Enter]. (The most common one is `American English`)
 
-The installation media is now scanned and additional installer components loaded.
+The installation media is now scanned and additional installer
+components loaded.
 
 === If you are presented with a dialog asking for non-free firmware files
 
-You may need to locate the files requested (especially if they relate to
-your network or disk-drive interfaces)  and place them on a USB stick which
-should be inserted at this stage.  If you do have the required files select
-`Yes`, otherwise press kbd:[Tab] to select `No` then press
-kbd:[Enter] to continue.  It may well be simpler just to use the unofficial
-installer images mentioned above that include all available non-free firmware.
+You may need to locate the files requested (especially if they relate
+to your network or disk-drive interfaces) and place them on a USB
+stick which should be inserted at this stage. If you do have the
+required files select `Yes`, otherwise press kbd:[Tab] to select `No`
+then press kbd:[Enter] to continue. It may well be simpler just to use
+the unofficial installer images mentioned above that include all
+available non-free firmware.
 
 === If you are presented with a dialog asking which interface to use 
-Typically only shown if two or more network interfaces are
-found, which might include a virtual firewire interface in some cases.
-Select the interface you require (usually `eno1`) and press  kbd:[Enter].
+
+Typically only shown if two or more network interfaces are found,
+which might include a virtual FireWire interface in some cases.
+Select the interface you require (usually `eno1`) and press
+kbd:[Enter].
+
+=== Configure the network
 
 Unless you are using DHCP (which is not advisable) you will be
 prompted to:
+
+NOTE: If you are only using the installer to initialize new disks, you
+may want to use `Go Back` and directly select `Detect disks` from the
+main menu to skip forward to <<Setup partitions>> below.
 
 . Type in the required static IP address in the form `_xxx.xxx.xxx.xxx_`
 (where each `_xxx_` is any integer from 0 - 255 inclusive) and press
@@ -277,10 +298,6 @@ and press kbd:[Enter].
 . Type in the required nameserver IP addresses, space separated, in
 the form `_xxx.xxx.xxx.xxx_` (where each `_xxx_` is any integer from 0 - 255
 inclusive) and press kbd:[Enter].
-
-Alternatively, if you are only using the installer to initialize new disks,
-you may want to use `Go Back` and directly select `Detect disks` from the
-main menu to skip forward to <<Setup partitions>> below.
 
 === Set a hostname
 Backspace over the default hostname _debian_ and type in the name
@@ -312,26 +329,33 @@ When prompted, select `Manual`
 
 ==== Setup the first disk
 
-. If needed create a new partition table by:
-.. Select first disk, something like `SCSI1 (0,0,0) (sda) - 4 TB ATA SATA HARDDISK`, and
-    press kbd:[Enter]
-.. Installer may warn: `You have selected an entire device to partition…`. Select `Yes`
+. If needed, create a new partition table by:
 
-. Select the `FREE SPACE` under the first device
+.. Select your disk, something like `SCSI1 (0,0,0) (sda) - 4 TB ATA
+SATA HARDDISK`, and press kbd:[Enter]
+
 +
+
++
+
 NOTE: If some other file system, like `xfs`, or other old setup is
-displayed, you will need to delete it first.  You may be able to do
+displayed, you will need to delete it first. You may be able to do
 this by deleting individual partitions until you have a single `FREE
-SPACE` area.  For more complicated layouts, it may be more expedient,
-    and it may be necessary, to use `Guided partitioning` to delete
-    the existing configuration (and temporarily create new
-            partitions). In this case, select `Guided partitioning`,
-    then select `Guided - use entire disk`.  Then select your disk,
-    such as listed above, do not select a RAID or your installation
-    media device.  Then select `All files in one partition
-    (recommended for new users)`.  You may be prompted to confirm
-    deleting RAID and/or LVM, which you must do to continue.  Then you
-    should be able to continue with step 1 above, by selecting your disk.
+SPACE` area. For more complicated layouts, it may be more expedient,
+and it may be necessary, to use `Guided partitioning` to delete the
+existing configuration (and temporarily create new partitions). In
+this case, select `Guided partitioning`, then select `Guided - use
+entire disk`. Then select your disk, such as listed above, do not
+select a RAID or your installation media device. Then select `All
+files in one partition (recommended for new users)`. You may be
+prompted to confirm deleting RAID partitions and/or removing logical
+volume data, which you must do to continue. Then you should be able to
+continue with selecting your disk, as above.
+
+.. The installer may warn: `You have selected an entire device to
+partition…`. If so, select `Yes`
+
+. Select the `FREE SPACE` under your disk.
 
 . Select `Create a new partition`
 
@@ -340,10 +364,10 @@ SPACE` area.  For more complicated layouts, it may be more expedient,
 ** BIOS: Enter `*1MB*` in the size, choose `Primary` (rather than `Logical`) if asked for the partition type, then select `Beginning` of the disk.
 
 . Then for
-** UEFI: Select `Use as` then select `EFI System Partition (ESP)`
-** BIOS: Select `Use as` then select `Reserved BIOS boot area`, or alternatively `Do not use the partition` if the former option is not available.
+** UEFI: Select `Use as` then select `EFI System Partition`
+** BIOS: Select `Use as` then select `Reserved BIOS boot area`, or alternatively `do not use the partition` if the former option is not available.
 
-. Now press `Done setting up the partition`.
+. Now select `Done setting up the partition`.
 
 . Next select the `FREE SPACE` and `Create a new partition` again.
 +
@@ -352,10 +376,13 @@ fine, just be sure to choose the large `FREE SPACE` at the end of the disk.
 
 . This time choose the whole amount of free space (the default) and choose `Primary` for the partition type if asked.
 
-. Select `Use as: physical volume for RAID`, then `Done setting up the partition`
+. Select `Use as`, then select `physical volume for RAID`, then `Done
+setting up the partition`
 
-NOTE: If you physically only have one disk bay and wish to construct a FSL10 `test-bed`,
-it is possible to avoid using the software RAID layer entirely.  Simply select `Use as: physical volume for LVM`
++
+
+NOTE: If you physically only have one disk bay and wish to construct a FSL11 `test-bed`,
+it is possible to avoid using the software RAID layer entirely. Simply select `Use as`, then select `physical volume for LVM`
 for this partition instead and skip ahead to <<Setup Logical Volume Manager (LVM)>> below.
 However, please note that a single disk setup is not recommended for any _operational_ system.
 
@@ -365,25 +392,30 @@ Repeat the process for the second disk, if present.
 
 ==== Setup RAID
 
-. Select `Configure software RAID`, select `Yes` to write the changes
-  to the disks.
+. Select `Configure software RAID`. Then select `Yes` to write the
+  changes to the disks.
 
 . Select `Create MD device`, choose `RAID1` and enter `*2*` as number
 of devices and `*0*` as number of spares.
 
 . Select the RAID partitions we just created by pressing kbd:[Space]
 -- these should be _sda2_ and _sdb2_, if you have just one disk, just
-pick _sda2_ -- then press kbd:[Enter] to continue
+pick _sda2_ -- then press kbd:[Enter] to continue. Select `yes` if
+prompted to write changes to disk.
 
 . Select `Finish`.
 
-. Back in partitioning, Select the space _under_ `RAID1 device #0` and press kbd:[Enter]
+. Back in partitioning, select the space _under_ `RAID1 device #0` and press kbd:[Enter]
 
-. Select `use as` then select `Physical volume for LVM` then `Done setting up the partition`
+. Select `Use as`, then select `physical volume for LVM`, then `Done
+setting up the partition`
 
 ==== Setup Logical Volume Manager (LVM)
 
-. Now choose `Configure the Logical Volume Manager` and select `yes` if prompted to write the changes to disk
+. Now choose `Configure the Logical Volume Manager` and select `Yes`
+if prompted to write the changes to disk or to keep the current layout
+and configure LVM.
+
 
 . Choose `Create volume group`
 . Enter a name appropriate for the machine and group, e.g., `*vg0*`, and press kbd:[Enter]
@@ -403,8 +435,8 @@ optional unless you are applying CIS hardening.
 |3 |_/home_          | `home`     | 4 G
 |4 |_/var/log_       | `log` *     | 4 G
 |5 |_/_              | `root`     | 50 G
-|6 |_swap_           | `swap`     | 8 G
-|7 |_/tmp_           | `tmp`      | 8 G
+|6 |(swap)           | `swap`     | 8 G
+|7 |_/tmp_           | `tmp`      | 50 G
 |8 |_/var_           | `var` *     | 8 G
 |9 |_/var/tmp_       | `vartmp` *  | 8 G
 |10|_/usr2_          | `usr2`     | remaining disk space _less ~50 GB_
@@ -429,16 +461,9 @@ usually only takes a few minutes.
 
 === Configure the package manager
 
-If you start from a _netinst_ CD image, the installer now
-assumes you will install only from the network, and jumps straight to
-the `Choose your country...` part of the dialogue as detailed below.
-
-Select the fastest Debian mirror from those available.
-
-TIP: The new `deb.debian.org` mirror is a good choice for most
-sites as it uses DNS to find a local mirror.
-
-Enter any necessary `HTTP` proxy information (usually left blank.)
+If you start from a _netinst_ CD image, the installer now assumes you
+will install only from the network, and jumps straight to the "`Choose your `Debian
+archive mirror country``" part of the dialogue as detailed below.
 
 If you are using DVD installer you will be prompted to scan additional DVDs.
 Scanning the additional DVDs (and obtaining copies of them in the
@@ -456,7 +481,7 @@ For each additional DVD you wish to scan, insert it in the drive, select
 will need to use `*eject /dev/cdrom*` from another virtual console to do this)
 
 Select `No` and press  kbd:[Enter]  to continue once you are done.
-If prompted, insert the "`Debian GNU/Linux _9.<x>_ Stretch - Official _i386_/_amd64_
+If prompted, insert the "`Debian GNU/Linux _11.<x>_ Bullseye - Official _i386_/_amd64_
 Binary-1 DVD`" back into the DVD-ROM drive and press  kbd:[Enter].
 
 WARNING: If you do scan additional DVDs, the following useful dialogue
@@ -465,9 +490,19 @@ list may be suppressed.
 
 Select `Yes` and press  kbd:[Enter]  to use a network mirror (unless you
 have inadequate Internet access - but then you must scan all DVDs.)
-Choose your country from the list if available and press  kbd:[Enter].
-(If your country is not available choose the country nearest to you in a
-network connectivity sense.)
+
+Choose your `Debian archive mirror country` from the list if available
+and press kbd:[Enter]. (If your country is not available choose the
+country nearest to you in a network connectivity sense.)
+
+Select the fastest Debian mirror from those available.
+
+TIP: The new `deb.debian.org` mirror is a good choice for most
+sites as it uses DNS to find a local mirror.
+
+Enter any necessary `HTTP` proxy information (usually left blank).
+
+Software is downloaded briefly.
 
 === Do not participate in popularity-contest
 
@@ -475,8 +510,9 @@ When prompted to join the popularity-contest, select `No` and press kbd:[Enter]
 
 === Choose your packages
 
-When prompted to choose packages, select `SSH server` by highlighting it with
-the arrow keys and pressing kbd:[Space] on it (unless you don't want it). 
+When prompted to choose packages, select `SSH server` by moving to
+that row with the arrow keys and pressing kbd:[Space] on it (unless
+you don't want it).
 
 TIP: If you have a small disks and are worried about space, then you can
 also press kbd:[Space] on `Desktop Environment` to unselect it (which may
@@ -501,35 +537,57 @@ At `Install GRUB to Master Boot Record` select `yes` then select _/dev/sda_
 When prompted, press kbd:[Enter] to install to the master boot record of the
 primary disk.
 
+=== Disable Wayland (optional)
+
+This step should be executed when the installation stops for input in
+the next step, <<Remove installation media>>.
+
+IMPORTANT: `Wayland` is enabled by default. If your CPU does not
+include a GPU, you will probably need to disable it. If you don't, the
+console may be nearly impossible to work with after rebooting. On the
+other hand, systems with other graphics solutions may be very
+difficult to work with if `Wayland` is disabled. You may need to try
+both approaches to see which works best. If you try one that doesn't
+work well, you may need to reinstall from scratch to try the other.
+
+To disable `Wayland`:
+
+. Press kbd:[Ctrl+Alt+F2] to switch to a different console.
+
+. Press kbd:[Enter] to activate the console.
+
+. Edit _/target/etc/gdm3/daemon.config_, uncomment `Wayland=False`,
+and save the file.
+
++
+
+The only editor available at this point may be _nano_.
+
+. Execute:
+
+ sync;sync
+ exit
+
+. Press kbd:[Ctrl+Alt+F1] to return to the Installer dialog.
 
 === Remove installation media 
-Remove the DVD from the DVD-ROM drive (it should be auto-ejected), or unplug the
-USB drive and press  kbd:[Enter]  to reboot into the newly installed system.
 
-TIP: It would generally be wise to disable booting from DVD-ROM and floppy i.e.,
-anything other than the hard drive, in the BIOS just in case someone
-leaves something nasty in the machine's removable drives by mistake.
+Remove the DVD from the DVD-ROM drive (it should be auto-ejected), or
+unplug the USB drive, and press  kbd:[Enter]  to reboot into the newly
+installed system.
 
+TIP: It would generally be wise to disable booting from DVD-ROM and
+floppy i.e., anything other than the hard drive, in the BIOS just in
+case someone leaves something nasty in the machine's removable drives
+by mistake.
 
 == Second Stage Installation
 
 You can now boot to your new OS.
 
-NOTE: If the login screen is painfully slow and your CPU does not
-include a GPU, you can probably fix the slowness by disabling
-`Wayland` in _gdm3_. However, the result may be that rebooting or
-shutting down will typically have an enforced 90-120 second delay (see
-    the <<Fix for slow reboot/shutdown with Wayland disabled>> section for a _possible_
-    fix). You may find the slow login screen preferable. To disable
-`Wayland`, edit _/etc/gdm3/daemon.conf_ and uncomment the line
-`WaylandEnable=false`.  Then _gdm3_ will need to be restarted either
-by rebooting or entering `*systemctl restart gdm3*`.  You can restart an
-individual virtual console _getty_ with `*systemctl restart getty@tty__N__*`
-where `*_N_*` is the number of the virtual console.
-
 === Login as root 
 
-TIP: Previous versions of Debian ran X11 on virtual console 7. As of
+TIP: Versions before Debian 9 ran X11 on virtual console 7. As of
 Debian 9, the graphical environment login is on virtual console 1.
 Each login there for a different user creates a session on the next
 unused virtual console.
@@ -577,28 +635,30 @@ to use a proxy _proxy.some.where_ at port `8080` for example.
 
 === Edit /etc/apt/sources.list
 
-Using your favourite text editor, eg _vi_, and comment out all `cdrom` entries
-(unless you don't have a decent Internet connection and need to use DVDs,
-whereupon the dialogue presented below may differ) and check you have the
-equivalent of the following entries towards the top of the file, adding
-in `contrib` and/or `non-free` as needed:
+Using your favourite text editor, eg _vi_, and comment out all `cdrom`
+entries (unless you don't have a decent Internet connection and need
+to use DVDs, whereupon the dialogue presented below may differ) and
+check you have the equivalent of the following entries towards the top
+of the file, adding in `contrib` and/or `non-free` as needed:
 
-   deb http://deb.debian.org/debian/ stretch main contrib non-free
-   deb-src http://deb.debian.org/debian/ stretch main contrib non-free
+   deb http://deb.debian.org/debian/ bullseye main contrib non-free
+   deb-src http://deb.debian.org/debian/ bullseye main contrib non-free
 
-and likewise the equivalent of the following entries towards the bottom of
-the file, again adding in `contrib` and/or `non-free` as needed:
+and likewise the equivalent of the following entries towards the
+bottom of the file, again adding in `contrib` and/or `non-free` as
+needed:
 
-   deb http://deb.debian.org/debian/ stretch-updates main contrib non-free
-   deb-src http://deb.debian.org/debian/ stretch-updates main contrib non-free
+   deb http://deb.debian.org/debian/ bullseye-updates main contrib non-free
+   deb-src http://deb.debian.org/debian/ bullseye-updates main contrib non-free
 
 (where you can use any suitable mirror instead of _deb.debian.org_)
 
 Also add `contrib` and/or `non-free` to the lines referring to the
 _security.debian.org_ mirror in the middle of the file.
 
-WARNING: you _MUST_ use `stretch` and _NOT_ `stable` for the distribution in
-all these entries (but CD/DVD entries might use `unstable`.)
+WARNING: you _MUST_ use `bullseye` and _NOT_ `stable` for the
+distribution in all these entries (but CD/DVD entries might use
+`unstable`.)
 
 === Update APT's list of packages
 
@@ -613,7 +673,7 @@ Next tell APT to update its internal source list of packages using
 NOTE: It is also possible to add additional DVDs at this stage using the
 `*apt-cdrom add*` command.
 
-=== Download the FS Linux 10 package selections
+=== Download the FS Linux 11 package selections
 
 . Install _git_ and _dselect_
 +
@@ -626,32 +686,42 @@ NOTE: It is also possible to add additional DVDs at this stage using the
 . Get the selections by downloading this repository:
 +
     cd /root
-    git clone https://github.com/nvi-inc/fsl10
-    cd fsl10
+    git clone https://github.com/nvi-inc/fsl11
+    cd fsl11
 
 . Feed the package selections into _dpkg_ using the command, for _amd64_
-+
-   dpkg --set-selections < selections/fsl10_amd64.selections
+
+   dpkg --set-selections < selections/fsl11_amd64.selections
 
 +
+
 or, for _i386_
 
-   dpkg --set-selections < selections/fsl10_i386.selections
+   dpkg --set-selections < selections/fsl11_i386.selections
 
 
 . Start the additional package installation with
+
 +
+
     apt-get dselect-upgrade
+
 +
-then press kbd:[Enter] to confirm any updating of installed packages (where
-you have an Internet connection) and the installation of currently
-~212 new packages (downloading
-~196 MB from the Internet and/or DVDs) for _amd64_, somewhat more for
-_i386_ -- unless you did not select the Desktop or added other tasks earlier.
+
+then press kbd:[Enter] to confirm any updating of installed packages
+(where you have an Internet connection) and the installation of
+currently ~191 new packages (downloading ~185 MB from the Internet
+and/or DVDs) for _amd64_ with UEFI -- probably different for _i386_
+and/or BIOS -- unless you did not select the Desktop or added other
+tasks earlier.
+
++
 
 Downloading commences for up to half an hour (depending on your Internet
 access and the exact revision of DVDs used).
-   
+
++
+
 Installation runs to completion.
 
 
@@ -666,7 +736,7 @@ So that the update mechanism will work correctly, run
 
 === fsadapt
 
-In the _/root/fsl10_ directory, start _fsadapt_ with
+In the _/root/fsl11_ directory, start _fsadapt_ with
 
     ./fsadapt
 
@@ -674,7 +744,6 @@ In the _/root/fsl10_ directory, start _fsadapt_ with
 
 Using the arrow keys and kbd:[Space] make your selections and press kbd:[Enter].
 
-*  For government computers select `govt` and `noident`.
 *  If you are not using a GPIB board or USB dongle, you can deselect the GPIB option.
 
 ==== FS Adaptation: Setup (Window 2)
@@ -723,6 +792,15 @@ up and finish with _fsadapt_.
 Note that the _fsadapt_ script can be re-run at a later date should you need to
 change the adaptations.
 
+=== Disable suspend
+
+To disable system suspend for console inactivity, execute:
+
+ ~/fsl11/disable_suspend
+
+#TODO: Eliminate the need for this script by implementing a proper
+fix, possibly in _fsadapt_.#
+
 === Set Passwords
 
 Set passwords for the _oper_ and _prog_ accounts with:
@@ -736,7 +814,7 @@ entering the passwords twice as prompted.
 
 You can install some useful tools for working with the RAID, if you're actually using it, with:
 
-   ~/fsl10/RAID/install_tools
+   ~/fsl11/RAID/install_tools
 
 The rest of this document assumes the first three of these tools have
 been installed.  The five tools are:
@@ -747,9 +825,7 @@ been installed.  The five tools are:
    * _drop_primary_ allows _root_ deliberately to drop the primary disk out of the RAID for use as a backup
    * _recover_raid_ allows _root_ to re-add a disk that fell out of (or was removed from) the RAID back into it
 
-TIP: More information about RAID operation can be found in the <<raid.adoc#,RAID notes for FSL10>> document.
-
-See also the <<Setup additional disk>> sub-section in the <<Post Install>> section below.
+TIP: More information about RAID operation can be found in the <<raid.adoc#,RAID notes for FSL11>> document.
 
 === Download the Field System
 
@@ -758,16 +834,19 @@ See also the <<Setup additional disk>> sub-section in the <<Post Install>> secti
    cd /usr2
    git clone https://github.com/nvi-inc/fs fs-git
    cd /usr2/fs-git
-   git checkout -q _tag_
+   git checkout -q ed/fs111
 ....
 
-where `_tag_` is the latest available release, be it _10.0.0_ or
+#TODO: restore using `git checkout -q _tag_` when a FS that supports
+FSL11 is released.#
+
+where `_tag_` is the latest available release, be it _10.1.0_ or
 later.
 
 [IMPORTANT]
 ====
 
-Although _10.0.0_ is the current release at the time this was written,
+Although _10.1.0_ is the current release at the time this was written,
 and should suffice for an initial installation, it may well not be the
 most up-to-date release when you are installing. To find more recent
 releases, go to:
@@ -796,6 +875,21 @@ install default copies of all the FS related directories.
    make install
 
 and enter `*y*` to confirm installation.
+
+=== Set default desktop
+
+To set the correct default desktop (it will be remembered per user):
+
+. Press kbd:[Ctrl+Alt+F1] to get to the GUI login.
+. Select `FS Operator`.
+. Select the "`gear`" icon in the lower right-hand corner.
+. Select `System X11 Default`.
+. Complete logging in with the password.
+. Logout with `exit`.
+. Repeat the above steps for `FS Programmer`.
+
+#TODO: Eliminate the need for these steps by implementing a proper
+fix, possibly in _fsadapt_.#
 
 === Make the FS
 
@@ -843,30 +937,43 @@ NOTE: You will need to have hot-swapping enabled in your motherboard's
 setup menu, at least for the secondary controller (it should also be
 enabled for the primary).
 
-NOTE: This sub-section assumes you have followed the directions in the <<Install tools for RAID (Optional)>>
-section above.
+NOTE: This subsection assumes you have followed the directions in the
+<<Install tools for RAID (Optional)>> section above.
 
-Ensure the RAID is synced by checking that
+If you have a second disk (_secondary_) in the RAID, either because
+you installed with it or because you have just set it up,  make sure
+the RAID is synced by checking that
 
     mdstat
 
-shows no recovery in progress. If there is none, shut down the
-machine safely. If you installed with a second disk, remove it and place
-it on the shelf.
+shows no recovery in progress. _When_ there is none, shut down the
+machine safely. Remove the second disk and place it on the shelf.
+Proceed to the next step, <<Initialize new disk>>.
 
 ==== Initialize new disk
 
-WARNING: Do not initialize a disk unless you are sure there is no
+IMPORTANT: Do not initialize a disk unless you are sure there is no
 data on it that you need to preserve.
 
 For the first time use of an additional disk with a new install, the
 disk should be initialized to make sure it has no already existing
-structure.  This should be done even if the disk has been used in a
+structure. This should be done even if the disk has been used in a
 different FS computer or a previous install on this computer.
 
-Boot with just the primary disk installed. Use the script:
+Follow these steps:
+
+. Boot with just the primary disk installed. 
+
++
+
+TIP: If your system is already running with no second disk
+(_secondary_) installed, you can skip booting.
+
+. Use the script:
 
    blank_secondary
+
++
 
 The script will wait for the new disk to be turned on. Insert a new
 disk in the secondary slot. Turn the key to turn the disk on. There
@@ -877,49 +984,25 @@ answer `*n*`.
 
 ==== Refresh secondary disk
 
-WARNING: You can refresh a disk if it has been erased or has
-previously been used in this RAID and is older than the current
-primary.  If it is newer than the current primary (maybe from a failed
-    FS upgrade that needs to be abandoned) or comes from a different
-RAID (i.e., system) or has a different structure (i.e., was previously
-    used for something else), it will have to be erased first. The
-script should detect these conditions and stop with an appropriate
-message. In that case, consider carefully if it is safe to erase the
-disk (probably not). If you determine it is safe, follow the
-instructions for <<Initialize new disk>>.
-
-Boot with only the primary disk installed. The new secondary disk must
-be keyed off or removed. The script will refuse to run if there is a
-second disk already turned on. This will ensure that no other disk is
-installed and mistaken for the disk to be refreshed.
-
-NOTE: With the RAID now missing a disk, you may see
-~20 of the `volume group
-not found` error messages, then the machine will boot. These error
-messages  only appear like this the first time a disk
-from the RAID is booted without its partner.
-
-Once booted, login as _root_.
+CAUTION: As written, this subsection is only to be used immediately
+after the previous subsection, <<Initialize new disk>>.
 
 Run the script:
 
     refresh_secondary
   
-When the script says it is waiting for the second disk, key it on.
+Once you reach the message that you can check on the recovery with
+_mdstat_ , you can resume using the computer as usual. You can safely
+reboot at this point, if it is needed; just don't remove either disk
+until the recovery is finished.
 
-Once you reach the message that it is recovering, you can resume using
-the computer as usual. You can stop the updating of the recovery
-message with kbd:[Ctrl+C] as described in the output. You can also
-safely reboot at this point, if it is needed.
-
-If later you want to check the progress of the status of the RAID
-re-sync, you can use:
+You can check the progress of the recovery with:
 
     mdstat
 
-When the syncing is complete, you can repeat the process of the
-previous sub-section and this sub-section if you have a third disk that needs
-to be set-up.
+When the recovery is complete, you can repeat the process of the
+entire subsection, <<Setup additional disk>>, if you have a third disk
+that needs to be setup.
 
 === Consider additional customizations
 
@@ -927,6 +1010,7 @@ Please refer to the appendix <<Additional Setup Items>> below for
 customizations that your system may need or that you may find useful.
 
 [appendix]
+:sectnumlevels: 4
 
 == Additional Setup Items
 
@@ -940,23 +1024,24 @@ _root_ permissions.
 
 For stations that wish to conform to the additional security
 recommendations of the Center for Internet Security (CIS), move on to
-the <<cis-setup.adoc#,CIS hardening FSL10>> document.
+the <<cis-setup.adoc#,CIS hardening FSL11>> document.
 
 ==== Alternate hardening
 
 If you don't want the complete CIS hardening, which creates some
 inconveniences and is only required in certain environments, you may
 still be interested in applying a subset of the remediations. You can
-pick and choose those from the <<cis-setup.adoc#,CIS hardening FSL10>>
+pick and choose those from the <<cis-setup.adoc#,CIS hardening FSL11>>
 document and its script.
 
 A useful minimum set of features to apply would be to install _ufw_
 and block everything except _ssh_ and further restrict _ssh_ access with
 TCP Wrappers.
 
-===== ufw set-up
+===== ufw setup
 
-To install and configure _ufw_ to only allow _ssh_ for incoming conections, use the commands:
+To install and configure _ufw_ to only allow _ssh_ for incoming
+connections, use the commands:
 
 ....
 apt-get -y install ufw
@@ -964,11 +1049,12 @@ ufw allow OpenSSH
 ufw --force enable
 ....
 
-Addition set-up for _ufw_ is covered below in the <<More firewall rules>> sub-section.
+Addition setup for _ufw_ is covered below in the
+<<More firewall rules>> subsection.
 
-===== TCP Wrappers set-up
+===== TCP Wrappers setup
 
-A base set-up for TCP Wrappers is
+A base setup for TCP Wrappers is
 
 ./etc/hosts.deny
 ----
@@ -984,6 +1070,26 @@ It is recommend that you further restrict _sshd_ by using specific
 hosts and/or sub-domains instead of `ALL`. Please use
 `*man{nbsp}hosts_access*` for more information about configuring TCP
 Wrappers
+
+===== More firewall rules
+
+The following tersely summarizes some _ufw_ settings that may be
+useful:
+
+....
+#SSH
+ufw allow OpenSSH
+#NTP
+ufw allow ntp
+#remote access to metserver (or gromet) on port 50001
+ufw allow 50001
+#anywhere from subnet
+ufw allow from 192.168.4.0/24
+#RDBE multicast to addresses from subnet
+ufw allow in proto udp to 239.0.2.0/24 from 192.168.4.0/24
+#? RDBE multicast to group from subnet ?
+#ufw allow in proto igmp to 239.0.2.0/24 from 192.168.4.0/24
+....
 
 === Customize root's .bashrc file
 
@@ -1002,16 +1108,28 @@ some careless errors.
 existing files with I/O redirection. Other options to consider setting
 are `physical` and `ignoreeof`.
 
-=== Network configuration changes
+=== Setup /etc/hosts
 
-This sub-section requires using _nm-connection-editor_ on a graphic
+You may want to add more hosts to the _/etc/hosts_, especially if do
+not have DNS. This will allow you to give a short alias to use when
+referring to other local machines. Even if you have DNS, you may wish
+to add additional aliases for your local hosts.
+
+For use with `ntpq -p`, is recommended that you use a short alias as
+the _canonical name_ (the first one after the IP address) for other
+local machines (and possibly remote ones as well). This will make the
+_ntpq_ output easier to understand, particularly if the canonical
+names of the local machines only differ at the end of their names.
+That may make the differences hard to see given the short field
+available for the `remote` node ID in the _ntpq_ output.
+
+=== Stabilize network configuration
+
+This subsection requires using _nm-connection-editor_ on a graphic
 display (_nmtui_ may be an option on a text terminal, but it has not
-been fully verified). You will probably need to be _root_ or
-_desktop_ to do this. When you run this program and select a
-connection, e.g., `Wired connection 1` under `Ethernet`, the `Edit`
-button should become active.  If it stays greyed out, you don't have
-sufficent permission. All the sub-sections below assume you are in
-program and have sufficent permision,
+been fully verified). You may need to be _root_ or _desktop_ to do
+this. All the subsections below assume you are in the program and have
+sufficient permissions.
 
 ==== Make the connection always appear on the same interface regardless of the MAC address.
 
@@ -1019,116 +1137,58 @@ This is useful both to make the connection appear on only one
 interface and/or make it the same interface if the computer (or NIC)
 is changed.
 
-1. Select your connection snd click `Edit`.
+. Select your connection and click the "`gear`" icon.
 
-2. Select the `Ethernet` tab.
+. Select the `Ethernet` tab.
 
-3. Change the `Device` field to just list the name of the interface (typically `eno1`) by removing the MAC address in parentheses.
+. Use the drop-down for the `Device` field to select your device
+(typically `eno1` with the MAC address in parentheses). Then edit the
+field to just list the name of the interface (typically `eno1`) by
+removing the MAC address in parentheses.
 
-4. You may want to also set the `IPv6 Settings` to use `Method: Ignore`.
+. You may want to also set the `IPv6 Settings` to use `Method:
+Disabled`.
 
-5. Click `Save`.
+. Click `Save`.
 
-6. Click `Close`.
+. Close the window by pressing kbd:[Esc] (while the focus is on that
+window).
 
 ==== Disable the second Ethernet port
 
-This may be useful if your second port has a IPMI interface and the
-kernel detected a connection there and it is interferring with the
-normal or the IPMI connection.
+This may be useful, for example, if your second port has a IPMI
+interface and the kernel detected a connection there and it is
+interfering with the normal or the IPMI connection.
 
-1. If there is no `Wired connection 2`, click `Add`. Otherwise select
-that connection, click `Edit`, and skip to step 4.  It _may_ be benign
-to `Delete` any other connections _except_ `Wired connection 1`.
+. If there is no `Wired connection 2`, click the `+` icon. Otherwise
+select that connection, click the "`gear`" icon, and skip to step 4.
+It _may_ be benign to delete (`-` icon) any other connections _except_
+`Wired connection 1`.
 
-2. Make sure `Ethernet` is selected in the drop down box and click `Create...`.
+. Make sure `Ethernet` is selected in the drop down box and click
+`Create...`.
 
-3. Change the `Connection name:` to `Wired connection 2`.
+. Change the `Connection name` to `Wired connection 2`.
 
-4. Select the `Ethernet` tab.
+. Select the `Ethernet` tab.
 
-5. Make sure the `Device` field just lists the second ethernet
-device (typically `eno2`) with no MAC address in parentheses.
+. Use the drop-down for the `Device` field to select your device
+(typically `eno2` with the MAC address in parentheses). Then edit the
+field to just list the name of the interface (typically `eno2`) by
+removing the MAC address in parentheses.
 
-6. Select the `IPv4 Settings` tab.
+. Select the `IPv4 Settings` tab.
 
-7. For `Method` select `Disabled`.
+. For `Method` select `Disabled`.
 
-8. Select the `IPv6 Settings` tab.
+. Select the `IPv6 Settings` tab.
 
-9. For `Method` select `Ignore`.
+. For `Method` select `Disabled`.
 
-10. Click `Save`.
+. Click `Save`.
 
-11. Click `Close`.
-
-==== Update IP address, hostname, FQDN, and other network information
-
-This is useful if the computer is physically moved to a different
-site or its network information needs to be be updated for a different
-reason. This is typically not needed if you use DHCP, which may still
-require some of the changes in step 6 (please let us know if you gain
-experience).
-
-1. Select your connection and click `Edit`.
-
-2. Select the `IPv4 Settings` (or `IPv6 Settings` if you are using IPv6) tab.
-
-3. Adjust your `Manual` Method configuration: `Addresses`, `DNS Servers` (comma separated), and `Search domains`.
-
-4. Click `Save`.
-
-5. Click `Close`.
-
-6. Modify other system files
-
-+
-Update the information as appropriate. The system may have initially
-been installed with the default hostname _debian_ and no domain name.
-+
-./etc/hostname
-+
-Change your hostname
-+
-./etc/hosts
-+
-Update your IP address, FQDN (canonical name), and alias (typically the hostname,
-but multiple aliases/nicknames are allowed).
-+
-./etc/networks
-+
-Use your local subnet (class A, B, or C) for the _localnet_ line.
-+
-./etc/mailname
-+
-Use fully qualified node name.
-+
-[NOTE]
-====
-
-If your system doesn't have a FQDN or you don't want to show it in
-e-mail messages, you may be able to use a fake one. A FQDN may be
-necessary to allow messages to be sent successfully to some remote
-hosts and _mailman_ mail lists. A possible strategy for this is to
-append _.net_ to the node name you use in this file and the next. The
-node name in these two files can be different than the official
-hostname. However, these two mail related files should be consistent.
-You might consider _fs1-<xx>.net_ (or _fs2-<xx>.net_), where _<xx>_ is
-your station two letter code (lower case).
-
-====
-+
-./etc/exim4/update-exim4.conf.conf
-+
-Look for `hostnames=`, use fully qualified domain name.
-+
-Then execute:
-+
-....
-update-exim4.conf
-....
-+
-When finished, reboot.
+. Close the window by pressing kbd:[Esc] (while the focus is on that
+window).
 
 === Disable Desktop User
 
@@ -1181,25 +1241,6 @@ command:
 apt-get purge anacron
 ....
 
-=== More firewall rules
-
-The following tersely summarizes some _ufw_ settings that may be useful:
-
-....
-#SSH
-ufw allow OpenSSH
-#NTP
-ufw allow ntp
-#remote access to metserver (or gromet) on port 50001
-ufw allow 50001
-#anywhere from subnet
-ufw allow from 192.168.4.0/24
-#RDBE multicast to addresses from subnet
-ufw allow in proto udp to 239.0.2.0/24 from 192.168.4.0/24
-#? RDBE multicast to group from subnet ?
-#ufw allow in proto igmp to 239.0.2.0/24 from 192.168.4.0/24
-....
-
 === Configure e-mail
 
 The configuration described here (`Internet site` or `mail
@@ -1208,24 +1249,27 @@ mail, reply-to-filter, and modified user names), provides
 good support of the FS _msg_ and _rdbemsg_ utilities.
 
 . As `root`, enter:
-+
-   dpkg-reconfigure exim4-config
-+
-to change the set-up. Typically you should select `internet site`, use
-your host name in place of _debian_ when it occurs, and otherwise
-select defaults at all the other prompts.  (The only other recommended
-    choices are `local delivery only` or `mail sent by smarthost;
-    received via SMTP or fetchmail`.)  If you want to receive incoming
-mail, you will also need to enable SMTP connections in `Window 4` of
-_fsadapt_ (and if you are using a firewall, you will need to enable
-    such connections for it).  We recommend that you NOT receive
-incoming mail on this computer.
 
-. If you follow the recommendation not to receive incoming mail
-and your system is not set-up for `local delivery only`, you
-should set the `Reply-To` address for outgoing messages to a
-real e-mail account at your institution that is read
-regularly.  You can do this by (all as _root_):
+   dpkg-reconfigure exim4-config
+
++
+
+to change the setup. Typically you should select `internet site`, use
+your host name in place of _debian_ when it occurs, and otherwise
+select defaults at all the other prompts. (The only other recommended
+choices are `local delivery only` or `mail sent by smarthost; received
+via SMTP or fetchmail`.) If you want to receive incoming mail, you
+will also need to enable SMTP connections in `Window 4` of _fsadapt_
+(and if you are using a firewall, you will need to enable such
+connections for it). We recommend that you NOT receive incoming mail
+on this computer.
+
+. If you follow the recommendation not to receive incoming mail and
+your system is not setup for `local delivery only`, you should set the
+`Reply-To` address for outgoing messages to a real e-mail account at
+your institution that is read regularly. You can do this by (all as
+_root_):
+
 +
 .. Create a file with contents
 (four lines):
@@ -1267,15 +1311,15 @@ system_filter = /etc/exim4/reply-to-filter
 
 This is recommended as a "`catch all`" since the _oper_ account is
 presumably under regular use and any messages sent there are likely to
-be noticed.  This is particularly important for system error messages
+be noticed. This is particularly important for system error messages
 since they should be delivered to a mail box on the system in case
 there is a network problem that might prevent them from being
-delivered off system.  You can however add additional off machine
+delivered off system. You can however add additional off machine
 delivery of these messages to whatever addressees you wish and we
-recommend this as well.  These should include an e-mail account at
-your institution that is read regularly (maybe the same address as the
-    `Reply-To` address you may have set above would be a good choice).
-To do this, create a _.forward_ file in _oper_'s home directory. The
+recommend this as well. These should include an e-mail account at your
+institution that is read regularly (maybe the same address as the
+`Reply-To` address you may have set above would be a good choice).  To
+do this, create a _.forward_ file in _oper_'s home directory. The
 permissions should be `-rw-r--r--`. The contents should be similar to
 (left justified):
 
@@ -1481,26 +1525,6 @@ systemctl restart gdm3
 
 or rebooting.
 
-=== Fix for slow reboot/shutdown with Wayland disabled
-
-#TODO: Still slow for some cases (exact ones still not clear)#
-
-If you have chosen to disable `Wayland` for _gdm3_ and have a problem with slow reboots/shutdowns, the following may help.
-
-1. Copy the file _/lib/systemd/system/gdm3.service_ into _/etc/systemd/system/_.
-
-2. Comment out the `KillMode` line (which changes it to `control-group`, the default).
-
-3. Add a line `TimeoutStopSec=1` to the `[Service]` section.
-
-4. Execute:
-+
-....
-systemctl daemon-reload
-....
-+
-or reboot.
-
 === Use KeepAlive to prevent VLAN firewall inactivity time-out
 
 If there is a VLAN firewall in use on the local network, it may be
@@ -1650,9 +1674,9 @@ If your system is using a RAID configuration, you may want to install
 the _raid-events_ script. The script provides email notifications of
 when Rebuilds (and array checks) start and end. For full details on
 the script and installation instructions, please see the
-<<raid.adoc#_raid_events,raid-events>> sub-section in the
+<<raid.adoc#_raid_events,raid-events>> subsection in the
 <<raid.adoc#_script_descriptions,Script descriptions>> section of the
-<<raid.adoc#,RAID Notes for FSL 10>> document.
+<<raid.adoc#,RAID Notes for FSL 11>> document.
 
 === Add refresh_spare_usr2
 
@@ -1661,18 +1685,113 @@ want to install the _refresh_spare_usr2_ script. The script can be
 used to backup the _/usr2_ partition on the _operational_ system to
 the _spare_ system. For full details on the script and installation
 instructions, please see the
-<<raid.adoc#_refresh_spare_usr2,refresh_spare_usr2>> sub-section in
-the <<raid.adoc#_script_descriptions,Script descriptions>> section of
-the <<raid.adoc#,RAID Notes for FSL 10>> document.
+<<raid.adoc#_refresh_spare_usr2,refresh_spare_usr2>> subsection in the
+<<raid.adoc#_script_descriptions,Script descriptions>> section of the
+<<raid.adoc#,RAID Notes for FSL 11>> document.
+
+:sectnumlevels: 3
+[appendix]
+
+== Maintenance procedures
+
+This appendix covers procedures for maintaining your system that go
+beyond the initial setup.
+
+=== Update IP address, hostname, FQDN, and other network information
+
+This is useful if the computer is physically moved to a different site
+or its network information needs to be be updated for a different
+reason. This is typically not needed if you use DHCP, which may still
+require some of the changes in the
+<<sysfiles,Modify other system files>> step below (please let us know
+if you gain experience).
+
+This subsection requires using _nm-connection-editor_ on a graphic
+display (_nmtui_ may be an option on a text terminal, but it has not
+been fully verified). You may need to be _root_ or _desktop_ to do
+this. This subsection assumes you are in the program and have
+sufficient permissions.
+
+. Select your connection and click the "`gear`" icon.
+
+. Select the `IPv4 Settings` (or `IPv6 Settings` if you are using
+IPv6) tab.
+
+. Adjust your `Manual` Method configuration: `Addresses`, `DNS
+Servers` (comma separated), and `Search domains`.
+
+. Click `Save`.
+
+. Close the window by pressing kbd:[Esc] (while the focus is on that
+window).
+
+. <<sysfiles,Modify other system files>>[[sysfiles]]:
+
++
+Update the information as appropriate. The system may have initially
+been installed with the default hostname _debian_ and no domain name.
++
+./etc/hostname
++
+Change your hostname
++
+./etc/hosts
+
++
+
+Update your IP address, FQDN (canonical name), and alias (typically
+the hostname, but multiple aliases/nicknames are allowed).
+
++
+
+If you moved your computer to a new LAN environment, you may also want
+to update the nodes and aliases listed, see also <<Setup /etc/hosts>>.
+
++
+
+./etc/networks
++
+Use your local subnet (class A, B, or C) for the _localnet_ line.
++
+./etc/mailname
++
+Use fully qualified node name.
++
+[NOTE]
+====
+
+If your system doesn't have a FQDN or you don't want to show it in
+e-mail messages, you may be able to use a fake one. A FQDN may be
+necessary to allow messages to be sent successfully to some remote
+hosts and _mailman_ mail lists. A possible strategy for this is to
+append _.net_ to the node name you use in this file and the next. The
+node name in these two files can be different than the official
+hostname. However, these two mail related files should be consistent.
+You might consider _fs1-<xx>.net_ (or _fs2-<xx>.net_), where _<xx>_ is
+your station two letter code (lower case).
+
+====
++
+./etc/exim4/update-exim4.conf.conf
++
+Look for `hostnames=`, use fully qualified domain name.
++
+Then execute:
++
+....
+update-exim4.conf
+....
++
+When finished, reboot.
 
 [appendix]
 
 == Managing Security Updates
 
 It is strongly recommended that you use the weekly _cron_ update
-download (the "`weekly _cron_ job`") as configured according to the `Window 2` sub-section in
-the <<_fsadapt>> section above. This will keep you informed of the
-available updates on a weekly basis.
+download (the "`weekly _cron_ job`") as configured according to the
+`Window 2` subsection in the <<_fsadapt>> section above. This will
+keep you informed of the available updates on a weekly basis.
 
 It is also recommended that you remove _anacron_ as described in the
 <<_remove_anacron_package>> section below. This will cause the updates
@@ -1687,7 +1806,7 @@ the weekly _cron_ job is described below in the section
 
 TIP: It is recommended that a disk rotation be performed before any
 update is installed. This will make recovery much easier if a problem with the
-update is discovered.  Please see the FSL10 Raid document section
+update is discovered.  Please see the FSL11 Raid document section
 <<raid.adoc#_recoverable_testing,Recoverable testing>> for a
 streamlined method to manage testing of updates.
 
@@ -1697,10 +1816,10 @@ instructions on how to install the updates. You can choose a
 convenient time, when not in (or about to start) operations, to install
 the updates and test the system.
 
-IMPORTANT: The weekly _cron_ job
-message will include instructions for handling a kernel update if one is available.
- See the <<Kernel updates>> sub-section below for additional
-considerations for kernel updates.
+IMPORTANT: The weekly _cron_ job message will include instructions for
+handling a kernel update if one is available.  See the
+<<Kernel updates>> subsection below for additional considerations for
+kernel updates.
 
 The commands for installing the updates given by the message are (note
         the use of _apt_ instead of _apt-get_):
@@ -1733,6 +1852,28 @@ procedure to give more, and easier, options for recovery in case there
 is a problem.  That procedure contains special instructions for kernel
 update testing.
 
+[NOTE]
+====
+When a kernel update is available, you may see messages at the start of the _cron_ job output similar to:
+
+[source,options="nowrap"]
+----
+apt-listchanges: Unable to retrieve changelog for package linux-headers-amd64; 'apt-get changelog' failed with: E: Version '5.10.120+1' for 'linux-headers-amd64' was not found
+E: No packages found
+
+apt-listchanges: Unable to retrieve changelog for package linux-image-amd64; 'apt-get changelog' failed with: E: Version '5.10.120+1' for 'linux-image-amd64' was not found
+E: No packages found
+
+apt-listchanges: Reading changelogs...
+Calling ['apt-get', '-qq', 'changelog', 'linux-headers-amd64=5.10.120+1'] to retrieve changelog
+Calling ['apt-get', '-qq', 'changelog', 'linux-image-amd64=5.10.120+1'] to retrieve changelog
+----
+
+These appear to be benign. Our only advice at this time is to ignore
+them.
+
+====
+
 If there is a kernel update available, the weekly _cron_ job output
 will include a warning at the end with additional instructions
 depending on which type is available.  There are two types of kernel
@@ -1763,7 +1904,7 @@ Be sure to allow time to follow the instructions when planning to
 install these updates.  As described in the ABI update warning, you
 will need to rebuild any out-of-tree modules after rebooting for that
 case. This is discussed in the <<Updating out-of-tree modules>>
-sub-section below.
+subsection below.
 
 CAUTION: In extreme circumstances, an ABI (but _not_ a non-ABI) kernel
 update can be deferred to a later date when more extensive testing can
@@ -1781,7 +1922,7 @@ When a ABI update is installed, it will be necessary to update any,
 so-called, _out-of-tree_ modules that use the kernel ABI. This must be
 done _after_ rebooting with the new kernel installed.
 
-For a normal FSL10 installations, unless you have installed other
+For a normal FSL11 installations, unless you have installed other
 out-of-tree modules, the only module that needs to be rebuilt is the
 GPIB driver (if it is installed).  You will need to recompile it (usually using _fsadapt_,
         `Window 2`, `config_gpib` only) _after_ the initial reboot
@@ -1795,10 +1936,10 @@ appropriately _after_ the initial reboot and then (to keep these
 ===  Recovery from a failed update
 
 If an update fails, e.g., an updated kernel fails to boot or another problem is discovered,
-you can recover as described in FSL10 RAID document
+you can recover as described in FSL11 RAID document
 <<raid.adoc#_recoverable_testing,Recoverable testing>>
 section, if you were following that method, or from a shelf disk
-according to the FSL10 RAID document <<raid.adoc#_recover_from_a_shelf_disk,Recover from
+according to the FSL11 RAID document <<raid.adoc#_recover_from_a_shelf_disk,Recover from
 a shelf disk>> section if not and you have a good shelf disk.
 
 ==== Additional recovery option for a failed ABI kernel update
@@ -1835,16 +1976,16 @@ you want to make sure you have the very latest updates when you
 install them, you can run the distributed copy of the weekly update
 script manually to check for updates:
 
-    /root/fsl10/etc_cron.weekly_apt-show-upgradeable
+    /root/fsl11/etc_cron.weekly_apt-show-upgradeable
 
 If there is no output, there are no updates to install.
 
-If there is output, there are updates to install.
-You can install them by following the installation procedure in
-sub-section <<Installing updates (Upgrading)>> above, except you will use the
+If there is output, there are updates to install. You can install them
+by following the installation procedure in subsection
+<<Installing updates (Upgrading)>> above, except you will use the
 instructions from the output of the script above instead of from the
-weekly _cron_ job (the outputs should be equivalent for the same set of
-        updates). Additionally, please read the following *NOTE*.
+weekly _cron_ job (the outputs should be equivalent for the same set
+of updates).  Additionally, please read the following *NOTE*.
 
 NOTE: If the weekly _cron_ job has not been installed, you may not get a
     display of NEWS items and a chance to abort when you install the updates. You
@@ -1856,7 +1997,7 @@ packages to be updated. If you would like to see any NEWS items more
 distinctly after the previous command and before installing the
 updates, you can run the script again using the `--which=news` option:
 
-    /root/fsl10/etc_cron.weekly_apt-show-upgradeable --which=news
+    /root/fsl11/etc_cron.weekly_apt-show-upgradeable --which=news
 
 If there are updates available and no NEWS items, you will only get
 the installation instructions.
@@ -1869,7 +2010,7 @@ available.
 
 === End of security updates
 
-When support for _stretch_ ends, currently expected in June 2022,
+When support for _bullseye_ ends, currently expected in June 2022,
 there will be no more security updates.  At that time, the existing
 packages will be migrated to the Debian archive site. This will be
 visible in the output from the weekly _cron_ job script as errors that
@@ -1886,22 +2027,22 @@ site. Although there will be no more security updates, this will enable
 downloading of additional packages if they are needed. The new lines that
 should replace the corresponding lines are:
 +
-   deb http://archive.debian.org/debian/ stretch main contrib non-free
-   deb http://archive.debian.org/debian-security stretch/updates main contrib non-free
-   deb http://archive.debian.org/debian-volatile stretch/volatile main contrib non-free
+   deb http://archive.debian.org/debian/ bullseye main contrib non-free
+   deb http://archive.debian.org/debian-security bullseye/updates main contrib non-free
+   deb http://archive.debian.org/debian-volatile bullseye/volatile main contrib non-free
 +
 And if you are using `deb-src` lines:
 +
-   deb-src http://archive.debian.org/debian/ stretch main contrib non-free
-   deb-src http://archive.debian.org/debian-security stretch/updates main contrib non-free
-   deb-src http://archive.debian.org/debian-volatile stretch/volatile main contrib non-free
+   deb-src http://archive.debian.org/debian/ bullseye main contrib non-free
+   deb-src http://archive.debian.org/debian-security bullseye/updates main contrib non-free
+   deb-src http://archive.debian.org/debian-volatile bullseye/volatile main contrib non-free
 +
 Otherwise the `deb-src` lines can be commented out (with a leading `#`).
 +
 In addition, if you want to install packages from more recent
-distributions that have been backported to _stretch_ you can add:
+distributions that have been backported to _bullseye_ you can add:
 +
-  deb http://archive.debian.org/debian-backports stretch-backports main contrib non-free
+  deb http://archive.debian.org/debian-backports bullseye-backports main contrib non-free
 +
 However, the "`backports`" are not normally needed.
 +
@@ -1922,7 +2063,7 @@ NOTE: If your computer's _setup_ utility is locked with a password, you
 may need that password to select booting from your installation media.
 
 NOTE: You should provide suitable values for your system when a
-specific value is required. Values that agree with the FSL10 install
+specific value is required. Values that agree with the FSL11 install
 described in this document (or reasonable defaults) are shown in parentheses.
 
 . Boot from installation media

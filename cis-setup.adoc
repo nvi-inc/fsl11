@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.7.1 - July 2022
+Version 0.0.4 - August 2022
 
 == Introduction
 
@@ -45,10 +45,24 @@ _11_. In fact, all of the items that fail for FSL11 are either things
 that are required for  FS operation, items that appear to actually be
 secure despite the benchmark not recognizing them as such, and one
 change since Debian _10_ that we worked around.  However, we don't
-know what additional checks will be in Debian _11_ benchmark.
+know what additional checks will be in the Debian _11_ benchmark.
+
+[NOTE]
+====
+
+Additional steps needed to use the benchmark:
+
+. Install the package `default-jre` with _apt-get_.
+
+. Disable the _java_ version check in _CIS-CAT.sh_.
+
+. Change `ignore.platform.mismatch` to `true` in
+_misc/ciscat.properties_.
+
+====
 
 With the exception of the partition configuration, all actions are to
-be performed post-installation (see the <<installation.adoc#,FSL10
+be performed post-installation (see the <<installation.adoc#,FSL11
 Installation>> document). Applying the remediations, the exceptions
 that are still present, all tests that failed, and problems with the
 benchmark remediations are provided in separate sections below. An
@@ -73,12 +87,12 @@ All commands need to be run as _root_.
 
 As many remediations as possible are implemented by the _remediate_
 script.  The script is intended to be run after the "`Third Stage
-Installation`" steps in the FSL10 instructions, before any further
+Installation`" steps in the FSL11 instructions, before any further
 changes have been made to the system (however initializing and adding
 other disks to the RAID can intervene).
 
 ....
-cd /root/fsl10
+cd /root/fsl11
 script ../remediate.txt
 ./remediate
 exit
@@ -411,10 +425,31 @@ items are listed by benchmark section numbers.
 Some problems were worked around by adding a boot time _systemd_
 service `CISfix` to correct changes that occur on a reboot.
 
+=== 1.1.10 Ensure noexec option set on /var/tmp partition
+
+Enforcing this requirement for the currently running system before all
+the other remediations have been applied can interfere with execution
+of `apt-get install ...` to install packages needed for the
+remediation. Instead, although _/etc/fstab_ is updated in sequence,
+remounting the file systm is deferred to the end.
+
 === 1.4.2 Ensure filesystem integrity is regularly checked
 
 The _/etc/crontab_ entry that should be added is missing the user
 (_root_) field.
+
+Debian no longer provides _aide.wrapper_, which is used in the
+_/etc/crontab_. A script _/usr/bin/aide.wrapper_ was added that
+creates the same _effective_ functionality. The lock file
+functionality is not included, but _apparently_ that is no longer
+needed, which is _apparently_ why _aide.wrapper_ was not provided by
+Debian. The contents of the added script are:
+
+./usr/bin/aide.wrapper
+ #!/bin/sh
+ #
+ /usr/bin/aide "$@"
+ RET=$?
 
 === 1.5.1 Ensure the permissions on the bootloader are configured
 
@@ -509,7 +544,7 @@ executes scripts on _/tmp_ as part of package installation. The
 `noexec` option prevents the execution of the scripts. To work around
 this issue, you can exeucte:
 
-    cd /root/fsl10/
+    cd /root/fsl11/
     ./root_tmp
 
 +
@@ -532,7 +567,7 @@ is to disable and re-enable the firewall. If you have this problem and
 the same solution works, a one-time service at start-up can be created
 to perform this action:
 
-  cd /root/fsl10
+  cd /root/fsl11
   ./create_ufw_re-enable
 +
 
@@ -676,7 +711,7 @@ The three numbered steps above can be executed for _oper_, _prog_, and _root_
 with:
 
 ....
-~/fsl10/AUID/install_AUID
+~/fsl11/AUID/install_AUID
 ....
 
 === Adding AUID accounts
@@ -709,7 +744,8 @@ case, use these commands instead:
     adduser dhorsley
     chmod 0750 /home/dhorsley
 
-The final step of this section will need to be adjusted accordingly.
+The step for setting the contents of the home directory below will
+need to be adjusted accordingly, see <<note,NOTE>>.
 
 The `UID` and `GID` of the account should still be kept in agreement
 between the two computers.
@@ -749,8 +785,9 @@ _/usr2/dhorsley_ with a useful skeleton for use with the FS (you will
 [NOTE]
 ====
 
-If the user's home directory is not on _/usr2_, but is for example on
-_/home_, the following commands should be used instead:
+[[note]]<<note,NOTE>>: If the user's home directory is not on _/usr2_,
+but is for example on _/home_, the following commands should be used
+instead:
 
     cd /home
     mv dhorsley dhorsley.FSCOPY
@@ -759,6 +796,24 @@ _/home_, the following commands should be used instead:
     chown -R dhorsley.dhorsley /home/dhorsley
     chmod 0750 /home/dhorsley
 ====
+
+. Set default desktop
+
++
+
+To set the correct default desktop (it is remembered per user):
+
+.. Press kbd:[Ctrl+Alt+F1] to get to the GUI login.
+.. Enter `*dhorsley*` as the `Username`.
+.. Select the "`gear`" icon in the lower right-hand corner.
+.. Select `System X11 Default`.
+.. Complete logging in with the password.
+.. Logout with `exit`.
+
++
+
+#TODO: Eliminate the need for these steps by implementing a proper
+fix, possibly in _fsadapt_.#
 
 === Setting hostname alias
 
@@ -796,7 +851,7 @@ consistent.
 name, without a domain name unless that is required by remote mail
 hosts or mail lists. If so,
 <<installation.adoc#_generate_fqdn_in_helo_for_outgoing_mail,Generate FQDN in HELO for outgoing mail>>
-in the FSL10 Installation document may also be helpful.
+in the FSL11 Installation document may also be helpful.
 
 .. Edit _/etc/exim4/update-exim4.conf.conf_, change the value of
 `dc_other_hostnames=` to the new alias
@@ -850,7 +905,7 @@ You should read all of each step or sub-step before following it.
 
 TIP: Read the
 <<raid.adoc#_refresh_spare_usr2,refresh_spare_usr2>> section of the
-<<raid.adoc#,RAID Notes for FSL10>> document for important information
+<<raid.adoc#,RAID Notes for FSL11>> document for important information
 on the __refresh_spare_usr2__ script.
 
 . On the _operational_ system:
@@ -912,7 +967,7 @@ a simple alias for routine use.
 .. Install _refresh_spare_usr2_. Execute:
 
   cd /usr/local/sbin
-  cp -a /root/fsl10/RAID/refresh_spare_usr2 refresh_spare_usr2
+  cp -a /root/fsl11/RAID/refresh_spare_usr2 refresh_spare_usr2
   chown root.root refresh_spare_usr2
   chmod a+r,u+wx,go-wx refresh_spare_usr2
 
