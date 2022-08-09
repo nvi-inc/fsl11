@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 0.0.3 - August 2022
+Version 0.0.4 - August 2022
 
 == Introduction
 
@@ -424,6 +424,14 @@ items are listed by benchmark section numbers.
 
 Some problems were worked around by adding a boot time _systemd_
 service `CISfix` to correct changes that occur on a reboot.
+
+=== 1.1.10 Ensure noexec option set on /var/tmp partition
+
+Enforcing this requirement for the currently running system before all
+the other remediations have been applied can interfere with execution
+of `apt-get install ...` to install packages needed for the
+remediation. Instead, although _/etc/fstab_ is updated in sequence,
+remounting the file systm is deferred to the end.
 
 === 1.4.2 Ensure filesystem integrity is regularly checked
 
