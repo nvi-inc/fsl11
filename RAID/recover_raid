@@ -62,13 +62,13 @@ if ! mdadm --detail $raid 2>&1 | grep -q ", degraded $" ; then
 fi
 
 # If there are still sufficient devices available, re-adding 'failed' should do the trick
-if [ $(mdadm -D $raid | grep "Raid Devices" | cut -c19-) -eq $(mdadm -D $raid | grep "Total Devices" | cut -c19-) ]; then
+if [ $(mdadm -D $raid | grep "Raid Devices" | cut -c22-) -eq $(mdadm -D $raid | grep "Total Devices" | cut -c22-) ]; then
 	# This should always be safe as any faulty device must be in this RAID set already
 	echo "Re-adding failed device(s) to RAID array $raid ... "
 	mdadm $raid --re-add failed
 else
 	# Some devices are missing
-	UUID=$(mdadm -D $raid | grep "UUID" | cut -c19-)
+	UUID=$(mdadm -D $raid | grep "UUID" | cut -c22-)
 	# Find an active device to compare against
 	for device in $(ls /dev/sd*[0-9]); do
 		mdadm -D $raid | grep "active sync" | grep -q $device && active=$device
