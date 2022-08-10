@@ -1841,9 +1841,9 @@ corresponding `_Path_` would be _/dev/vg0/usr2_.
 +
 
 This sub-step is not required but can be used, along with the
-"`Post-check`" sub-step below, to check that the volume changed by the
-expect amount and that no files were lost or changed
-size/modification-times.
+"`Post-check`" sub-step below, to check that the volume size changed as
+expected and that no files were lost or changed
+size/modification-time.
 
 .. Get the size (under the `1G-block` column heading) of the logical
 volume (`Mounted on` heading) for the volume of interest:
@@ -1906,7 +1906,7 @@ by 4 GB:
 lvextend -L+4G _Path_
 ....
 
-... Set the size to a new larger total size, say 4GB:
+... Set the size to a new larger total size, say 8GB:
 
 +
 
@@ -1914,7 +1914,7 @@ lvextend -L+4G _Path_
 
 [subs="+quotes"]
 ....
-lvextend -L4G _Path_
+lvextend -L8G _Path_
 ....
 
 .. Resize `_Path_`
@@ -1941,7 +1941,7 @@ resize2fs _Path_
 
 This sub-step is not required but can be used, if the "`Pre-check`"
 sub-step above was used, to check that the new size is correct and no
-files were lost or changed size/modification-times.
+files were lost or changed size/modification-time.
 
 .. Check that the size of the logical volume (under the `Mounted on`
 column heading) has the expected new size in the output of:
