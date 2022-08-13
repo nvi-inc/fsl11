@@ -19,20 +19,16 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-# For systems with GPT LVM RAID arrays, copies the partition table onto
-# the second disk (if missing), rebuilds the boot sector and adds the RAID
-# partition back into the array as a spare to be rebuilt.
-
 set -e
 
 usage() {
-	echo "Usage: $0 [-A][-h][-p]"
+	echo "Usage: $0 [-h][-p]"
 	echo -e "  \t-h\tdisplay this help and exit"
-	echo -e "  \t-p\tdisplay prgress meter if recovering"
+	echo -e "  \t-p\tdisplay progress meter if recovering"
 }
 
 PROGRESS_METER=0
-while getopts "Ahp" arg; do
+while getopts "hp" arg; do
 	case $arg in
 		p)
 			PROGRESS_METER=1
@@ -63,13 +59,13 @@ if grep -q recovery /proc/mdstat; then
 			sleep 1;
 		done
 		echo -e "\nERROR: Recovery finished. You can try '$0' again without -p."
-                exit 1
-        else
-                echo -e "\nERROR: RAID is recoverying. Can't start rotation. Try again later."
-                exit 1
-        fi
+		exit 1
+	else
+		echo -e "\nERROR: RAID is recovering. Can't start rotation. Try again later."
+		exit 1
+	fi
 fi
-echo "RAID not degraded and not recoverying. Shutting down for rotation."
+echo "RAID not degraded and not recovering. Shutting down for rotation."
 sync;sync
 sleep 1;
 shutdown -h now
