@@ -428,7 +428,7 @@ if [ -r "${NEW_ROOT}usr/src/linux-headers-$(uname -r)" ]; then
 	pushd "${NEW_ROOT}"usr/src >/dev/null || exit
 	rm ${VERBO} -f linux
 	ln ${VERBO} -sfn "linux-headers-$(uname -r)" linux
-	popd || exit
+	popd >/dev/null || exit
 else
 	echo "No kernel headers available for your $(uname -r) kernel image."
 	exit
@@ -441,7 +441,7 @@ else
 fi
 
 # Linux GPIB driver for various GPIB boards.
-GPIBVER="4.0.3"
+GPIBVER="4.3.4"
 if [ ! -d "${NEW_ROOT}"usr/src/linux-gpib-${GPIBVER} ]; then
   atgpib_def="on"
 else
@@ -558,8 +558,13 @@ rm ${VERBO} -rf nigpib*
 rm ${VERBO} -f "${NEW_ROOT}"usr/local/lib/libgpib.a
 rm ${VERBO} -f "${NEW_ROOT}"usr/local/include/sys/ugpib.h
 # Unpack source code of appropriate package (downloaded from SourceForge)
-tar --no-same-owner -xvzf "${SRCS}"gpib/linux-gpib-${GPIBVER}.tar.gz
-popd || exit
+tar ${VERBO} --no-same-owner -xzf "${SRCS}"gpib/linux-gpib-${GPIBVER}.tar.gz
+pushd linux-gpib-${GPIBVER} > /dev/null || exit
+tar ${VERBO} --no-same-owner -xzf linux-gpib-kernel-${GPIBVER}.tar.gz
+(cd linux-gpib-kernel-${GPIBVER}; patch ${VERBOQ} -p1 < "${SRCS}"gpib/linux-gpib-kernel.patch)
+tar ${VERBO} --no-same-owner -xzf linux-gpib-user-${GPIBVER}.tar.gz
+popd >/dev/null || exit
+popd >/dev/null || exit
 ;;
       pgplot)
 # PGPLOT5 and associated perl binding.
@@ -575,7 +580,7 @@ curl --fail -o /tmp/go.tar.gz "https://dl.google.com/go/go$LATEST_VERSION.linux-
 [ -d /usr/local/go ] && rm -r /usr/local/go
 pushd /usr/local/ &>/dev/null || exit
 tar xf /tmp/go.tar.gz
-popd || exit
+popd >/dev/null || exit
     ;;
 
       systemd)
@@ -907,10 +912,11 @@ break
 ;;
       config_gpib)
 # Install the Linux-GPIB firmware collection if not yet installed
-if [ ! -r /var/local/gpib_firmware-2008-08-10 ]; then
-	(cd /var/local/ || exit;
-	 tar --no-same-owner -xvzf "${SRCS}"gpib/gpib_firmware-2008-08-10.tar.gz;
-	 ln -s gpib_firmware-2008-08-10 gpib_firmware)
+if [ ! -r /usr/share/usb/ni_usb_gpib/README ]; then
+	(cd /usr/share/usb/agilent_82357a || exit;
+	 tar --no-same-owner --strip-components=2 -xvzf "${SRCS}"gpib/gpib_firmware-2022-08-12.tar.gz gpib_firmware-2022-08-12/agilent_82357a/);
+	(cd /usr/share/usb/ni_usb_gpib || exit;
+	 tar --no-same-owner --strip-components=2 -xvzf "${SRCS}"gpib/gpib_firmware-2022-08-12.tar.gz gpib_firmware-2022-08-12/ni_gpib_usb_b/);
 fi
 # Install the requisite firmware loader package
 if [ ! -r /usr/share/doc/fxload ]; then
@@ -921,26 +927,15 @@ if [ "${SRCS}"gpib/etc_gpib.conf -nt /etc/gpib.conf ]; then
   cp ${VERBO} -p "${SRCS}"gpib/etc_gpib.conf /etc/gpib.conf
 fi
 # Compile and install Linux-GPIB package
-pushd /usr/src/linux-gpib-${GPIBVER} >/dev/null || exit
-./configure --prefix=/usr
+pushd /usr/src/linux-gpib-${GPIBVER}/linux-gpib-kernel-${GPIBVER} >/dev/null || exit
 make
 make install
-popd || exit
-# Add a suitable /etc/modprobe.d/gpib.conf that runs 'gpib_config'.
-if [ "${SRCS}"gpib/etc_modprobe.d_gpib.conf -nt /etc/modprobe.d/gpib.conf ]; then
-  cp ${VERBO} -p "${SRCS}"gpib/etc_modprobe.d_gpib.conf /etc/modprobe.d/gpib.conf
-fi
-# Add a wrapper for gpib_config to use with hotpluggable devices via udev.
-mkdir ${VERBO} -p /usr/lib/libgpib0
-if [ "${SRCS}"gpib/usr_lib_libgpib0_gpib_config_wrapper -nt /usr/lib/libgpib0/gpib_config_wrapper ]; then
-  cp ${VERBO} -p "${SRCS}"gpib/usr_lib_libgpib0_gpib_config_wrapper /usr/lib/libgpib0/gpib_config_wrapper
-fi
-# Add a suitable /etc/udev/rules.d/gpib.rules to set permissions on /dev/gpibX
-#  to load firmware into unitialised USB dongles that require that and to run
-#  the gpib_config wrapper on plug-in.
-if [ "${SRCS}"gpib/etc_udev_rules.d_gpib.rules -nt /etc/udev/rules.d/gpib.rules ]; then
-  cp ${VERBO} -p "${SRCS}"gpib/etc_udev_rules.d_gpib.rules /etc/udev/rules.d/gpib.rules
-fi
+popd >/dev/null || exit
+pushd /usr/src/linux-gpib-${GPIBVER}/linux-gpib-user-${GPIBVER} >/dev/null || exit
+./configure --sysconfdir=/etc --prefix=/usr
+make
+make install
+popd >/dev/null || exit
 # Wait for return if in verbose mode (to see the messages before
 # 'dialog' is fired up again).
 if [ $VERBO ]; then
