@@ -40,19 +40,14 @@ while getopts "hp" arg; do
 	esac
 done
 
-if mdadm --detail /dev/md0 2>&1 | grep -q ", degraded $" ; then
-	echo "ERROR: RAID is degraded (and not recovering). Can't start rotation."
-	exit 1
-fi
-
-if grep -q recovery /proc/mdstat; then
+if mdadm --detail /dev/md0 | grep -q ", recovering $"; then
 	if [ "$PROGRESS_METER" -ne 0 ]; then
 		echo "(This may safely be interrupted with 'Control-C' if you don't want to wait)"
-	fi
-	recovery=$(grep recovery /proc/mdstat | cut -c32-)
-	echo -e -n "\r$recovery"
-
-	if [ "$PROGRESS_METER" -ne 0 ]; then
+		while ! grep -q recovery /proc/mdstat; do
+			echo "Waiting for recovery ... "
+			sleep 1;
+		done
+#
 		while grep -q recovery /proc/mdstat; do
 			recovery=$(grep recovery /proc/mdstat | cut -c32-)
 			echo -e -n "\r$recovery"
@@ -61,9 +56,12 @@ if grep -q recovery /proc/mdstat; then
 		echo -e "\nERROR: Recovery finished. You can try '$0' again without -p."
 		exit 1
 	else
-		echo -e "\nERROR: RAID is recovering. Can't start rotation. Try again later."
+		echo -e "ERROR: RAID is recovering. Can't start rotation. Try again later."
 		exit 1
 	fi
+elif mdadm --detail /dev/md0 2>&1 | grep -q "degraded" ; then
+	echo "ERROR: RAID is degraded (and not recovering). Can't start rotation."
+	exit 1
 fi
 echo "RAID not degraded and not recovering. Shutting down for rotation."
 sync;sync
