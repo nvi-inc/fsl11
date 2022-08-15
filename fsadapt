@@ -614,11 +614,25 @@ fi
     fi
     mkdir -p "${NEW_ROOT}"usr2/oper
     chown ${VERBO} -R oper.rtx "${NEW_ROOT}"usr2/oper
+    cat > "${NEW_ROOT}"var/lib/AccountsService/users/oper <<EOF-marker-with-no-quoted-chars-to-get-var-expansion
+[User]
+Language=
+XSession=default
+Icon=/usr2/oper/.face
+SystemAccount=false
+EOF-marker-with-no-quoted-chars-to-get-var-expansion
     if [ ! "$is_prog" ]; then
 	chroot "${NEW_ROOT}" adduser --home /usr2/prog --shell /bin/bash --ingroup rtx --no-create-home --gecos "FS Programmer" --disabled-login prog >/dev/null 2>&1
     fi
     mkdir -p "${NEW_ROOT}"usr2/prog
     chown ${VERBO} -R prog.rtx "${NEW_ROOT}"usr2/prog
+    cat > "${NEW_ROOT}"var/lib/AccountsService/users/prog <<EOF-marker-with-no-quoted-chars-to-get-var-expansion
+[User]
+Language=
+XSession=default
+Icon=/usr2/prog/.face
+SystemAccount=false
+EOF-marker-with-no-quoted-chars-to-get-var-expansion
 ;;
       fstab)
 # Add swap, '/usr2', '/proc' into '/etc/fstab'.
@@ -889,7 +903,7 @@ all of these can be safely attempted again and again.)" \
   config_gpib   "Configure Linux GPIB driver and library" $config_gpib_def \
   choose_gpib   "Set '/etc/gpib.conf' for available GPIB interface" $choose_gpib_def \
   set_perms     "Set device permissions (serial, gpib)" on \
-  greeter       "Set up GDM3 greeter to not show user list" $greeter_def \
+  greeter       "Set up GDM3 greeter to not show user list etc." $greeter_def \
   serial        "Set '/etc/default/grub' for VScom cards" $serial_def \
   sshkeys       "'sshd' private/public keys (computer identity)" $sshkeys_def \
   updates       "Automatic weekly security update reminder." $apt_def\
@@ -997,6 +1011,9 @@ fi
 ;;
       greeter)
 sed -i -e "s/^# disable-user-list=true/disable-user-list=true/" /etc/gdm3/greeter.dconf-defaults
+#sed -i -e "s/^# disable-restart-buttons=true/disable-restart-buttons=true/" /etc/gdm3/greeter.dconf-defaults
+sed -i -e "s/^# sleep-inactive-ac-timeout=1200/sleep-inactive-ac-timeout=0/" /etc/gdm3/greeter.dconf-defaults
+sed -i -e "s/^# sleep-inactive-ac-type='suspend'/sleep-inactive-ac-type='nothing'/" /etc/gdm3/greeter.dconf-defaults
 # Wait for return if in verbose mode (to see the messages before
 # 'dialog' is fired up again).
 if [ $VERBO ]; then
