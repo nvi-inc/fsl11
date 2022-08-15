@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.20 - August 2022
+Version 0.0.21 - August 2022
 
 :sectnums:
 :experimental:
@@ -834,7 +834,7 @@ TIP: More information about RAID operation can be found in the <<raid.adoc#,RAID
    cd /usr2
    git clone https://github.com/nvi-inc/fs fs-git
    cd /usr2/fs-git
-   git checkout -q ed/fs111
+   git checkout -q ed/fsl11
 ....
 
 #TODO: restore using `git checkout -q _tag_` when a FS that supports
