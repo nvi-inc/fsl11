@@ -92,6 +92,7 @@ else
 fi
 
 echo "RAID not degraded and not recovering. SAFE to rotate disks. Shutting down ..."
+sleep 2;
 sync;sync
 sleep 1;
 shutdown -h now
