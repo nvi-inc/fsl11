@@ -53,8 +53,9 @@ if mdadm --detail /dev/md0 | grep -q ", recovering $"; then
 			echo -e -n "\r$recovery"
 			sleep 1;
 		done
-		echo -e "\nERROR: Recovery finished. You can try '$0' again without -p."
-		exit 1
+		echo -e "\nRecovery finished."
+		echo "You can try '$0' again without '-p'."
+		exit 0
 	else
 		echo -e "ERROR: RAID is recovering. Check progress with 'mdstat'. NOT safe to rotate disks."
 		exit 1
@@ -63,6 +64,13 @@ elif mdadm --detail /dev/md0 2>&1 | grep -q "degraded" ; then
 	echo "ERROR: RAID is degraded (and probably not recovering). NOT safe to rotate disks."
 	exit 1
 fi
+
+if [ "$PROGRESS_METER" -ne 0 ]; then
+	echo "RAID not degraded and not recovering."
+	echo "You can try '$0' again without '-p'."
+	exit 0
+fi
+
 echo "RAID not degraded and not recovering. SAFE to rotate disks. Shutting down ..."
 sync;sync
 sleep 1;
