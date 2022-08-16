@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 0.0.2 - August 2022
+Version 0.0.3 - August 2022
 
 :sectnums:
 :experimental:
@@ -52,17 +52,31 @@ and recommended guidelines.
 These practices are fundamental to the operation of the RAID.
 
 . Never mix disks from different computers in one computer.
-. Never split up a RAID pair unless already synced, check with _mdstat_
+
+. Never split up a RAID pair unless already synced, check with
+_mdstat_.
+
++
+
+TIP: For a disk rotation, use _rotation_shudown_, which will only
+shutdown the system if the RAID is synced.
  
-A RAID pair (kept together and in order) can be removed or moved
-between computers if need be. A disk rotation (or initializing a new
-    disk)  is probably the only reason to split a pair.
++
 
 NOTE: When booting a disk from a RAID by itself, you may see
-~20 of the `volume group
-not found` error messages, then the machine will boot. These error
-messages  only appear like this the first time a disk
-from the RAID is booted without its partner.
+~20 `volume group not found` error messages, then the machine will
+boot. These error messages only appear like this the first time a disk
+from a RAID is booted without its partner.
+
++
+
+A RAID pair (kept together and in order) can be removed/reinserted or
+moved between computers if need be. A disk rotation (or initializing a
+new disk) is the only routine reason to split a pair.
+
+. Set your BIOS to allow hot swapping of disks for both the _primary_
+and _secondary_ controllers. This is necessary to use the RAID
+procedures described in this document.
 
 === Recommended practices
 
@@ -73,7 +87,7 @@ These recommendations are intended to provide consistent procedures and make it 
 . Label the slots as _primary_ and _secondary_ as appropriate.
 . Always boot for a refresh/blank with the _primary_ slot turned on and the _secondary_ slot turned off: so it is clear which is the active disk
 . Label the disks (so visible when in use) with the system name and number them 1, 2, and 3, ...
-. Label the disks (so visible when in use) with their serial numbers, either from _mdstat_ when only one disk inserted or by examining the disk
+. Label the disks (so visible when in use) with their serial numbers, determined either from _mdstat_ when only one disk inserted or by examining the disk
 . For reference, place the disk serial numbers in a file with their corresponding numbers, e.g.:
 
 +
@@ -90,11 +104,7 @@ These recommendations are intended to provide consistent procedures and make it 
 . If you have a spare computer (and/or additional systems), keep the disks in the same sequence on all the computers
 . Do not turn a disk off while the system is running. The only time a key switch state should be changed while the system is running is to add a disk for a blank or refresh operation.
 
-. Set your  BIOS to allow hot swapping of disks for both the _primary_
-and _secondary_ controllers. This is necessary to use the RAID procedures
-described in this document.
-
-== Disk Rotation
+== Disk rotation
 
 This section describes the disk rotation procedure. It is used to make
 periodic updates of the shelf disk.
@@ -103,14 +113,23 @@ NOTE: Your BIOS must be set to allow hot swapping of disks,
 particularly for the _secondary_ controller (it should also be set for
 the _primary_ controller).
 
-TIP: If you do not have access to the _root_ account, you may
-have _sudo_ access to the privileged commands. If so, you will need
-to run the `shutdown -h now` and _refresh_secondary_ commands with
-_sudo_.  This is true for other privileged commands used elsewhere in
-this document.
+TIP: If you do not have access to the _root_ account, you may have
+_sudo_ access to privileged commands. If so, you may be able to run
+_rotation_shutdown_ and _refresh_secondary_ commands with _sudo_,
+e.g., `*sudo{nbsp}rotation_shutdown*`. This also applies to other
+privileged commands used in this document.
 
-. Wait until the RAID is not recovering, check with _mdstat_
-. Shutdown the system, e.g., `shutdown -h now`
+. Shut the system down with the _rotation_shutdown_ command.
+
++
+
+This command will check the status of the RAID and proceed to shutting
+down _only_ if it is safe to perform a disk rotation. If a conflict is
+detected, it will be reported. If the RAID is recovering, you will
+need to wait until the recovery is finished before shutting down. If
+it is degraded, seek expert advice. If the FS is running, you should
+terminate it before using this command.
+
 . Take the disk from _primary_ slot, put it on the _shelf_
 +
 
@@ -141,8 +160,21 @@ Seek expert advice for this, but the basic plan is given below:
 NOTE: Your BIOS must be set to allow hot swapping of disks
 for both the _primary_ and _secondary_ controllers.
 
-. If a rotation hasn't just been completed, perform one (as an extra backup)
-. Before proceeding verify that there is no recovery in progress, check with _mdstat_
+. If a rotation hasn't just been completed, perform one (as an extra
+backup) according to <<Disk rotation>> above.
+
+. Before proceeding verify that there is no recovery in progress,
+check with _mdstat_.
+
++
+
+TIP: You can combine this step and the next one by using the
+_rotation_shutdown_ command, which will shut the system down only of
+the RAID is ready for a disk rotation. The output of that command is
+phrased for doing a disk rotation. For the current case, you will need
+to interpret the output for whether the RAID is ready to be split for
+use in testing.
+
 . Shutdown the system, e.g., `shutdown -h now`
 . Key-off the _primary_ slot
 . Reboot (_primary_ keyed-off, _secondary_ keyed-on)
@@ -244,6 +276,15 @@ used for operations, if need be. In that case, the rest of this
 procedure can be completed when time allows.
 
 . Wait until the RAID is not recovering, check with _mdstat_
+
++
+
+TIP: You can combine this step and the next one by using the
+_rotation_shutdown_ command, which will shut the system down only of
+the RAID is ready for a disk rotation. The output of that command is
+phrased for doing a disk rotation. For the current case, you are
+essentially doing a disk rotation.
+
 . Shutdown the system, e.g., `shutdown -h now`
 . Take the disk from _primary_ slot, put it on the _shelf_
 . Move the disk from the _secondary_ slot to the _primary_ slot, keyed-on
@@ -290,6 +331,15 @@ additional disk>> section of the FSL11 Installation document.
 This case corresponds to not having a good shelf disk.
 
 . Wait until the RAID is not recovering, check with _mdstat_
+
++
+
+TIP: You can combine this step and the next one by using the
+_rotation_shutdown_ command, which will shut the system down only of
+the RAID is ready for a disk rotation. The output of that command is
+phrased for doing a disk rotation. For the current case, you are
+essentially doing a disk rotation.
+
 . Shutdown the system, e.g., `shutdown -h now`
 
 If the disks are in cyclical order (i.e., primary, secondary are
@@ -386,6 +436,24 @@ state of the RAID, including any anomalies.
 The script also lists various useful details for all block devices (such
 as disks) that are currently connected, including their model and serial
 numbers where applicable.
+
+=== rotation_shutdown
+
+This script can be used to shut the system down if the RAID is in a
+state that allows a disk rotation to be performed. For a shutdown to
+occur, the RAID must not be recovering and not be degraded. Otherwise,
+an appropriate error message is printed. If the RAID is recovering,
+you will need to wait until the recovery is finished before shutting
+down. If it is degraded, seek expert advice.
+
+The script will also check to see if the FS is active and will not
+shutdown the system if it is. To override this, the `-F` option can be
+used, but is not recommended. It is better to terminate the FS
+instead.
+
+The script includes a `-p` option to display a progress meter for a
+recovery if one is active. Whether there is a recovery or not, there
+will not be a shutdown if `-p` is used.
 
 === refresh_secondary
 
