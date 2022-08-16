@@ -21,6 +21,8 @@
 
 # Recover any failed and/or missing devices back into an active RAID
 
+set -e
+
 usage() {
 	echo "Usage: $0 [-p]"
 	echo -e "  where\t-h\tdisplay this help and exit"
@@ -62,13 +64,13 @@ if ! mdadm --detail $raid 2>&1 | grep -q ", degraded $" ; then
 fi
 
 # If there are still sufficient devices available, re-adding 'failed' should do the trick
-if [ $(mdadm -D $raid | grep "Raid Devices" | cut -c19-) -eq $(mdadm -D $raid | grep "Total Devices" | cut -c19-) ]; then
+if [ $(mdadm -D $raid | grep "Raid Devices" | cut -d':' -f2) -eq $(mdadm -D $raid | grep "Total Devices" | cut -d':' -f2) ]; then
 	# This should always be safe as any faulty device must be in this RAID set already
 	echo "Re-adding failed device(s) to RAID array $raid ... "
 	mdadm $raid --re-add failed
 else
 	# Some devices are missing
-	UUID=$(mdadm -D $raid | grep "UUID" | cut -c19-)
+	UUID=$(mdadm -D $raid -Y | grep "MD_UUID" | cut -d'=' -f2)
 	# Find an active device to compare against
 	for device in $(ls /dev/sd*[0-9]); do
 		mdadm -D $raid | grep "active sync" | grep -q $device && active=$device
@@ -86,7 +88,7 @@ else
 				echo "ERROR: Missing device $device EVENT count is higher than active device $active"
 				exit 1
 			fi
-			if mdadm -E $device | grep "Array State" | cut -c18- | cut -d' ' -f1 | grep -q [.]; then
+			if mdadm -E $device | grep "Array State" | cut -d':' -f2 | cut -d' ' -f2 | grep -q [.]; then
 				echo "ERROR: Missing device $device has been used separately since last in sync"
 				exit 1
 			fi
