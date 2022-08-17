@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.21 - August 2022
+Version 0.0.22 - August 2022
 
 :sectnums:
 :experimental:
@@ -817,15 +817,27 @@ You can install some useful tools for working with the RAID, if you're actually 
    ~/fsl11/RAID/install_tools
 
 The rest of this document assumes the first three of these tools have
-been installed.  The five tools are:
+been installed. The six tools are:
 
-   * _mdstat_ allows all users to check on the RAID status
-   * _refresh_secondary_ allows _root_ to refresh a secondary disk that is from the same RAID and has been booted on its own
-   * _blank_secondary_ allows _root_ to initialize a secondary disk, must be used with extreme care
-   * _drop_primary_ allows _root_ deliberately to drop the primary disk out of the RAID for use as a backup
-   * _recover_raid_ allows _root_ to re-add a disk that fell out of (or was removed from) the RAID back into it
+* _mdstat_ -- for all users -- check on the RAID status
 
-TIP: More information about RAID operation can be found in the <<raid.adoc#,RAID notes for FSL11>> document.
+* _refresh_secondary_ -- for _root_ -- refresh a _secondary_ disk that
+is from the same RAID
+
+* _blank_secondary_ -- for _root_ -- initialize a _secondary_ disk,
+must be used with extreme care
+
+* _rotation_shutdown_ -- for _root_ -- shutdown the system _if_ it is
+safe to rotate disks
+
+* _drop_primary_ -- for _root_ -- deliberately drop the _primary_ disk
+out of the RAID for use as a backup
+
+* _recover_raid_ -- for _root_ -- re-add a disk that fell out of (or
+was removed from) the RAID back into it
+
+TIP: More information about RAID operation can be found in the
+<<raid.adoc#,RAID notes for FSL11>> document.
 
 === Download the Field System
 

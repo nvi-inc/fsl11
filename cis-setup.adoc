@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 0.0.4 - August 2022
+Version 0.0.5 - August 2022
 
 == Introduction
 
@@ -597,14 +597,18 @@ run _visudo_ then add at end:
     %programmers    ALL=(prog) NOPASSWD: ALL
     %programmers    ALL=(oper) NOPASSWD: ALL
 
-To allow _operators_ to use _refresh_secondary_, _shutdown_, and _reboot_, add (respectively):
+To allow _operators_ to use _rotation_shutdown_, _refresh_secondary_,
+_shutdown_, and _reboot_, add (respectively):
 
+   %operators      ALL=(ALL) /usr/local/sbin/rotation_shutdown
    %operators      ALL=(ALL) /usr/local/sbin/refresh_secondary
    %operators      ALL=(ALL) /sbin/shutdown
    %operators      ALL=(ALL) /sbin/reboot
 
-To use these commands the _operators_ will need to enter (respectively) from their AUID accounts:
+To use these commands the _operators_ will need to enter
+(respectively) from their AUID accounts:
 
+   sudo rotation_shutdown
    sudo refresh_secondary
    sudo shutdown
    sudo reboot
@@ -615,7 +619,7 @@ If the  user can elevate to _root_, also add:
 
     dhorsley       ALL=(root) ALL
 
-Create the groups if they don't exist:
+If they don't already exist, create the needed groups:
 
     addgroup operators
     addgroup programmers

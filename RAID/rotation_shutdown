@@ -1,0 +1,98 @@
+#!/bin/bash
+#
+# Copyright (c) 2022 NVI, Inc.
+#
+# This file is part of FSL10 Linux distribution.
+# (see http://github.com/nvi-inc/fsl11).
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+
+set -e
+
+usage() {
+	echo "Usage: $0 [-F][-h][-p]"
+	echo -e "  \t-F\toverride the FS running preventing shutdown"
+	echo -e "  \t-h\tdisplay this help and exit"
+	echo -e "  \t-p\tdisplay progress meter if recovering (no shutdown)"
+}
+
+PROGRESS_METER=0
+OVERRIDE_FS=0
+while getopts "Fhp" arg; do
+	case $arg in
+		F)
+			OVERRIDE_FS=1
+			;;
+		p)
+			PROGRESS_METER=1
+			;;
+		h | *)
+			usage
+			exit 0
+			;;
+	esac
+done
+
+if mdadm --detail /dev/md0 | grep -q ", recovering $"; then
+	if [ "$PROGRESS_METER" -ne 0 ]; then
+		echo "(This may safely be interrupted with 'Control-C' if you don't want to wait)"
+		while ! grep -q recovery /proc/mdstat; do
+			echo "Waiting for recovery ... "
+			sleep 1;
+		done
+#
+		while grep -q recovery /proc/mdstat; do
+			recovery=$(grep recovery /proc/mdstat | cut -c32-)
+			echo -e -n "\r$recovery"
+			sleep 1;
+		done
+		echo -e "\nRecovery finished."
+		echo "You can try '$0' again without '-p'."
+		exit 0
+	else
+		echo -e "ERROR: RAID is recovering. Check progress with 'mdstat'. NOT safe to rotate disks."
+		exit 1
+	fi
+elif mdadm --detail /dev/md0 2>&1 | grep -q "degraded" ; then
+	echo "ERROR: RAID is degraded (and probably not recovering). NOT safe to rotate disks."
+	exit 1
+fi
+
+if [ "$PROGRESS_METER" -ne 0 ]; then
+	echo "RAID not degraded and not recovering."
+	echo "You can try '$0' again without '-p'."
+	exit 0
+fi
+
+if test -f /usr2/fs/bin/lognm ; then
+	if [ "$(/usr2/fs/bin/lognm 2>/dev/null)" ] ; then
+		if [ "$OVERRIDE_FS" -ne 0 ]; then
+			echo "The FS running, but -F was used to force a shutdown."
+		else
+			echo "ERROR: The FS is running; won't shutdown. Override with -F (not recommended)."
+			exit 1
+		fi
+	else
+		echo "The FS is not running. Shutting down is not prevented."
+	fi
+else
+	echo "The FS does not appear to be installed. Shutting down is not prevented."
+fi
+
+echo "RAID not degraded and not recovering. SAFE to rotate disks. Shutting down ..."
+sleep 2;
+sync;sync
+sleep 1;
+shutdown -h now

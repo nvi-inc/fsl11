@@ -53,4 +53,9 @@ cd /usr/local/sbin
 cp -a ~/fsl11/RAID/drop_primary .
 chown root:root drop_primary
 chmod a+r,u+x,go-wx drop_primary
+echo "setting up rotation_shutdown"
+cd /usr/local/sbin
+cp -a ~/fsl11/RAID/rotation_shutdown .
+chown root:root rotation_shutdown
+chmod a+r,u+x,go-wx rotation_shutdown
 echo "done"
