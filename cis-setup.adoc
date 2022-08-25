@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 0.0.5 - August 2022
+Version 0.0.6 - August 2022
 
 == Introduction
 
@@ -584,9 +584,10 @@ their Agency User ID, or AUID). As the FS currently operates, users
 will then need to switch to the _oper_ or _prog_ account after login.
 Likewise, if a user is allowed to elevate to _root_, they will need to
 do so after logging into their own account. This subsection covers how
-to enable this capability. The next subsection <<Adding AUID
-accounts>> covers how to add an AUID account. The method described
-here, and in the next subsection, uses _dhorsley_ as an example user.
+to enable this capability. The next subsection,
+<<Adding AUID accounts>>, covers how to add an AUID account. The
+method described here, and in the next subsection, uses _dhorsley_ as
+an example AUID account name.
 
 For _oper_ and _prog_, we suggest creating two groups that can _sudo_
 to the accounts.
@@ -723,7 +724,7 @@ with:
 This subsection describes how to add AUID accounts to be used with the
 ability to promote to _oper_, _prog_, and _root_ as described in the
 previous subsection. As in the previous subsection, the following
-method uses _dhorsley_ as an example user.
+method uses _dhorsley_ as an example AUID account name.
 
 . Add any needed user accounts as appropriate:
 
