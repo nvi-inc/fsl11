@@ -1,4 +1,4 @@
-//
+
 // Copyright (c) 2020-2021 NVI, Inc.
 //
 // This file is part of the FSL10 Linux distribution.
@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.22 - August 2022
+Version 0.0.23 - August 2022
 
 :sectnums:
 :experimental:
@@ -1143,6 +1143,12 @@ been fully verified). You may need to be _root_ or _desktop_ to do
 this. All the subsections below assume you are in the program and have
 sufficient permissions.
 
+NOTE: If you someday move the disks to a computer with a different
+mainboard model, the device names of the network interfaces may
+change. If that happens, you will need to reselect the names as
+described in the sub-steps below. This should not be necessary if the
+other computer uses the same mainboard.
+
 ==== Make the connection always appear on the same interface regardless of the MAC address.
 
 This is useful both to make the connection appear on only one
@@ -1979,10 +1985,10 @@ system.
 
 === Update IP address, hostname, FQDN, and other network information
 
-This is useful if the computer is physically moved to a different site
-or its network information needs to be be updated for a different
-reason. This is typically not needed if you use DHCP, which may still
-require some of the changes in the
+This is useful if the computer is physically moved to a different
+site, its IP address changes, or its network information needs to be
+updated for a different reason. This is typically not needed if you
+use DHCP, which may still require some of the changes in the
 <<sysfiles,Modify other system files>> step below (please let us know
 if you gain experience).
 
@@ -1991,6 +1997,13 @@ display (_nmtui_ may be an option on a text terminal, but it has not
 been fully verified). You may need to be _root_ or _desktop_ to do
 this. This subsection assumes you are in the program and have
 sufficient permissions.
+
+NOTE: If you move the disks to a computer with a different mainboard
+model, the device names of the network interfaces may change. In that
+case, you will need to reselect the names as described in the
+sub-steps of the <<Stabilize network configuration>> section of the
+<<Additional Setup Items>> appendix. This should not be necessary if
+the origin and destination computers have the same mainboard.
 
 . Select your connection and click the "`gear`" icon.
 
