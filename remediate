@@ -109,22 +109,7 @@ aideinit
 #
 # 1.4.2 Ensure filesystem integrity is regularly checked
 #
-# 'root' was missing
-touch /etc/crontab
-cat >>/etc/crontab <<EOT
-0 5 * * * root /usr/bin/aide.wrapper --config /etc/aide/aide.conf --check
-EOT
-# aide.wrapper is not in Bullseye
-if [ ! -f /usr/bin/aide.wrapper ]; then
-	touch /usr/bin/aide.wrapper
-	cat >>/usr/bin/aide.wrapper <<EOT
-#!/bin/sh
-#
-/usr/bin/aide "$@"
-RET=$?
-EOT
-        chmod a+x /usr/bin/aide.wrapper
-fi
+# this no longer needed, AIDE handles this itself
 #
 # 1.5.1 Ensure permissions on bootloader config are configured
 #

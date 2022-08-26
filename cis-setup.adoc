@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 0.0.6 - August 2022
+Version 0.0.7 - August 2022
 
 == Introduction
 
@@ -363,6 +363,11 @@ This section addresses the tests that failed in the CIS benchmark
 after all the remediations in this document were applied. The items
 are listed by benchmark section numbers.
 
+=== 1.4.2 Ensure filesystem integrity is regularly checked
+
+The AIDE system now performs a check daily and generates a report, so
+this is no longer needed.
+
 === 1.5.2 Ensure bootloader password is set
 
 This must be set later by the system administrator.
@@ -436,20 +441,9 @@ remounting the file systm is deferred to the end.
 === 1.4.2 Ensure filesystem integrity is regularly checked
 
 The _/etc/crontab_ entry that should be added is missing the user
-(_root_) field.
-
-Debian no longer provides _aide.wrapper_, which is used in the
-_/etc/crontab_. A script _/usr/bin/aide.wrapper_ was added that
-creates the same _effective_ functionality. The lock file
-functionality is not included, but _apparently_ that is no longer
-needed, which is _apparently_ why _aide.wrapper_ was not provided by
-Debian. The contents of the added script are:
-
-./usr/bin/aide.wrapper
- #!/bin/sh
- #
- /usr/bin/aide "$@"
- RET=$?
+(_root_) field. Additionally Debian no longer provides _aide.wrapper_.
+However, the AIDE system now performs a check daily and generates a
+report, so this is no longer needed.
 
 === 1.5.1 Ensure the permissions on the bootloader are configured
 
