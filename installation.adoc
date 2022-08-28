@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.23 - August 2022
+Version 0.0.24 - August 2022
 
 :sectnums:
 :experimental:
@@ -1787,11 +1787,12 @@ E: No packages found
 
 apt-listchanges: Unable to retrieve changelog for package linux-image-amd64; 'apt-get changelog' failed with: E: Version '5.10.120+1' for 'linux-image-amd64' was not found
 E: No packages found
-
-apt-listchanges: Reading changelogs...
-Calling ['apt-get', '-qq', 'changelog', 'linux-headers-amd64=5.10.120+1'] to retrieve changelog
-Calling ['apt-get', '-qq', 'changelog', 'linux-image-amd64=5.10.120+1'] to retrieve changelog
 ----
+
+and
+
+ Calling ['apt-get', '-qq', 'changelog', 'linux-headers-amd64=5.10.120+1'] to retrieve changelog
+ Calling ['apt-get', '-qq', 'changelog', 'linux-image-amd64=5.10.120+1'] to retrieve changelog
 
 These appear to be benign. Our only advice at this time is to ignore
 them.
