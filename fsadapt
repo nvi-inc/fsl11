@@ -25,7 +25,7 @@
 # What          When                  Who
 # $Log: fsadapt,v $
 # Revision 11.0 2022/08/04 14:19:30  jfhq
-# Initial release for FS Linux 10
+# Initial release for FS Linux 11
 #
 # Revision 10.0 2019/10/30 16:05:30  jfhq
 # Initial release for FS Linux 10
@@ -485,12 +485,6 @@ if [ -x "${NEW_ROOT}"usr/bin/lsb_release.real ]; then
   noident_def="on"
 fi
 
-# Do we have 'GOVERNMENT' prompts?
-govt_def="off"
-if (grep -F -i 'government' "${NEW_ROOT}"etc/govtwarn.txt >/dev/null 2>&1); then
-  govt_def="on"
-fi
-
 go_inst_update="Install"
 go_inst_def='off'
 if [ -d /usr/local/go ]; then
@@ -515,7 +509,7 @@ elif [ "$SHOWPHASE1" ]; then
 Missing '*' indicates that this action has already been performed.\n\
 Most of these can only be done _once_, so please don't put an '*' on\n\
 unless you are certain that you want and can to do that item again." \
-22 76 11 \
+21 76 10 \
   skip      "Skip all steps below (regardless of [*] marks)" off \
   verbose   "Show names of files being processed in 'fsadapt'" $verb_def \
   atgpib    "Install Linux GPIB driver and library" $atgpib_def \
@@ -526,7 +520,6 @@ unless you are certain that you want and can to do that item again." \
   stdaccts  "Add 'oper' and 'prog' to '/etc/passwd and /etc/shadow'" $stdaccts_def \
   fstab     "Make sure that '/etc/fstab' includes '/usr2' etc" "on" \
   noident   "Remove host and op.sys info from login prompts" $noident_def \
-  govt      "Add 'U.S. Government' warnings to login prompts" $govt_def \
   2>/tmp/reply
   # Cancel?
   if [ $? != 0 ]; then
@@ -718,80 +711,13 @@ else
   cp ${VERBO} -p "${SRCS}"usr_bin_lsb_release "${NEW_ROOT}"usr/bin/lsb_release
 fi
 cat >"${NEW_ROOT}"etc/issue <<EOF-marker-with-no-quoted-chars-to-get-var-expansion
-Welcome to FS Linux 10 on \l.
+Welcome to FS Linux 11 on \l.
 
 EOF-marker-with-no-quoted-chars-to-get-var-expansion
 cat >"${NEW_ROOT}"etc/issue.net <<EOF-marker-with-no-quoted-chars-to-get-var-expansion
-Welcome to FS Linux 10
+Welcome to FS Linux 11
 
 EOF-marker-with-no-quoted-chars-to-get-var-expansion
-;;
-      govt)
-cat >/tmp/govt.$$ <<EOF-marker-with-no-quoted-chars-to-get-var-expansion
-------------------------------------------------------------------------------
-
-By accessing and using this information system, you acknowledge and consent
-to the following:
-
-You are accessing a U.S. Government information system, which includes:
-(1) this computer; (2) this computer network; (3) all computers connected
-to this network including end user systems; (4) all devices and storage
-media attached to this network or to any computer on this network; and (5)
-cloud and remote information services. This information system is provided
-for U.S. Government-authorized use only. You have no reasonable expectation
-of privacy regarding any communication transmitted through or data stored on
-this information system. At any time, and for any lawful purpose, the U.S.
-Government may monitor, intercept, search, and seize any communication or
-data transiting, stored on, or traveling to or from this information system.
-You are NOT authorized to process classified information on this information
-system. Unauthorized or improper use of this system may result in suspension
-or loss of access privileges, disciplinary action, and civil and/or criminal
-penalties.
-
-------------------------------------------------------------------------------
-EOF-marker-with-no-quoted-chars-to-get-var-expansion
-# Login prompt:
-if (grep -F -i 'government' "${NEW_ROOT}"etc/issue >/dev/null); then
-  :
-else
-  cat /tmp/govt.$$ >>"${NEW_ROOT}"etc/issue
-fi
-# Network login prompt:
-if (grep -F -i 'government' "${NEW_ROOT}"etc/issue.net >/dev/null); then
-  :
-else
-  cat /tmp/govt.$$ >>"${NEW_ROOT}"etc/issue.net
-fi
-# Normal login screens after login (incl. xterm).
-if (grep -F -i 'government' "${NEW_ROOT}"etc/govtwarn.txt >/dev/null 2>&1); then
-  :
-else
-  cat /tmp/govt.$$ >>"${NEW_ROOT}"etc/govtwarn.txt
-fi
-if (grep -F 'etc/govtwarn.txt' "${NEW_ROOT}"etc/profile >/dev/null); then
-  :
-else
-  echo 'cat /etc/govtwarn.txt' >>"${NEW_ROOT}"etc/profile
-fi
-if (grep -F 'etc/govtwarn.txt' "${NEW_ROOT}"etc/csh.login >/dev/null); then
-  :
-else
-  echo 'cat /etc/govtwarn.txt' >>"${NEW_ROOT}"etc/csh.login
-fi
-rm -f /tmp/govt.$$
-# SSH Server
-if (grep -F '#Banner' "${NEW_ROOT}"etc/ssh/sshd_config >/dev/null); then
-  sed -e "s,#Banner,Banner," "${NEW_ROOT}"etc/ssh/sshd_config >"${NEW_ROOT}"etc/ssh/sshd_config.new
-  mv ${VERBO} -f "${NEW_ROOT}"etc/ssh/sshd_config.new "${NEW_ROOT}"etc/ssh/sshd_config
-  systemctl reload ssh
-fi
-# GDM3 login window
-if (grep -F -i 'government' "${NEW_ROOT}"etc/gdm3/greeter.dconf-defaults >/dev/null 2>&1); then
-  :
-else
-  sed -i -e "s/^# banner-message-enable=true/banner-message-enable=true/" /etc/gdm3/greeter.dconf-defaults
-  sed -i -e "s/^# banner-message-text='Welcome'/banner-message-text='This US Government computer is for authorized users only'/" /etc/gdm3/greeter.dconf-defaults
-fi
 ;;
       *)
         echo "fsadapt: unknown phase 1 operation ($i)" >&2
