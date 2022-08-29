@@ -66,3 +66,11 @@ echo -ne "\r                              \r"
 sync;sync
 sleep 1;
 mdadm /dev/md0 -f /dev/sda2
+while ! mdadm --detail /dev/md0 2>&1 | grep -q ": clean, degraded $" ; do
+	echo -ne "\rWaiting for a clean state ... "
+	sync;sync
+	sleep 1;
+done
+echo -ne "\r                              \r"
+sync;sync
+sleep 1
