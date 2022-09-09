@@ -448,13 +448,6 @@ else
   atgpib_def="off"
 fi
 
-# PGPLOT5 and associated perl binding.
-if [ ! -f "${NEW_ROOT}"usr/share/man/man3/pgperl.3.gz ]; then
-  pgplot_def="on"
-else
-  pgplot_def="off"
-fi
-
 # Add FS shared memory setup into init sequence
 if [ ! -f "${NEW_ROOT}"etc/systemd/system/fsalloc.service -o \
      ! -f "${NEW_ROOT}"etc/systemd/system/stalloc.service ]; then
@@ -513,7 +506,6 @@ unless you are certain that you want and can to do that item again." \
   skip      "Skip all steps below (regardless of [*] marks)" off \
   verbose   "Show names of files being processed in 'fsadapt'" $verb_def \
   atgpib    "Install Linux GPIB driver and library" $atgpib_def \
-  pgplot    "Install PGPLOT5 and associated perl binding" $pgplot_def \
   goinst    "$go_inst_update Go programming language" $go_inst_def \
   systemd   "Adjust systemd to run FS-specific programs in boot" $systemd_def \
   rtxgroup  "Add 'rtx' group to '/etc/group'" $rtxgroup_def \
@@ -558,11 +550,6 @@ tar ${VERBO} --no-same-owner -xzf linux-gpib-kernel-${GPIBVER}.tar.gz
 tar ${VERBO} --no-same-owner -xzf linux-gpib-user-${GPIBVER}.tar.gz
 popd >/dev/null || exit
 popd >/dev/null || exit
-;;
-      pgplot)
-# PGPLOT5 and associated perl binding.
-# Install appropriate packages from distribution
-chroot "${NEW_ROOT}" apt-get -y install pgplot5 libpgplot-perl
 ;;
 
     goinst)

@@ -595,6 +595,7 @@ libcolord-gtk1:i386				install
 libcolord2:i386					install
 libcolorhug2:i386				install
 libcom-err2:i386				install
+libcpgplot0:i386				install
 libcrack2:i386					install
 libcrypt-dev:i386				install
 libcrypt1:i386					install
@@ -1087,6 +1088,8 @@ libpeas-common					install
 libperl4-corelibs-perl				install
 libperl5.32:i386				install
 libpgm-5.3-0:i386				install
+libpgplot-perl					install
+libpgplot0:i386					install
 libphonenumber8:i386				install
 libpipeline1:i386				install
 libpipewire-0.3-0:i386				install
