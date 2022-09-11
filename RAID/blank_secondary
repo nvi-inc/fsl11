@@ -169,7 +169,7 @@ for part in $(cd /dev/;ls $devname?* 2>/dev/null); do
 			echo "Detected BIOS boot partition: /dev/$part"
 			echo -n "Wipe partition (Control-C aborts)? "
 			read $ans
-		elif [ $VERBOSE -ne 0 ] && [ ! -z "$(sgdisk -i$partnum $disk | grep 'EFI System')" ]; then
+		elif [ $VERBOSE -ne 0 ] && [ ! -z "$(sgdisk -i$partnum $disk | grep 'EFI system')" ]; then
 			echo "Detected EFI System partition: /dev/$part"
 			echo -n "Wipe partition (Control-C aborts)? "
 			read $ans

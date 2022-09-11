@@ -142,7 +142,7 @@ fi
 if [ -b $part1 ] && [ ! -z "$(sgdisk -i1 $disk | grep 'GUID code')" ] &&
    (( [ $boot = "MBR" ] && ! $(partprobe -ds $disk | grep -q msdos) ) ||
     ( [ $boot = "BIOS" ] && [ -z "$(sgdisk -i1 $disk | grep 'BIOS boot')" ] ) ||
-    ( [ $boot = "EFI" ] && [ -z "$(sgdisk -i1 $disk | grep 'EFI System')" ] )); then
+    ( [ $boot = "EFI" ] && [ -z "$(sgdisk -i1 $disk | grep 'EFI system')" ] )); then
 	echo "ERROR: boot scheme on \"Secondary\" disk $disk does not match \"Primary\" disk /dev/sda"
 	echo "(You should use blank_secondary to reset the second disk)"
 	exit 1
