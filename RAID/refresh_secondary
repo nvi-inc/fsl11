@@ -105,7 +105,7 @@ if [ $SDB != $SDA ] && [ $ACCEPT_LOAD == 0 ] && ([ ! -O $lockf ] || [ "$(cat $lo
 	echo "(You may want to use the '-A' option to [A]llow if this is intended)"
 	exit 1
 fi
-if [ $SDA == $SDB] || [ ! -b /dev/$SDB ]; then
+if [ $SDA == $SDB ] || [ ! -b /dev/$SDB ]; then
 	while [ $SDA == $SDB ] || [ ! -b /dev/$SDB ]; do
 		echo  -n -e "\rWaiting for disk /dev/$SDB to be loaded, use 'Control-C' to safely abort ... "
 		sleep 1
