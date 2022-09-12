@@ -597,6 +597,7 @@ libcolord-gtk1:amd64				install
 libcolord2:amd64				install
 libcolorhug2:amd64				install
 libcom-err2:amd64				install
+libcpgplot0:amd64				install
 libcrack2:amd64					install
 libcrypt-dev:amd64				install
 libcrypt1:amd64					install
@@ -1091,6 +1092,8 @@ libpeas-common					install
 libperl4-corelibs-perl				install
 libperl5.32:amd64				install
 libpgm-5.3-0:amd64				install
+libpgplot-perl					install
+libpgplot0:amd64				install
 libphonenumber8:amd64				install
 libpipeline1:amd64				install
 libpipewire-0.3-0:amd64				install
