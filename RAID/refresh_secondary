@@ -31,11 +31,15 @@ usage() {
 }
 
 ACCEPT_LOAD=0
+DRY_RUN=0
 PROGRESS_METER=0
-while getopts "Ahp" arg; do
+while getopts "Anph" arg; do
 	case $arg in
 		A)
 			ACCEPT_LOAD=1
+			;;
+		n)
+			DRY_RUN=1
 			;;
 		p)
 			PROGRESS_METER=1
@@ -46,6 +50,8 @@ while getopts "Ahp" arg; do
 			;;
 	esac
 done
+
+[ $DRY_RUN -eq 0 ] || echo -e "\n!! NB: running in DRY RUN mode ie. no action will actually be taken !!\n"
 
 lockf=/tmp/.accept_load
 
@@ -178,8 +184,8 @@ fi
 
 # Ensure the Primary disk is mounted on /boot/efi (ie. not Secondary) if applicable
 if [ $boot = "EFI" ]; then
-	umount /boot/efi
-	mount /dev/"$SDA"1 /boot/efi
+	[ $DRY_RUN -eq 0 ] && umount /boot/efi
+	[ $DRY_RUN -eq 0 ] && mount /dev/"$SDA"1 /boot/efi
 fi
 
 
@@ -190,12 +196,12 @@ if [ "$(partprobe -s /dev/"$SDA" | cut -d' ' -f2-)" != "$(partprobe -s /dev/$SDB
 	if [ "$(partprobe -s /dev/$SDB | cut -d' ' -f3-)" = "partitions" ]; then
 		echo -n "Partitioning blank \"Secondary\" disk /dev/$SDB ... "
 		if [ $boot = "MBR" ]; then
-			sfdisk -d /dev/"$SDA" | sfdisk /dev/sdb > /dev/null
+			[ $DRY_RUN -eq 0 ] && sfdisk -d /dev/"$SDA" | sfdisk /dev/sdb > /dev/null
 		else
-			sgdisk -R/dev/$SDB /dev/"$SDA" > /dev/null
-			sgdisk -G /dev/$SDB > /dev/null
+			[ $DRY_RUN -eq 0 ] && sgdisk -R/dev/$SDB /dev/"$SDA" > /dev/null
+			[ $DRY_RUN -eq 0 ] && sgdisk -G /dev/$SDB > /dev/null
 		fi
-		partprobe /dev/$SDB
+		[ $DRY_RUN -eq 0 ] && partprobe /dev/$SDB
 		echo "done."
 	else
 		echo "ERROR: Partitioning of \"Secondary\" disk /dev/$SDB does not match \"Primary\" disk /dev/"$SDA""
@@ -207,13 +213,13 @@ fi
 # Next install the bootloader to the Secondary disk
 if [ $boot = "MBR" ] || [ $boot = "BIOS" ]; then
 	echo -n "Installing GRUB bootloader in BIOS mode on \"Secondary\" disk /dev/$SDB ... "
-	grub-install /dev/$SDB
+	[ $DRY_RUN -eq 0 ] && grub-install /dev/$SDB
 	echo "done."
 elif [ $boot = "EFI" ]; then
 	# Ensure the primary disk is mounted on /boot/efi (not anything else)
 	if ! grep "/boot/efi" /proc/mounts | grep -q /dev/"$SDA"1; then
-		umount /boot/efi
-		mount /dev/"$SDA"1 /boot/efi
+		[ $DRY_RUN -eq 0 ] && umount /boot/efi
+		[ $DRY_RUN -eq 0 ] && mount /dev/"$SDA"1 /boot/efi
 	fi
 
 	echo -n "Installing GRUB bootloader in UEFI mode on \"Secondary\" disk /dev/$SDB ... "
@@ -221,19 +227,25 @@ elif [ $boot = "EFI" ]; then
 	# copies the grub EFI shim to /boot/efi, regardless what is mounted there.
 	# Instead, we refresh the grub install on the primary, and unmount it to 
 	# ensure it is consistent, then copy the whole ESP to the second disk. 
-	grub-install /dev/$SDB 2> /dev/null		# suppress spurious warnings
-	umount /boot/efi
-	cp /dev/"$SDA"1 /dev/"$SDB"1
+	[ $DRY_RUN -eq 0 ] && grub-install /dev/$SDB 2> /dev/null		# suppress spurious warnings
+	[ $DRY_RUN -eq 0 ] && umount /boot/efi
+	[ $DRY_RUN -eq 0 ] && cp /dev/"$SDA"1 /dev/"$SDB"1
 	# and remount the primary on /boot/efi again
-	mount /dev/"$SDA"1 /boot/efi
+	[ $DRY_RUN -eq 0 ] && mount /dev/"$SDA"1 /boot/efi
 	echo "done."
 fi
 
 # Then add the Secondary RAID partition as a replacement into the RAIO
 echo "Adding \"Secondary\" disk /dev/"$SDB"2 to RAID array /dev/md0 ... "
-mdadm --zero-superblock /dev/"$SDB"2 2> /dev/null	# will fail if disk is blank
-mdadm /dev/md0 --add-spare /dev/"$SDB"2
+[ $DRY_RUN -eq 0 ] && mdadm --zero-superblock /dev/"$SDB"2 2> /dev/null	# will fail if disk is blank
+[ $DRY_RUN -eq 0 ] && mdadm /dev/md0 --add-spare /dev/"$SDB"2
 sleep 1
+
+if [ $DRY_RUN -ne 0 ]; then
+	echo -e "\n\"Secondary\" disk /dev/$SDB was hopefully _NOT_ refreshed! ;-)"
+	exit 0
+fi
+
 
 # Check that the RAID is now rebuilding ie. the addition succeeded
 if ! (mdadm --detail /dev/md0 | grep -q ", recovering $"); then
@@ -259,6 +271,7 @@ if [ "$PROGRESS_METER" -ne 0 ]; then
 	done
 	echo -e "\ndone."
 else
+	echo -e "\n\"Secondary\" disk /dev/$SDB is now being refreshed."
 	echo "You can check on the recovery progress with 'mdstat'."
 
 fi
