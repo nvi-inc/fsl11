@@ -656,7 +656,8 @@ minlen = 14
 minclass = 4
 EOT
 #
-sed -i 's/^\(password\s\+requisite\).*/# CIS 5.3.1\n#&\n\1\t\t\tpam_pwquality.so retry=3/' /etc/pam.d/common-password
+# actually installed by libpam-pwquality, just need to comment out the old one
+sed -i 's/^\(password\s\+requisite\)\s\+pam_deny\.so.*/# CIS 5.3.1 - new version above from installing libpam-pwquality\n#&/' /etc/pam.d/common-password
 #
 # 5.3.2 Ensure lockout for failed password attempts is configured
 #
