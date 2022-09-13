@@ -448,6 +448,14 @@ else
   atgpib_def="off"
 fi
 
+# Disable incremental RAID assembly.
+if [ -f "${NEW_ROOT}"etc/udev/rules.d/64-md-raid-assembly.rules ] && \
+	grep -q "md_mod.start_ro=1" "${NEW_ROOT}"etc/default/grub; then
+  mdinc_def="off"
+else
+  mdinc_def="on"
+fi
+
 # Add FS shared memory setup into init sequence
 if [ ! -f "${NEW_ROOT}"etc/systemd/system/fsalloc.service -o \
      ! -f "${NEW_ROOT}"etc/systemd/system/stalloc.service ]; then
@@ -506,6 +514,7 @@ unless you are certain that you want and can to do that item again." \
   skip      "Skip all steps below (regardless of [*] marks)" off \
   verbose   "Show names of files being processed in 'fsadapt'" $verb_def \
   atgpib    "Install Linux GPIB driver and library" $atgpib_def \
+  mdinc     "Disable faulty incremental RAID assembly" $mdinc_def \
   goinst    "$go_inst_update Go programming language" $go_inst_def \
   systemd   "Adjust systemd to run FS-specific programs in boot" $systemd_def \
   rtxgroup  "Add 'rtx' group to '/etc/group'" $rtxgroup_def \
@@ -551,7 +560,23 @@ tar ${VERBO} --no-same-owner -xzf linux-gpib-user-${GPIBVER}.tar.gz
 popd >/dev/null || exit
 popd >/dev/null || exit
 ;;
-
+      mdinc)
+# Add necessary parameter to default kernel cmdline
+sed -i -e "s/md_mod.start_ro=1[ ]*//" "${NEW_ROOT}"etc/default/grub
+sed -i -e "s/^GRUB_CMDLINE_LINUX=\"/&md_mod.start_ro=1 /" "${NEW_ROOT}"etc/default/grub
+if [ $VERBO ]; then
+  chroot "${NEW_ROOT}" /usr/sbin/update-grub
+else
+  chroot "${NEW_ROOT}" /usr/sbin/update-grub >/dev/null 2>&1
+fi
+# Override udev incremental RAID assembly
+cp ${VERBO} -p "${SRCS}"etc_udev_rules.d_64-md-raid-assembly.rules "${NEW_ROOT}"etc/udev/rules.d/64-md-raid-assembly.rules
+if [ $VERBO ]; then
+  chroot "${NEW_ROOT}" /usr/sbin/update-initramfs -u -k all
+else
+  chroot "${NEW_ROOT}" /usr/sbin/update-initramfs -u -k all >/dev/null
+fi
+;;
     goinst)
 # Install/Upgrade Go programming language (if needed)
 LATEST_VERSION=$(curl --fail -s 'https://go.dev/VERSION?m=text' | cut -c3-)
@@ -951,22 +976,23 @@ if [ $? = 0 ]; then
 ############ Generic 2-port card ##############################
   if [ "$(cat /tmp/reply)" = 2-port ]; then
     sed -i -e "s/8250.nr_uarts=[0-9 ]*//" /etc/default/grub
-    sed -i -e "s/^GRUB_CMDLINE_LINUX=\"/&8250.nr_uarts=8/" /etc/default/grub
-    /usr/sbin/update-grub
+    sed -i -e "s/^GRUB_CMDLINE_LINUX=\"[^\"]*/&8250.nr_uarts=8/" /etc/default/grub
 ############ VScom 400H #######################################
   elif [ "$(cat /tmp/reply)" = 4-port ]; then
     sed -i -e "s/8250.nr_uarts=[0-9 ]*//" /etc/default/grub
-    sed -i -e "s/^GRUB_CMDLINE_LINUX=\"/&8250.nr_uarts=10/" /etc/default/grub
-    /usr/sbin/update-grub
+    sed -i -e "s/^GRUB_CMDLINE_LINUX=\"[^\"]*/&8250.nr_uarts=10/" /etc/default/grub
 ############ VScom 800H #######################################
   elif [ "$(cat /tmp/reply)" = 8-port ]; then
     sed -i -e "s/8250.nr_uarts=[0-9 ]*//" /etc/default/grub
-    sed -i -e "s/^GRUB_CMDLINE_LINUX=\"/&8250.nr_uarts=14/" /etc/default/grub
-    /usr/sbin/update-grub
+    sed -i -e "s/^GRUB_CMDLINE_LINUX=\"[^\"]*/&8250.nr_uarts=14/" /etc/default/grub
   elif [ "$(cat /tmp/reply)" = None ]; then
     sed -i -e "s/8250.nr_uarts=[0-9 ]*//" /etc/default/grub
-    sed -i -e "s/^GRUB_CMDLINE_LINUX=\"/&8250.nr_uarts=6/" /etc/default/grub
-    /usr/sbin/update-grub
+    sed -i -e "s/^GRUB_CMDLINE_LINUX=\"[^\"]*/&8250.nr_uarts=6/" /etc/default/grub
+  fi
+  if [ $VERBO ]; then
+    chroot "${NEW_ROOT}" /usr/sbin/update-grub
+  else
+    chroot "${NEW_ROOT}" /usr/sbin/update-grub >/dev/null 2>&1
   fi
 fi
 # Wait for return if in verbose mode (to see the messages before
