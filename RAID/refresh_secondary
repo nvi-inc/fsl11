@@ -196,7 +196,7 @@ if [ "$(partprobe -s /dev/"$SDA" | cut -d' ' -f2-)" != "$(partprobe -s /dev/$SDB
 	if [ "$(partprobe -s /dev/$SDB | cut -d' ' -f3-)" = "partitions" ]; then
 		echo -n "Partitioning blank \"Secondary\" disk /dev/$SDB ... "
 		if [ $boot = "MBR" ]; then
-			[ $DRY_RUN -eq 0 ] && sfdisk -d /dev/"$SDA" | sfdisk /dev/sdb > /dev/null
+			[ $DRY_RUN -eq 0 ] && sfdisk -d /dev/"$SDA" | sfdisk /dev/"$SDB" > /dev/null
 		else
 			[ $DRY_RUN -eq 0 ] && sgdisk -R/dev/$SDB /dev/"$SDA" > /dev/null
 			[ $DRY_RUN -eq 0 ] && sgdisk -G /dev/$SDB > /dev/null
