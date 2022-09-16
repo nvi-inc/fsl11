@@ -76,7 +76,7 @@ if ! mdadm --detail /dev/md0 | grep -q /dev/$SDA; then
 	echo "ERROR: \"Primary\" disk /dev/$SDA is not part of RAID /dev/md0!!"
 	exit 1
 fi
-if [ "$(cat /sys/block/"$SDA"/removable)" != "0" ]; then
+if [ "$(cat /sys/block/$SDA/removable)" != "0" ]; then
 	echo "WARNING: \"Primary\" disk /dev/$SDA is removable:"
 	echo -n " /dev/"$SDA": "$(lsblk --nodeps -no tran /dev/$SDA | tr [:lower:] [:upper:]) 
 	echo -n " "$(lsblk --nodeps -no type /dev/$SDA)
@@ -121,7 +121,7 @@ if [ $SDA == $SDB ] || [ ! -b /dev/$SDB ]; then
 fi
 
 # Perform sanity checks on secondary disk now that it's available
-if [ "$(cat /sys/block/"$SDB"/removable)" != "0" ]; then
+if [ "$(cat /sys/block/$SDB/removable)" != "0" ]; then
 	echo "WARNING: \"Secondary\" disk /dev/$SDB is removable:"
 	echo -n " /dev/"$SDB": "$(lsblk --nodeps -no tran /dev/$SDB | tr [:lower:] [:upper:])
 	echo -n " "$(lsblk --nodeps -no type /dev/$SDB)
@@ -153,7 +153,7 @@ if [ -b /dev/"$SDB"1 ] && [ ! -z "$(sgdisk -i1 /dev/$SDB | grep 'GUID code')" ] 
    (( [ $boot = "MBR" ] && ! $(partprobe -ds /dev/$SDB | grep -q msdos) ) ||
     ( [ $boot = "BIOS" ] && [ -z "$(sgdisk -i1 /dev/$SDB | grep 'BIOS boot')" ] ) ||
     ( [ $boot = "EFI" ] && [ -z "$(sgdisk -i1 /dev/$SDB | grep 'EFI [Ss]ystem')" ] )); then
-	echo "ERROR: boot scheme on \"Secondary\" disk /dev/$SDB does not match \"Primary\" disk /dev/"$SDA""
+	echo "ERROR: boot scheme on \"Secondary\" disk /dev/$SDB does not match \"Primary\" disk /dev/$SDA"
 	echo "(You may want to use blank_secondary to erase the second disk first)"
 	exit 1
 fi
@@ -192,19 +192,19 @@ fi
 # ------------- Everything looks sane so let's set to work ----------------
 
 # First repartition the Secondary disk by cloning the Primary's table if blank
-if [ "$(partprobe -s /dev/"$SDA" | cut -d' ' -f2-)" != "$(partprobe -s /dev/$SDB | cut -d' ' -f2-)" ]; then
+if [ "$(partprobe -s /dev/$SDA | cut -d' ' -f2-)" != "$(partprobe -s /dev/$SDB | cut -d' ' -f2-)" ]; then
 	if [ "$(partprobe -s /dev/$SDB | cut -d' ' -f3-)" = "partitions" ]; then
 		echo -n "Partitioning blank \"Secondary\" disk /dev/$SDB ... "
 		if [ $boot = "MBR" ]; then
-			[ $DRY_RUN -eq 0 ] && sfdisk -d /dev/"$SDA" | sfdisk /dev/"$SDB" > /dev/null
+			[ $DRY_RUN -eq 0 ] && sfdisk -d /dev/$SDA | sfdisk /dev/$SDB > /dev/null
 		else
-			[ $DRY_RUN -eq 0 ] && sgdisk -R/dev/$SDB /dev/"$SDA" > /dev/null
+			[ $DRY_RUN -eq 0 ] && sgdisk -R/dev/$SDB /dev/$SDA > /dev/null
 			[ $DRY_RUN -eq 0 ] && sgdisk -G /dev/$SDB > /dev/null
 		fi
 		[ $DRY_RUN -eq 0 ] && partprobe /dev/$SDB
 		echo "done."
 	else
-		echo "ERROR: Partitioning of \"Secondary\" disk /dev/$SDB does not match \"Primary\" disk /dev/"$SDA""
+		echo "ERROR: Partitioning of \"Secondary\" disk /dev/$SDB does not match \"Primary\" disk /dev/$SDA"
 		echo "(You may want to use blank_secondary to erase the second disk first)"
 		exit 1
 	fi

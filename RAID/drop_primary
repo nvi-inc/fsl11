@@ -48,15 +48,15 @@ SDA=$(basename $SDA)
 
 # Perform sanity checks on primary disk first
 if ! mdadm --detail /dev/md0 | grep -q /dev/"$SDA"2; then
-        echo "ERROR: \"Primary\" disk /dev/"$SDA" is not part of RAID /dev/md0!!"
+        echo "ERROR: \"Primary\" disk /dev/$SDA is not part of RAID /dev/md0!!"
 	exit 1
 fi
-if [ "$(cat /sys/block/"$SDA"/removable)" != "0" ]; then
-	echo "WARNING: \"Primary\" disk /dev/"$SDA" is removable:"
-	echo -n " /dev/"$SDA": "$(lsblk --nodeps -no tran /dev/"$SDA" | tr [:lower:] [:upper:]) 
-	echo -n " "$(lsblk --nodeps -no type /dev/"$SDA")
-	echo -n ", model" $(lsblk --nodeps -no model /dev/"$SDA")
-	echo ", s/n "$(lsblk --nodeps -no serial /dev/"$SDA")
+if [ "$(cat /sys/block/$SDA/removable)" != "0" ]; then
+	echo "WARNING: \"Primary\" disk /dev/$SDA is removable:"
+	echo -n " /dev/"$SDA": "$(lsblk --nodeps -no tran /dev/$SDA | tr [:lower:] [:upper:]) 
+	echo -n " "$(lsblk --nodeps -no type /dev/$SDA)
+	echo -n ", model" $(lsblk --nodeps -no model /dev/$SDA)
+	echo ", s/n "$(lsblk --nodeps -no serial /dev/$SDA)
 	echo -n "Press <Enter> if you wish to continue (Control-C aborts) "
 	read $ans
 fi
