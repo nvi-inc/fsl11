@@ -27,7 +27,7 @@ usage() {
 	echo "Usage: $0 [-A][-h][-p]"
 	echo -e "  where\t-A\tAllow \"Secondary\" disk to be loaded at start"
 	echo -e "  \t-h\tdisplay this help and exit"
-	echo -e "  \t-p\tdisplay prgress meter while recovering"
+	echo -e "  \t-p\tdisplay progress meter while recovering"
 }
 
 ACCEPT_LOAD=0
@@ -94,6 +94,12 @@ elif [ ! -z "$(sgdisk -i1 /dev/$SDA | grep 'EFI [Ss]ystem')" ] && [ -d /boot/efi
 else
 	echo "ERROR: Unrecognised boot scheme on \"Primary\" disk /dev/$SDA"
 	exit 1
+fi
+
+# Ensure the Primary disk is mounted on /boot/efi (ie. not Secondary) if applicable
+if [ $boot = "EFI" ]; then
+	[ $DRY_RUN -eq 0 ] && umount /boot/efi 2>/dev/null 
+	[ $DRY_RUN -eq 0 ] && mount /dev/"$SDA"1 /boot/efi
 fi
 
 # Now get the user to load the Secondary disk
@@ -182,12 +188,6 @@ if [ -b /dev/"$SDB"2 ] && [ "$(mdadm --examine /dev/"$SDB"2 | grep "Array State"
 	exit 1
 fi
 
-# Ensure the Primary disk is mounted on /boot/efi (ie. not Secondary) if applicable
-if [ $boot = "EFI" ]; then
-	[ $DRY_RUN -eq 0 ] && umount /boot/efi
-	[ $DRY_RUN -eq 0 ] && mount /dev/"$SDA"1 /boot/efi
-fi
-
 
 # ------------- Everything looks sane so let's set to work ----------------
 
@@ -217,7 +217,7 @@ if [ $boot = "MBR" ] || [ $boot = "BIOS" ]; then
 	echo "done."
 elif [ $boot = "EFI" ]; then
 	# Ensure the primary disk is mounted on /boot/efi (not anything else)
-	if ! grep "/boot/efi" /proc/mounts | grep -q /dev/"$SDA"1; then
+	if ! $(grep "/boot/efi" /proc/mounts | grep -q /dev/"$SDA"1); then
 		[ $DRY_RUN -eq 0 ] && umount /boot/efi
 		[ $DRY_RUN -eq 0 ] && mount /dev/"$SDA"1 /boot/efi
 	fi

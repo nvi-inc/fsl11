@@ -75,10 +75,10 @@ if [ $SDB == $SDA ] || [ ! -b /dev/$SDB ]; then
 	echo -e "done.\n"
 fi
 
-if grep "/boot/efi" /proc/mounts | grep -q "/dev/$SDB"; then
-	# Ensure the primary disk is mounted on /boot/efi (not the secondary)
-	umount /boot/efi
-	mount /dev/"$SDA"1 /boot/efi
+if $(grep "/boot/efi" /proc/mounts | grep -q "/dev/$SDB"); then
+	# Ensure the secondary disk is not mounted on /boot/efi (mount primary instead)
+	[ $DRY_RUN -eq 0 ] && umount /boot/efi
+	[ $DRY_RUN -eq 0 ] && mount /dev/"$SDA"1 /boot/efi
 fi
 
 # Perform sanity checks on secondary disk now that it's available
