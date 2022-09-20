@@ -125,5 +125,6 @@ if [ "$PROGRESS_METER" -ne 0 ]; then
 	done
 	echo -e "\ndone."
 else
+	echo -e "\n\RAID $raid is now in the process of rebuilding."
 	echo "You can check on the recovery progress with 'mdstat'."
 fi
