@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 0.0.3 - August 2022
+Version 0.0.4 - September 2022
 
 :sectnums:
 :experimental:
@@ -31,11 +31,11 @@ Version 0.0.3 - August 2022
 == Introduction
 
 These notes are intended to cover, albeit tersely, the major issues
-for RAID operations with FSL11 (see the <<installation.adoc#,FSL11
-      Installation>> document). The disk lay-out has changed
-significantly since FSL9, which required updating the scripts that are
-used. In addition, the scripts have been extensively revised to
-provide more protection from possible errors in how they are used.
+for RAID operations with FSL11 (see the <<installation.adoc#,FS Linux
+11 Installation Guide>> document). The scripts have had been updated
+since FSL10 to handle the occasional reversals of the assignment of
+_sda_ and _sdb_ relative to the controller numbering. Some other
+minor improvements are included as well.
 
 All operations and scripts in this document require _root_ privileges
 unless otherwise indicated.
@@ -43,47 +43,78 @@ unless otherwise indicated.
 == Guidelines for RAID operations
 
 The FSL11 RAID configuration normally uses two disks configured
-according to the FSL11 installation instructions (see the <<installation.adoc#,FSL11
-      Installation>> document). Below are mandatory
-and recommended guidelines.
+according to the FSL11 installation instructions (see the
+<<installation.adoc#,FS Linux 11 Installation Guide>> document).
+Mandatory and recommended guidelines are given below.
 
 === Mandatory practices
 
-These practices are fundamental to the operation of the RAID.
+These practices are necessary for the procedures in this document.
 
-. Never mix disks from different computers in one computer.
-
-. Never split up a RAID pair unless already synced, check with
-_mdstat_.
-
-+
-
-TIP: For a disk rotation, use _rotation_shudown_, which will only
-shutdown the system if the RAID is synced.
- 
-+
-
-NOTE: When booting a disk from a RAID by itself, you may see
-~20 `volume group not found` error messages, then the machine will
-boot. These error messages only appear like this the first time a disk
-from a RAID is booted without its partner.
+. Make sure there are _no_ SATA devices on lower numbered controllers
+than the _primary_ and _secondary_ disks. The _primary_ disk must be
+on a lower numbered controller than the _secondary_. Putting the
+_primary_ disk on controller `0` and the _secondary_ on `1` is usually
+a good choice. This may require changing the internal cabling.
 
 +
 
-A RAID pair (kept together and in order) can be removed/reinserted or
-moved between computers if need be. A disk rotation (or initializing a
-new disk) is the only routine reason to split a pair.
+NOTE: Which disk is _primary_ disk and which _secondary_ is determined
+by which controllers they are on and so is fixed by the slots.
+Although the _primary_ will usually be _sda_ and the _secondary_,
+_sdb_, the designations may occasionally be reversed. The scripts used
+in this document take that into account and will work correctly for
+the _primary_ and _secondary_ slots.
 
 . Set your BIOS to allow hot swapping of disks for both the _primary_
 and _secondary_ controllers. This is necessary to use the RAID
 procedures described in this document.
 
+. Never mix disks from different computers in one computer.
+
+. Never split up a RAID pair unless already synced. To enforce this,
+use the _rotation_shutdown_ command for shutdowns whenever two disks
+are in use in the RAID.
+
++
+
+This command will only shutdown the system if the RAID is synced. This
+script can also be useful in other cases when you are splitting the
+disks and want to make sure they are synced first.
+
++
+
+A RAID pair (kept together and in order) can be removed/reinserted or
+moved between computers if need be. A disk rotation, recoverable
+testing, and initializing a new disk are the only routine reasons to
+split a pair.
+
++
+
+[NOTE]
+====
+
+When booting a disk from a RAID by itself, you may see +~20+ `volume
+group not found`/`processed` error message pairs and a `mdadm:
+/dev/md/0 assembled from 1 drive out of 2, but not started` message
+(typically after the second pair of the `volume group` messages), then
+the machine will boot. These error messages only appear like this the
+first time a disk from a RAID is booted without its partner.
+
+When the single disk is booted subsequently (or booted normally with
+its partner) there may be a couple of `volume group not
+found`/`processed` error message pairs.
+
+====
+
 === Recommended practices
 
-These recommendations are intended to provide consistent procedures and make it easier to understand any issues, if they occur.
+These recommendations are intended to provide consistent procedures
+and make it easier to understand any problems, if they occur.
 
-. Always use the lowest numbered interface as the _primary_ and the next lowest numbered as _secondary_
-. Make the upper (or left) slot the _primary_, the lower (or right) slot the _secondary_. If necessary, change the internal cabling to make it so.
+. Make the upper (or left) slot the _primary_, the lower (or right)
+slot the _secondary_. This may require changing the internal cabling.
+
 . Label the slots as _primary_ and _secondary_ as appropriate.
 . Always boot for a refresh/blank with the _primary_ slot turned on and the _secondary_ slot turned off: so it is clear which is the active disk
 . Label the disks (so visible when in use) with the system name and number them 1, 2, and 3, ...
@@ -101,7 +132,10 @@ These recommendations are intended to provide consistent procedures and make it 
 
 . When rotating disks, keep the disks in cyclical order (_primary_, _secondary_, _shelf_): 1, 2, 3; then 2, 3, 1;, then 3, 1, 2, then 1, 2, 3; and so on
 . Rotate disks for a given computer at least once a month, and before any updates
-. If you have a spare computer (and/or additional systems), keep the disks in the same sequence on all the computers
+
+. If you have a spare computer (and/or additional systems), keep the
+numbered order of the disks the same on all computers.
+
 . Do not turn a disk off while the system is running. The only time a key switch state should be changed while the system is running is to add a disk for a blank or refresh operation.
 
 == Disk rotation
@@ -124,11 +158,12 @@ privileged commands used in this document.
 +
 
 This command will check the status of the RAID and proceed to shutting
-down _only_ if it is safe to perform a disk rotation. If a conflict is
-detected, it will be reported. If the RAID is recovering, you will
-need to wait until the recovery is finished before shutting down. If
-it is degraded, seek expert advice. If the FS is running, you should
-terminate it before using this command.
+down _only_ if the RAID is synced. There are three errors that can
+prevent shutting down: (i) if the FS is running, you should terminate
+it before trying again; (ii) if the RAID is `recovering`, you will
+need to wait until the recovery is finished before shutting down, you
+can check the progress with the _mdstat_ command; and (iii) if the
+RAID is `degraded`, seek expert advice.
 
 . Take the disk from _primary_ slot, put it on the _shelf_
 +
@@ -143,65 +178,96 @@ with the _old_ _shelf_ disk.
 . Boot (_primary_ keyed-on, _secondary_ keyed-off)
 . Run _refresh_secondary_
 . Key-on the _secondary_ slot when prompted
-. If the script rejects the disk (and stops with an error), seek expert advice. Be sure to note any messages so they can be reported.
-. If the disk is accepted, let the refresh run to completion. You can
-check its progress with _mdstat_. The system can be used in the
-meantime, but may be a little slow.
+
+. If the script rejects the disk (and stops with an error), seek
+expert advice.
+
++
+
+Be sure to note any messages so they can be reported.
+
+. If the disk is accepted, let the refresh run to completion.
+
++
+
+You can check its progress with _mdstat_. The system can be used for
+operations while the refresh is in progress, but may be a little slow.
 
 == Recoverable testing
+
+Seek expert advice before using this method.
 
 This section describes a method for testing updates in a way that provides a
 relatively easy recovery option if a problem occurs. Should that recovery fail
 for some reason, it is still possible to recover with the shelf disk as
 described in the <<Recover from a shelf disk>> section below.
 
-Seek expert advice for this, but the basic plan is given below:
+The basic plan is given in the three subsections below. The first
+covers <<Setup and testing>>, the final two cover what to do
+<<If the update is deemed successful>> or
+<<If the update is deemed to have failed>>.
 
-NOTE: Your BIOS must be set to allow hot swapping of disks
-for both the _primary_ and _secondary_ controllers.
+=== Setup and testing
+
+NOTE: Your BIOS must be set to allow hot swapping of disks for both
+the _primary_ and _secondary_ controllers.
 
 . If a rotation hasn't just been completed, perform one (as an extra
 backup) according to <<Disk rotation>> above.
 
-. Before proceeding verify that there is no recovery in progress,
-check with _mdstat_.
+. Shut the system down with the _rotation_shutdown_ command.
 
 +
 
-TIP: You can combine this step and the next one by using the
-_rotation_shutdown_ command, which will shut the system down only of
-the RAID is ready for a disk rotation. The output of that command is
-phrased for doing a disk rotation. For the current case, you will need
-to interpret the output for whether the RAID is ready to be split for
-use in testing.
+This command will check the status of the RAID and proceed to shutting
+down _only_ if the RAID is synced. There are three errors that can
+prevent shutting down: (i) if the FS is running, you should terminate
+it before trying again; (ii) if the RAID is `recovering`, you will
+need to wait until the recovery is finished before shutting down, you
+can check the progress with the _mdstat_ command; and (iii) if the
+RAID is `degraded`, seek expert advice.
 
-. Shutdown the system, e.g., `shutdown -h now`
-. Key-off the _primary_ slot
-. Reboot (_primary_ keyed-off, _secondary_ keyed-on)
-. Install and test the update
 +
-The update and testing will occur on the secondary disk only.
+
+The output of this command is phrased for performing a disk rotation.
+For the current case, you will need to interpret the output for
+whether the RAID is ready to be split for use in testing.
+
++
 
 [TIP]
 ====
 
-If an update is relatively minor or the envisaged testing is intended to be
-of short duration and success is likely, expert users may wish to make use of the
-_drop_primary_ script to split the RAID pairing in place of the reboot cycle method
-described above. Note that some (hopefully minor) data loss is possible on the
-primary (backup) disk as it is removed from the RAID whilst all the filesystems
-are still mounted read/write. Hence this script should only be used on a unloaded
-or single-user system.  The advantage of using this script is that returning the
-system to normal operation after a successful update requires only the use of
-_recover_raid_ - no reboot is required at all.
+If an update is relatively minor or the envisaged testing is intended
+to be of short duration and success is likely, expert users may wish
+to make use of the _drop_primary_ script to split the RAID pairing in
+place of the reboot cycle method described here. Note that some
+(hopefully minor) data loss is possible on the _primary_ (backup) disk
+as it is removed from the RAID whilst all the file systems are still
+mounted read/write. Hence this script should only be used on a
+unloaded or single-user system. The main advantage of using this
+script is that, if the test is successful, no manipulation of the key
+switches is required.
 
-WARNING: Do _NOT_ use the _drop_primary_ script for kernel updates or any other
-such testing that could affect _grub_ and/or require you to reboot in order
-to evaluate the success thereof.
+WARNING: Do _NOT_ use the _drop_primary_ script for testing kernel
+updates or any other testing that could affect _grub_ and/or require
+you to reboot in order to evaluate the success thereof.
 
 ====
 
-If the update is deemed _successful_:
+. Key-off the _primary_ slot
+. Reboot (_primary_ keyed-off, _secondary_ keyed-on)
+. Install and test the update
++
+The update and testing will occur on the _secondary_ disk only.
+
+. Proceed to one of the two subsections below,
+<<If the update is deemed successful>> or
+<<If the update is deemed to have failed>>, as appropriate.
+
+=== If the update is deemed successful
+
+The other disk can be updated:
 
 [start=7]
 . Key-on the _primary_ slot
@@ -210,16 +276,18 @@ If the update is deemed _successful_:
 The _recover_raid_ script will fail if the disk hasn't spun up and been recognized by the kernel. It is perfectly
 fine to try several times until it succeeds.
 
-. Once the recovery completes (this may only take a few minutes),
-reboot the system. You can check the recovery progress with _mdstat_.
+. Once the recovery completes (this may only take a few minutes), the
+ system has been successfully updated.
 
 +
-This step is necessary to return the disk in the primary slot to be _sda_.
 
-. Once the system has booted, the system has been successfully updated.
+You can check the recovery progress with _mdstat_. The system can be
+used for operations while the recovery is in progress, but may be a
+little slow.
 
-Alternatively, if the update is deemed to have _failed_, the system can be
- recovered as follows:
+=== If the update is deemed to have failed
+
+The system can be recovered as follows:
 
 [start=7]
 . Shutdown the system, e.g., `shutdown -h now`
@@ -231,12 +299,13 @@ Alternatively, if the update is deemed to have _failed_, the system can be
 . Answer `*y*` to blank
 . Run _refresh_secondary_
 . Once the refresh is complete (this may take several hours), you have
-recovered to the original state. You can check the progress with
-_mdstat_.
+recovered to the original state.
 
 +
 
-The system can be used for operations while the refresh is in progress.
+You can check the progress with _mdstat_. The system can be used for
+operations while the recovery is in progress, but may be a little
+slow.
 
 == Recover from a shelf disk
 
@@ -252,8 +321,8 @@ disk or whether it can be reasonably repaired in place.
 IMPORTANT: This will only produce a good result if the shelf disk is
 a _good_ copy.
 
-WARNING: Do _not_ use this procedure if a problem with computer caused
-the damage to the RAID.
+WARNING: Do _not_ use this procedure if a problem with the computer
+caused the damage to the RAID.
 
 NOTE: Your BIOS must be set to allow hot swapping of disks,
 particularly for the _secondary_ controller (it should also be set for
@@ -277,15 +346,24 @@ procedure can be completed when time allows.
 
 . Wait until the RAID is not recovering, check with _mdstat_
 
+. Shut the system down with the _rotation_shutdown_ command.
+
 +
 
-TIP: You can combine this step and the next one by using the
-_rotation_shutdown_ command, which will shut the system down only of
-the RAID is ready for a disk rotation. The output of that command is
-phrased for doing a disk rotation. For the current case, you are
-essentially doing a disk rotation.
+This command will check the status of the RAID and proceed to shutting
+down _only_ if the RAID is synced. There are three errors that can
+prevent shutting down: (i) if the FS is running, you should terminate
+it before trying again; (ii) if the RAID is `recovering`, you will
+need to wait until the recovery is finished before shutting down, you
+can check the progress with the _mdstat_ command; and (iii) if the
+RAID is `degraded`, seek expert advice.
 
-. Shutdown the system, e.g., `shutdown -h now`
++
+
+The output of this command is phrased for performing a disk rotation.
+For this step and the steps below, you are essentially doing a disk
+rotation, but are blanking the _secondary_ disk first.
+
 . Take the disk from _primary_ slot, put it on the _shelf_
 . Move the disk from the _secondary_ slot to the _primary_ slot, keyed-on
 . Insert the remaining disk, that was set aside, in the _secondary_ slot, keyed-off.
@@ -306,7 +384,9 @@ previous _good_ _shelf_ disk.
 
 +
 
-You can check the recovery progress with _mdstat_.
+You can check the progress with _mdstat_. The system can be used for
+operations while the recovery is in progress, but may be a little
+slow.
 
 == Initialize a new disk
 
@@ -316,7 +396,7 @@ initialize new ones to replace them.
 IMPORTANT: The new disks should be at least
 as large as the smallest of the remaining disks.
 
-The sub-sections below cover various scenarios for initializing one new
+The subsections below cover various scenarios for initializing one new
 disk to complete a set of three, i.e., one of three disks in a set has
 failed. It is assumed that you want to maintain the cyclic numbering
 of the disks for rotations (but that is not required). It should be
@@ -324,32 +404,39 @@ straightforward to adapt them to other cases.
 
 If you need to initialize more than one disk, please follow the
 instructions in the <<installation.adoc#_setup_additional_disk,Setup
-additional disk>> section of the FSL11 Installation document.
+additional disk>> section of the <<installation.adoc#,FS Linux 11
+Installation Guide>> document.
 
 === Currently two disks are running in the RAID
 
 This case corresponds to not having a good shelf disk.
 
-. Wait until the RAID is not recovering, check with _mdstat_
+. Shut the system down with the _rotation_shutdown_ command.
 
 +
 
-TIP: You can combine this step and the next one by using the
-_rotation_shutdown_ command, which will shut the system down only of
-the RAID is ready for a disk rotation. The output of that command is
-phrased for doing a disk rotation. For the current case, you are
-essentially doing a disk rotation.
+This command will check the status of the RAID and proceed to shutting
+down _only_ if the RAID is synced. There are three errors that can
+prevent shutting down: (i) if the FS is running, you should terminate
+it before trying again; (ii) if the RAID is `recovering`, you will
+need to wait until the recovery is finished before shutting down, you
+can check the progress with the _mdstat_ command; and (iii) if the
+RAID is `degraded`, seek expert advice.
 
-. Shutdown the system, e.g., `shutdown -h now`
++
 
-If the disks are in cyclical order (i.e., primary, secondary are
+The output of this command is phrased for performing a disk rotation.
+For this step and the steps below, you are essentially doing a disk
+rotation, but are blanking the _secondary_ disk first.
+
+If the disks are in cyclical order (i.e., _primary_, _secondary_ are
 numbered in order: 1, 2, or 2, 3, or 3, 1), you should:
 
 . Take the disk from _primary_ slot, put it on the _shelf_
 . Move the disk from the _secondary_ slot to the _primary_ slot, keyed-on
 
-If the disks are not in cyclical order (i.e., primary, secondary are
-numbered in order: 1, 3, or 2, 1, or 3, 2), you should:
+If the disks are not in cyclical order (i.e., _primary_, _secondary_
+are numbered in order: 1, 3, or 2, 1, or 3, 2), you should:
     
 . Take the disk from _secondary_ slot, put it on the _shelf_
     
@@ -362,8 +449,13 @@ In either case, finish with:
 . Answer `*y*` to blank
 . Run _refresh_secondary_
 
-. Once the refresh is complete, the disk can be used normally. You can
-check the recovery progress with _mdstat_.
+. Once the refresh is complete, the disk can be used normally.
+
++
+
+You can check the progress with _mdstat_. The system can be used for
+operations while the recovery is in progress, but may be a little
+slow.
 
 . Label the new disk with its system name, number, and serial number.
 
@@ -382,15 +474,20 @@ In this case, there is a good shelf disk. The strategy used avoids overwriting i
 . Answer `*y*` to blank
 . Run _refresh_secondary_
 
-. Once the refresh is complete, the disk can be used normally. You can
-check the recovery progress with _mdstat_.
+. Once the refresh is complete, the disk can be used normally.
+
++
+
+You can check the progress with _mdstat_. The system can be used for
+operations while the recovery is in progress, but may be a little
+slow.
 
 . Label the new disk with its system name, number, and serial number.
 
-If the disks are not in cyclical order (i.e., primary, secondary are
-numbered in order: 1, 3, or 2, 1, or 3, 2), on the next disk rotation
-you should move the _secondary_ disk to the shelf instead of moving
-the _primary_.
+If the disks are not in cyclical order (i.e., _primary_, _secondary_
+are numbered in order: 1, 3, or 2, 1, or 3, 2), on the next disk
+rotation you should move the _secondary_ disk to the shelf instead of
+moving the _primary_.
 
 === Currently one disk is installed and running
 
@@ -412,15 +509,20 @@ Then in any event:
 . Answer `*y*` to blank
 . Run _refresh_secondary_
 
-. Once the refresh is complete, the disk can be used normally. You can
-check the recovery progress with _mdstat_.
+. Once the refresh is complete, the disk can be used normally.
+
++
+
+You can check the progress with _mdstat_. The system can be used for
+operations while the recovery is in progress, but may be a little
+slow.
 
 . Label the new disk with its system name, number, and serial number.
 
-If the disks are not in not in cyclical order (i.e., primary,
-secondary are numbered in order: 1, 3, or 2, 1, or 3, 2), on the next
-disk rotation you should move the _secondary_ the shelf instead of the
-_primary_.
+If the disks are not in not in cyclical order (i.e., _primary_,
+_secondary_ are numbered in order: 1, 3, or 2, 1, or 3, 2), on the
+next disk rotation you should move the _secondary_ the shelf instead
+of the _primary_.
 
 == Script descriptions
 
@@ -433,18 +535,19 @@ status of the RAID. It is most useful for checking whether a recovery
 is in process or has ended, but is also useful for showing the current
 state of the RAID, including any anomalies.
 
-The script also lists various useful details for all block devices (such
-as disks) that are currently connected, including their model and serial
-numbers where applicable.
+The script also lists various useful details for all block devices
+(such as disks) that are currently connected, including: the controller
+they are on, their model, and serial numbers, where applicable.
 
 === rotation_shutdown
 
 This script can be used to shut the system down if the RAID is in a
-state that allows a disk rotation to be performed. For a shutdown to
-occur, the RAID must not be recovering and not be degraded. Otherwise,
-an appropriate error message is printed. If the RAID is recovering,
-you will need to wait until the recovery is finished before shutting
-down. If it is degraded, seek expert advice.
+state that allows a disk rotation to be performed, i.e., synced. The
+RAID must not be `recovering` and not be `degraded`. Otherwise, an
+appropriate error message is printed. If the RAID is `recovering`, you
+will need to wait until the recovery is finished before shutting down;
+you can check the progress with the _mdstat_ command. If it is
+`degraded`, seek expert advice.
 
 The script will also check to see if the FS is active and will not
 shutdown the system if it is. To override this, the `-F` option can be
@@ -452,14 +555,15 @@ used, but is not recommended. It is better to terminate the FS
 instead.
 
 The script includes a `-p` option to display a progress meter for a
-recovery if one is active. Whether there is a recovery or not, there
-will not be a shutdown if `-p` is used.
+recovery if one is active. Whether there is an active recovery or not,
+there will _not_ be a shutdown if `-p` is used. This makes the command
+useful for starting a progress meter after a recovery had been
+started.
 
 === refresh_secondary
 
 This can be used to refresh a _shelf_ disk for the RAID as a new
-_secondary_ disk (_sdb_) as part of a standard three (or more) disk
-rotation.
+_secondary_ disk as part of a standard three (or more) disk rotation.
 
 Initially, the script performs some sanity checks to confirm that the
 RAID _/dev/md0_:
@@ -470,17 +574,20 @@ RAID _/dev/md0_:
 
 Additional checks are performed to confirm that the content the script
 intends to copy is where it expects it to be and has the right form.
-Any _primary_ disk (_sda_) will be rejected that:
+Any _primary_ disk will be rejected that:
 
 . Is not part of the RAID (_md0_)
 . Has a boot scheme other than the BIOS or UEFI set up as described in the FSL11 Installation Document.
 
 To ensure that only an old _shelf_ disk for this system is
-overwritten, any _secondary_ disk (_sdb_) will be rejected that:
+overwritten, any _secondary_ disk will be rejected that:
 
 . Was loaded (slot keyed-on) before starting the script
+
 +
-Unless overridden by `-A` or previously loaded by this or the _blank_secondary_ script.
+
+Unless overridden by `-A` or previously loaded by this or the
+_blank_secondary_ script (see below).
 
 . Is already part of RAID _md0_
 
@@ -509,10 +616,23 @@ check can actually trigger after the test for a foreign RAID above
 remains to be seen.
 
 . Was last booted at a future `TIME` (possibly due to a mis-set clock or clocks)
-. Has a higher `EVENT` count, i.e., is newer (but see the *WARNING* item below)
+
+. Has a higher `EVENT` count, i.e., is newer
+
++
+
+WARNING: The check on the `EVENT` counter is intended to prevent
+accidentally using the _shelf_ disk to overwrite a newer disk from the
+RAID.  This check can be over-run if the _primary_ has run for a
+considerable period of time before the refresh is attempted.  This
+should not be an issue if the refresh is attempted promptly after the
+_shelf_ disk is booted for the first time by itself and the RAID was
+run on the other disks for more than a trivial amount of time
+beforehand.
+
 . Has been used (booted) separately by itself
 . Has a different partition layout from the _primary_
-. Is smaller than the size of the RAID on the primary disk.
+. Is smaller than the size of the RAID on the _primary_ disk.
 
 If any of the checks reject the disk, we recommend you seek expert
 advice; please record the error so it can be reported.
@@ -521,14 +641,6 @@ The checks are included to make the refresh process as safe as
 possible, particular at a station with more than one FSL__x__ computer.
 We believe all the most common errors are trapped, but the script
 should still be used with care.
-
-WARNING: The check on the `EVENT` counter is intended to prevent accidentally using
-the _shelf_ disk to overwrite a newer disk from the RAID.  This check can be
-over-run if the _primary_ has run for a considerable period of time
-before the refresh is attempted.  This should not be an issue if the
-refresh is attempted promptly after the _shelf_ disk is booted for the
-first time by itself and the RAID was run on the other disks for more than a trivial
-amount of time beforehand.
 
 If the disk being refreshed is from the same computer and has just
 been on the _shelf_ unused since it was last rotated, it is safe to
@@ -544,18 +656,19 @@ machines, the SATA disks that are the _primary_ and/or _secondary_ may
 be marked removable if they are hot swappable, but would still be
 appropriate to use.
 
-This script requires the _secondary_ disk (_sdb_) to not be loaded, i.e.,
-the slot turned off, when the script is started. However, it has an
+This script requires the _secondary_ disk to not be loaded, i.e., the
+slot turned off, when the script is started. However, it has an
 option, `-A` (use only with expert advice), to "`Allow`" an already
 loaded disk to be used. It is intended to make remote operation
 possible and must be used with extra care.
 
-If the disk is turned on (when prompted) during the script, it
-will automatically be "`Allowed`" by both this script and
+If the disk is turned on (when prompted) during the script, it will
+automatically be "`Allowed`" by both this script and
 _blank_secondary_, which also supports this feature.  This allows
 (expert use only), after a failed _refresh_secondary_, running
-_blank_secondary_ then rerunning _refresh_secondary_, all without having to
-shutdown, turn the disk off, reboot, start the script, and turn the disk on for each.
+_blank_secondary_ then rerunning _refresh_secondary_, all without
+having to shutdown, turn the disk off, reboot, start the script, and
+turn the disk on for each script.
 
 The refresh will take several hours. You can check the progress with
 _mdstat_. If you prefer, you can run the script with the `-p` option
@@ -570,14 +683,14 @@ resume automatically after the reboot.
 
 This script should only be used with expert advice.
 
-It can be used to make _any_ _secondary_ disk (_sdb_) refreshable, if
-it is big enough. It must be used with care and only on a _secondary_
-disk that you know is safe to erase. Generally speaking you don't want
-to use it with a disk from a different FSL__x__ computer, except for very
-unusual circumstances, see <<Recovery scenarios>> section for some example
-cases. It will ask you to confirm before blanking.
+It can be used to make _any_ _secondary_ disk refreshable, if it is
+big enough. It must be used with care and only on a _secondary_ disk
+that you know is safe to erase. Generally speaking you don't want to
+use it with a disk from a different FSL__x__ computer, except for very
+unusual circumstances; see the <<Recovery scenarios>> section below
+for some example cases. It will ask you to confirm before blanking.
 
-It will reject any _secondary_ disk (_sdb_) that:
+It will reject any _secondary_ disk that:
 
 . Was loaded (slot keyed-on) before starting the script
 +
@@ -611,8 +724,8 @@ for some machines the SATA disk that is the _primary_ may be marked
 removable if it is hot swappable, but would still be appropriate to
 use. 
 
-This script requires the _secondary_ disk (_sdb_) to not be loaded, i.e.,
-the slot turned off, when the script is started. However, it has an
+This script requires the _secondary_ disk to not be loaded, i.e., the
+slot turned off, when the script is started. However, it has an
 option, `-A` (use only with expert advice), to "`Allow`" an already
 loaded disk to be used. It is intended to make remote operation
 possible and must be used with extra care.
@@ -633,9 +746,9 @@ action thereby causing _pvremove_ to complain about the VG still being active.)
 
 This script is only for use with expert advice.
 
-This script can be used to drop a _primary_ disk (_sda_) out of a RAID
-pair (by marking it as failed) so that it can act as a safety backup
-during major upgrades or other significant changes.
+This script can be used to drop a _primary_ disk out of a RAID pair
+(by marking it as failed) so that it can act as a safety backup during
+testing of upgrades or other significant changes.
 
 Initially, the script performs some sanity checks to confirm that the
 RAID _/dev/md0_:
@@ -643,7 +756,7 @@ RAID _/dev/md0_:
 . Exists.
 . Is in a clean state, i.e., both disks are present and no recovery is
   currently in progress.
-. Contains the _primary_ disk (_sda_) as a member.
+. Contains the _primary_ disk as a member.
 
 If the _primary_ disk is removable, the user will be provided with some
 information about the disk and given an opportunity to continue with
@@ -661,9 +774,11 @@ below.
 
 This script is only for use with expert advice.
 
-This script can be used to recover a disk (_sda_ or _sdb_) that has
-fallen out of the RAID array, becoming _inactive_.  A disk can _fall_ out of
-the array for several possible reasons, including:
+This script can be used to recover a disk, (_primary_ or _secondary_)
+that has fallen out of the RAID array, becoming _inactive_. (The disk
+the system is then running on is referred to as the _active_ disk.)  A
+disk can _fall_ out of the array for several possible reasons,
+including:
 
 . A real disk fault of some sort, including one caused by turning it off
   whilst it is still in use.
@@ -672,11 +787,20 @@ the array for several possible reasons, including:
 
 . Using the _drop_primary_ script.
 
-This script is designed to be used only with a
-set of disks that were most recently used _together_ in an active
-RAID.  It is recommended only to use this script if the key switches
-for the disks have not been manipulated since the _inactive_ disk fell
-out of the RAID; in this case it should always be safe.
+This script is designed to be used only with a set of disks that were
+most recently used _together_ in an active RAID. It is recommended
+only to use this script if the key switches for the disks have not
+been manipulated since the _inactive_ disk fell out of the RAID; in
+this case it should always be safe. The script normally works on
+_md0_, but a different _md_ device can be specified as the first
+argument.
+
+IMPORTANT: This script must _NOT_ be used if the _inactive_ disk has
+been changed in any way e.g., by being used (booted) separately (which
+is caught by the script) or refreshed against some other disk, or if
+the _active_ disk has been used to refresh any other disk in the
+interim.  In particular, this script must _NOT_ be used to refresh a
+_shelf_ disk -- only use _refresh_secondary_ for that purpose.
 
 NOTE: The _inactive_ disk is either _failed_ or _missing_. It is
 _failed_ if it was either marked _failed_ by hand or dropped out of the RAID due to disk errors.
@@ -686,26 +810,27 @@ can check which state an _inactive_ disk is in  with
 `*mdadm{nbsp}--detail{nbsp}/dev/md0*` -- which lists _failed_ as
 _faulty_ but a missing disk will not appear at all.
 
-NOTE: The _active_ disk is the one the system is still running on.
+TIP: It is okay to use this script even if the _inactive_ disk fell
+out the RAID a (long) long time ago (in a galaxy far, far away) and/or
+there have been extensive changes to the _active_ disk. It is also
+okay to use if the system was rebooted (even multiple times) or the
+_active_ disk was used (booted) separately by itself since the
+_inactive_ disk fell out of the RAID.
 
-TIP: It is okay to use this script even if the _inactive_ disk fell out
-the RAID a (long) long time ago (in a galaxy far, far away) and/or
-there have been extensive changes to the _active_ disk.
-It is also okay to use if the system
-was rebooted (even multiple times) or the _active_ disk was used
-(booted) separately by itself since the _inactive_ disk fell out of the
-RAID. 
+NOTE: In extreme cases, the changes since the _inactive_ disk fell out
+of the RAID may be too extensive to allow for a recovery with this
+script. You may get a message similar to `mdadm: --re-add for ... to
+device /dev/md0 is not possible`. If this happens, seek expert advice.
+It should be possible to recover by blanking and then refreshing the
+_inactive_ disk. (If the _inactive_ disk is in the _primary_ slot, it
+will be necessary to reboot with the _active_ disk installed in the
+primary slot then run _blank_secondary_ and _refresh_secondary_, and
+finally shutdown and, reverse the disks between the slots and reboot.)
+Alternatively, it should be possible to use the `--add` option of the
+_mdadm_ command to _add_ the _inactive_ disk to the RAID; this will
+take as long as a _refresh_secondary_.
 
-WARNING: This script must _NOT_ be used if the _inactive_ disk has
-been changed in any way e.g., by being used (booted) separately (which is
-    caught by the script) or refreshed against some other disk, or if
-the _active_ disk has been used to refresh any other disk in the
-interim.  In particular, the script must _NOT_ be used to refresh a
-_shelf_ disk -- only use _refresh_secondary_ for that purpose.
-
-It normally works on _md0_, but a different _md_ device can be specified as the first argument.
-
-It will refuse to recover the RAID if the RAID:
+The script will refuse to recover the RAID if the RAID:
 
 . Does not need recovery
 . Is not in a recoverable state, e.g., is already recovering
@@ -1129,10 +1254,12 @@ instructions on how to do that at this time.
 It is recommended that the network configuration on each machine be
 made independent of the MAC address of the hardware. This will make it
 possible to move a RAID pair to a different computer and have it work
-on the network. Please note that the IP address and hostname is tied to
-the disks and not the computers. For information on how to configure this,
-    please see the (optional) <<installation.adoc#_network_configuration_changes,Network configuration changes>> section
-    of the FSL11 installation document.
+on the network. Please note that the IP address and host name is tied
+to the disks and not the computers. For information on how to
+configure this, please see the (optional)
+<<installation.adoc#_stabilize_network_configuration,Stabilize network
+configuration>> section of the <<installation.adoc#,FS Linux 11
+Installation Guide>> document.
 
 The configuration of the system outside of the _/usr2_ partition
 between _operational_ and _spare_ computers should be maintained in
@@ -1194,20 +1321,19 @@ NIC to re-register with ARP. Waiting longer may also solve the problem.
 === One disk in the operational computer RAID fails
 
 This should not interrupt operations. The computer should continue to
-run seamlessly on the remaining disk.  If the system is rebooted in
+run seamlessly on the remaining disk. If the system is rebooted in
 this state, it should use the working disk. At the first opportunity,
-     usually after operations, the _recover_raid_ script can be tried
-     to restore the disk to the RAID. If that doesn't work, the disk
-     may have failed and may need to replaced (it may worthwhile to
-         try blanking and refreshing it first). If the disk has
-     failed, it should be removed and a disk rotation should be
-     performed (with the still good disk in the _primary_ slot) to
-     refresh the _shelf_ disk and make a working RAID.  The failed
-     disk should be repaired or replaced with a new disk that is at
-     least as large. The _blank_secondary_ script should be used to
-     erase the new disk before it is introduced into the rotation
-     sequence. See the <<Initialize a new disk>> section above for
-     full details on initializing a new disk.
+usually after operations, the _recover_raid_ script can be tried to
+restore the disk to the RAID. If that doesn't work, the disk may have
+failed and may need to be replaced (it may worthwhile to try blanking
+and refreshing it first). If the disk has failed, it should be removed
+and a disk rotation should be performed (with the still good disk in
+the _primary_ slot) to refresh the _shelf_ disk and make a working
+RAID. The failed disk should be repaired or replaced with a new disk
+that is at least as large. The _blank_secondary_ script should be used
+to erase the new disk before it is introduced into the rotation
+sequence. See the <<Initialize a new disk>> section above for full
+details on initializing a new disk.
 
 === Operational computer RAID corrupted
 
