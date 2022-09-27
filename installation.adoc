@@ -2230,8 +2230,8 @@ testing>> procedure in the <<raid.adoc#,Raid Notes for FSL11>>
 document, you will need to utilize the
 <<raid.adoc#_if_the_update_is_deemed_to_have_failed,If the update is
 deemed to have failed>> subsection of that procedure. Otherwise, if
-you are not using that procedure, will need to use your own recovery
-method.
+you are not using that procedure, you will need to use your own
+recovery method.
 
 +
 
@@ -2316,7 +2316,7 @@ first restore the RAID using the
 <<raid.adoc#_if_the_update_is_deemed_to_have_failed,If the update is
 deemed to have failed>> subsection of the
 <<raid.adoc#_recoverable_testing,Recoverable testing>> procedure in
-the <<raid.adoc#,Raid Notes for FSL11>> document
+the <<raid.adoc#,Raid Notes for FSL11>> document.
 
 [appendix]
 

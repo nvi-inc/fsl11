@@ -32,10 +32,10 @@ Version 0.0.4 - September 2022
 
 These notes are intended to cover, albeit tersely, the major issues
 for RAID operations with FSL11 (see the <<installation.adoc#,FS Linux
-11 Installation Guide>> document). The scripts have had been updated
-since FSL10 to handle the occasional reversals of the assignment of
-_sda_ and _sdb_ relative to the controller numbering. Some other
-minor improvements are included as well.
+11 Installation Guide>> document). The scripts have been updated since
+FSL10 to handle the occasional reversals of the assignment of _sda_
+and _sdb_ relative to the controller numbering. Some other minor
+improvements are included as well.
 
 All operations and scripts in this document require _root_ privileges
 unless otherwise indicated.
