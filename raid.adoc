@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 0.0.4 - September 2022
+Version 0.0.5 - September 2022
 
 :sectnums:
 :experimental:
@@ -130,11 +130,19 @@ slot the _secondary_. This may require changing the internal cabling.
 3=ZC1AHENM
 ```
 
-. When rotating disks, keep the disks in cyclical order (_primary_, _secondary_, _shelf_): 1, 2, 3; then 2, 3, 1;, then 3, 1, 2, then 1, 2, 3; and so on
+. When rotating disks, keep the disks in cyclical order (_primary_,
+_secondary_, _shelf_): 1, 2, 3; then 2, 3, 1;, then 3, 1, 2, then 1,
+2, 3; and so on.
+
 . Rotate disks for a given computer at least once a month, and before any updates
 
 . If you have a spare computer (and/or additional systems), keep the
 numbered order of the disks the same on all computers.
+
++
+
+Occasionally, extra rotations may be needed to re-sync the order of
+the disks in the computers.
 
 . Do not turn a disk off while the system is running. The only time a key switch state should be changed while the system is running is to add a disk for a blank or refresh operation.
 
@@ -219,22 +227,6 @@ backup) according to <<Disk rotation>> above.
 
 +
 
-This command will check the status of the RAID and proceed to shutting
-down _only_ if the RAID is synced. There are three errors that can
-prevent shutting down: (i) if the FS is running, you should terminate
-it before trying again; (ii) if the RAID is `recovering`, you will
-need to wait until the recovery is finished before shutting down, you
-can check the progress with the _mdstat_ command; and (iii) if the
-RAID is `degraded`, seek expert advice.
-
-+
-
-The output of this command is phrased for performing a disk rotation.
-For the current case, you will need to interpret the output for
-whether the RAID is ready to be split for use in testing.
-
-+
-
 [TIP]
 ====
 
@@ -279,12 +271,6 @@ fine to try several times until it succeeds.
 . Once the recovery completes (this may only take a few minutes), the
  system has been successfully updated.
 
-+
-
-You can check the recovery progress with _mdstat_. The system can be
-used for operations while the recovery is in progress, but may be a
-little slow.
-
 === If the update is deemed to have failed
 
 The system can be recovered as follows:
@@ -300,12 +286,6 @@ The system can be recovered as follows:
 . Run _refresh_secondary_
 . Once the refresh is complete (this may take several hours), you have
 recovered to the original state.
-
-+
-
-You can check the progress with _mdstat_. The system can be used for
-operations while the recovery is in progress, but may be a little
-slow.
 
 == Recover from a shelf disk
 
@@ -348,22 +328,6 @@ procedure can be completed when time allows.
 
 . Shut the system down with the _rotation_shutdown_ command.
 
-+
-
-This command will check the status of the RAID and proceed to shutting
-down _only_ if the RAID is synced. There are three errors that can
-prevent shutting down: (i) if the FS is running, you should terminate
-it before trying again; (ii) if the RAID is `recovering`, you will
-need to wait until the recovery is finished before shutting down, you
-can check the progress with the _mdstat_ command; and (iii) if the
-RAID is `degraded`, seek expert advice.
-
-+
-
-The output of this command is phrased for performing a disk rotation.
-For this step and the steps below, you are essentially doing a disk
-rotation, but are blanking the _secondary_ disk first.
-
 . Take the disk from _primary_ slot, put it on the _shelf_
 . Move the disk from the _secondary_ slot to the _primary_ slot, keyed-on
 . Insert the remaining disk, that was set aside, in the _secondary_ slot, keyed-off.
@@ -374,19 +338,8 @@ rotation, but are blanking the _secondary_ disk first.
 
 . Run _refresh_secondary_
 
-+
-
-Once the refresh has entered the recovery phase, the system can be
-used for operations, if need be.
-
 . When the refresh is complete, you have recovered to the state of the
 previous _good_ _shelf_ disk.
-
-+
-
-You can check the progress with _mdstat_. The system can be used for
-operations while the recovery is in progress, but may be a little
-slow.
 
 == Initialize a new disk
 
@@ -413,22 +366,6 @@ This case corresponds to not having a good shelf disk.
 
 . Shut the system down with the _rotation_shutdown_ command.
 
-+
-
-This command will check the status of the RAID and proceed to shutting
-down _only_ if the RAID is synced. There are three errors that can
-prevent shutting down: (i) if the FS is running, you should terminate
-it before trying again; (ii) if the RAID is `recovering`, you will
-need to wait until the recovery is finished before shutting down, you
-can check the progress with the _mdstat_ command; and (iii) if the
-RAID is `degraded`, seek expert advice.
-
-+
-
-The output of this command is phrased for performing a disk rotation.
-For this step and the steps below, you are essentially doing a disk
-rotation, but are blanking the _secondary_ disk first.
-
 If the disks are in cyclical order (i.e., _primary_, _secondary_ are
 numbered in order: 1, 2, or 2, 3, or 3, 1), you should:
 
@@ -451,12 +388,6 @@ In either case, finish with:
 
 . Once the refresh is complete, the disk can be used normally.
 
-+
-
-You can check the progress with _mdstat_. The system can be used for
-operations while the recovery is in progress, but may be a little
-slow.
-
 . Label the new disk with its system name, number, and serial number.
 
 === Currently one disk is running in the RAID, but two are installed
@@ -476,16 +407,10 @@ In this case, there is a good shelf disk. The strategy used avoids overwriting i
 
 . Once the refresh is complete, the disk can be used normally.
 
-+
-
-You can check the progress with _mdstat_. The system can be used for
-operations while the recovery is in progress, but may be a little
-slow.
-
 . Label the new disk with its system name, number, and serial number.
 
 If the disks are not in cyclical order (i.e., _primary_, _secondary_
-are numbered in order: 1, 3, or 2, 1, or 3, 2), on the next disk
+are numbered in order: 1, 3, or 2, 1, or 3, 2), then on the next disk
 rotation you should move the _secondary_ disk to the shelf instead of
 moving the _primary_.
 
@@ -511,18 +436,12 @@ Then in any event:
 
 . Once the refresh is complete, the disk can be used normally.
 
-+
-
-You can check the progress with _mdstat_. The system can be used for
-operations while the recovery is in progress, but may be a little
-slow.
-
 . Label the new disk with its system name, number, and serial number.
 
-If the disks are not in not in cyclical order (i.e., _primary_,
-_secondary_ are numbered in order: 1, 3, or 2, 1, or 3, 2), on the
-next disk rotation you should move the _secondary_ the shelf instead
-of the _primary_.
+If the disks are not in cyclical order (i.e., _primary_, _secondary_
+are numbered in order: 1, 3, or 2, 1, or 3, 2), then on the next disk
+rotation you should move the _secondary_ to the shelf instead of the
+_primary_.
 
 == Script descriptions
 
@@ -549,10 +468,9 @@ will need to wait until the recovery is finished before shutting down;
 you can check the progress with the _mdstat_ command. If it is
 `degraded`, seek expert advice.
 
-The script will also check to see if the FS is active and will not
-shutdown the system if it is. To override this, the `-F` option can be
-used, but is not recommended. It is better to terminate the FS
-instead.
+The script will also not shutdown the system if the FS is in use. To
+override this, the `-F` option can be used, but is not recommended. It
+is better to terminate the FS.
 
 The script includes a `-p` option to display a progress meter for a
 recovery if one is active. Whether there is an active recovery or not,
@@ -783,6 +701,16 @@ including:
 . A real disk fault of some sort, including one caused by turning it off
   whilst it is still in use.
 . Using the _mdadm_ command with `-f` option to mark it as faulty.
+
++
+
+CAUTION: Using `-f` on a disk that is being refreshed (or is synced)
+should be relatively easy to recover from with _recover_raid_.  Using
+it on the disk that is being recovered _from_ can cause problems
+(including possibly crashing the system). If `-f` has been used in
+that way, the system should be rebooted. That may allow recovery, but
+it may be safer to <<Recover from a shelf disk>>.
+
 . Turning it off whilst the system is shutdown and booting without it.
 
 . Using the _drop_primary_ script.
@@ -1362,19 +1290,22 @@ replacements for the malfunctioning disks.
 This approach could also be used for a similar problem with the
 _spare_ computer and using its _shelf_ disk for recovery.
 
-This approach of this section should not be used if a problem with the _operational_
-computer caused the damage to its RAID. In that case, follow
-the <<Operational computer RAID corrupted and operational computer failure>> sub-section below.
+This approach of this section should not be used if a problem with the
+_operational_ computer caused the damage to its RAID. In that case,
+follow the
+<<Operational computer RAID corrupted and operational computer failure>>
+subsection below.
 
 === Operational computer RAID corrupted and operational computer failure
 
 This might happen if the operational computer is exposed to fire
-and/or water.  In this case, there are two options. One is switching to
-using the _spare_ computer as in the <<Loss of operational computer and all its disks>> sub-section below.
-The other is to use the _operational_ computer's
-_shelf_ disk in the _spare_ computer, either by itself or by making a
-ersatz RAID by blanking the _spare_ computer's _shelf_ disk and
-refreshing it from the _operational_ computer's _shelf_ disk.
+and/or water. In this case, there are two options. One is switching to
+using the _spare_ computer as in the
+<<Loss of operational computer and all its disks>> subsection below.
+The other is to use the _operational_ computer's _shelf_ disk in the
+_spare_ computer, either by itself or by making a ersatz RAID by
+blanking the _spare_ computer's _shelf_ disk and refreshing it from
+the _operational_ computer's _shelf_ disk.
 
 In the latter scenario, be sure to preserve the original working RAID
 from the _spare_ computer. All needed volatile operational files that
@@ -1396,7 +1327,8 @@ recreated. If daemons like _metserver_ and _metclient_ are needed,
 
 This approach should not be used if a problem with the _operational_
 computer caused the damage to its RAID. In that case, follow the
-<<Operational computer RAID corrupted and operational computer failure>> sub-section above.
+<<Operational computer RAID corrupted and operational computer failure>>
+subsection above.
 
 === Loss of operational computer and all its disks
 
