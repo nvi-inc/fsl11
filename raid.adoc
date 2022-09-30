@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 0.0.5 - September 2022
+Version 0.0.6 - September 2022
 
 :sectnums:
 :experimental:
@@ -704,12 +704,16 @@ including:
 
 +
 
-CAUTION: Using `-f` on a disk that is being refreshed (or is synced)
-should be relatively easy to recover from with _recover_raid_.  Using
-it on the disk that is being recovered _from_ can cause problems
-(including possibly crashing the system). If `-f` has been used in
-that way, the system should be rebooted. That may allow recovery, but
-it may be safer to <<Recover from a shelf disk>>.
+CAUTION: Using `-f` is risky and is for experts only. Using it on a
+disk that is being refreshed (or is synced) should be relatively easy
+to recover from with _recover_raid_. Using it on the disk that is
+being recovered _from_ can cause problems (including possibly crashing
+the system). If `-f` has been used in that way, the system should be
+rebooted. At which point, it should restart recovering the RAID. This
+is in contrast to having a hard failure of the disk being recovered
+_from_.  In that case, you will need to use the
+<<Recover from a shelf disk>> procedure with the remaining working
+disk.
 
 . Turning it off whilst the system is shutdown and booting without it.
 
