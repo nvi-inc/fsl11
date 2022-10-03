@@ -26,7 +26,7 @@ set -e
 usage() {
 	echo "Usage: $0 [-p]"
 	echo -e "  where\t-h\tdisplay this help and exit"
-	echo -e "  \t-p\tdisplay prgress meter while recovering"
+	echo -e "  \t-p\tdisplay progress meter while recovering"
 }
 
 PROGRESS_METER=0
@@ -125,5 +125,6 @@ if [ "$PROGRESS_METER" -ne 0 ]; then
 	done
 	echo -e "\ndone."
 else
+	echo -e "\n\RAID $raid is now in the process of rebuilding."
 	echo "You can check on the recovery progress with 'mdstat'."
 fi

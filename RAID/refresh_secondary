@@ -27,15 +27,19 @@ usage() {
 	echo "Usage: $0 [-A][-h][-p]"
 	echo -e "  where\t-A\tAllow \"Secondary\" disk to be loaded at start"
 	echo -e "  \t-h\tdisplay this help and exit"
-	echo -e "  \t-p\tdisplay prgress meter while recovering"
+	echo -e "  \t-p\tdisplay progress meter while recovering"
 }
 
 ACCEPT_LOAD=0
+DRY_RUN=0
 PROGRESS_METER=0
-while getopts "Ahp" arg; do
+while getopts "Anph" arg; do
 	case $arg in
 		A)
 			ACCEPT_LOAD=1
+			;;
+		n)
+			DRY_RUN=1
 			;;
 		p)
 			PROGRESS_METER=1
@@ -47,10 +51,8 @@ while getopts "Ahp" arg; do
 	esac
 done
 
-disk="/dev/sdb"
-devname=$(basename $disk)
-part1="$disk"1
-part2="$disk"2
+[ $DRY_RUN -eq 0 ] || echo -e "\n!! NB: running in DRY RUN mode ie. no action will actually be taken !!\n"
+
 lockf=/tmp/.accept_load
 
 if [ ! -b /dev/md0 ]; then
@@ -67,169 +69,183 @@ if ! mdadm --detail /dev/md0 2>&1 | grep -q ", degraded $" ; then
 fi
 
 # Perform sanity checks on primary disk first
-if ! mdadm --detail /dev/md0 | grep -q /dev/sda; then
-	echo "ERROR: \"Primary\" disk /dev/sda is not part of RAID /dev/md0!!"
+SDA=$(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 1)
+SDA=$(basename $SDA)
+
+if ! mdadm --detail /dev/md0 | grep -q /dev/$SDA; then
+	echo "ERROR: \"Primary\" disk /dev/$SDA is not part of RAID /dev/md0!!"
 	exit 1
 fi
-if [ "$(cat /sys/block/sda/removable)" != "0" ]; then
-	echo "WARNING: \"Primary\" disk /dev/sda is removable:"
-	echo -n " /dev/sda: "$(lsblk --nodeps -no tran /dev/sda | tr [:lower:] [:upper:]) 
-	echo -n " "$(lsblk --nodeps -no type /dev/sda)
-	echo -n ", model" $(lsblk --nodeps -no model /dev/sda)
-	echo ", s/n "$(lsblk --nodeps -no serial /dev/sda)
+if [ "$(cat /sys/block/$SDA/removable)" != "0" ]; then
+	echo "WARNING: \"Primary\" disk /dev/$SDA is removable:"
+	echo -n " /dev/"$SDA": "$(lsblk --nodeps -no tran /dev/$SDA | tr [:lower:] [:upper:]) 
+	echo -n " "$(lsblk --nodeps -no type /dev/$SDA)
+	echo -n ", model" $(lsblk --nodeps -no model /dev/$SDA)
+	echo ", s/n "$(lsblk --nodeps -no serial /dev/$SDA)
 	echo -n "Press <Enter> if you wish to continue anyway (Control-C aborts) "
 	read $ans
 fi
-if $(partprobe -ds /dev/sda | grep -q msdos) && [ ! -d /boot/efi ]; then
+if $(partprobe -ds /dev/$SDA | grep -q msdos) && [ ! -d /boot/efi ]; then
 	boot="MBR"
-elif [ ! -z "$(sgdisk -i1 /dev/sda | grep 'BIOS boot')" ] && [ ! -d /boot/efi ]; then
+elif [ ! -z "$(sgdisk -i1 /dev/$SDA | grep 'BIOS boot')" ] && [ ! -d /boot/efi ]; then
 	boot="BIOS";
-elif [ ! -z "$(sgdisk -i1 /dev/sda | grep 'EFI [Ss]ystem')" ] && [ -d /boot/efi ]; then
+elif [ ! -z "$(sgdisk -i1 /dev/$SDA | grep 'EFI [Ss]ystem')" ] && [ -d /boot/efi ]; then
 	boot="EFI";
 else
-	echo "ERROR: Unrecognised boot scheme on \"Primary\" disk /dev/sda"
-	exit 1
-fi
-
-# Now get the user to load the Secondary disk
-if [ -b $disk ] && [ $ACCEPT_LOAD == 0 ] && ([ ! -O $lockf ] || [ "$(cat $lockf)" != "$(lsblk --nodeps -no serial $disk)" ]); then
-	echo "ERROR:\"Secondary\" disk $disk must not be loaded before start of script"
-	echo "(You may want to use the '-A' option to [A]llow if this is intended)"
-	exit 1
-fi
-if [ ! -b $disk ]; then
-	while [ ! -b $disk ]; do
-		echo  -n -e "\rWaiting for disk $disk to be loaded, use 'Control-C' to safely abort ... "
-		sleep 1
-	done
-	echo  -n -e "\r                                                                              "
-	echo  -n -e "\rWaiting for disk $disk to settle ... "
-	udevadm settle
-	sleep 2
-	echo $(lsblk --nodeps -no serial $disk) > $lockf
-	echo -e "done.\n"
-fi
-
-# Perform sanity checks on secondary disk now that it's available
-if [ "$(cat /sys/block/$devname/removable)" != "0" ]; then
-	echo "WARNING: \"Secondary\" disk $disk is removable:"
-	echo -n " $disk: "$(lsblk --nodeps -no tran $disk | tr [:lower:] [:upper:])
-	echo -n " "$(lsblk --nodeps -no type $disk)
-	echo -n ", model" $(lsblk --nodeps -no model $disk)
-	echo ", s/n "$(lsblk --nodeps -no serial $disk)
-	echo -n "Press <Enter> if you wish to continue anyway (Control-C aborts) "
-	read $ans
-fi
-if mdadm --detail /dev/md0 | grep -q $disk; then
-	echo "ERROR: \"Secondary\" disk $disk is still part of RAID /dev/md0!!"
-	echo "(Perhaps you should actually be using 'recover_raid' instead)"
-	exit 1
-fi
-if grep -q " $devname" /proc/mdstat; then
-	echo "ERROR: \"Foreign\" RAID(s) detected on \"Secondary\" disk $disk"
-	echo "(You should use blank_secondary to reset the second disk first)"
-	exit 1
-fi
-if grep -q ^$disk /proc/mounts; then
-	echo "ERROR: Some part of \"Secondary\" disk $disk is mounted!!"
-	exit 1
-fi
-if [ $(cat /sys/block/md0/size) -gt $(cat /sys/block/$devname/size) ] ||
-    ([ -b $part2 ] && [ $(cat /sys/block/md0/size) -gt $(cat /sys/block/$devname/"$devname"2/size) ]); then
-	echo "ERROR: \"Secondary\" device $devname is too small to house RAID /dev/md0"
-	exit 1
-fi
-if [ -b $part1 ] && [ ! -z "$(sgdisk -i1 $disk | grep 'GUID code')" ] &&
-   (( [ $boot = "MBR" ] && ! $(partprobe -ds $disk | grep -q msdos) ) ||
-    ( [ $boot = "BIOS" ] && [ -z "$(sgdisk -i1 $disk | grep 'BIOS boot')" ] ) ||
-    ( [ $boot = "EFI" ] && [ -z "$(sgdisk -i1 $disk | grep 'EFI [Ss]ystem')" ] )); then
-	echo "ERROR: boot scheme on \"Secondary\" disk $disk does not match \"Primary\" disk /dev/sda"
-	echo "(You should use blank_secondary to reset the second disk)"
-	exit 1
-fi
-
-# Cross-compare state of the RAID partitions
-if [ -b $part2 ] && [ "$(mdadm --examine -Y /dev/sda2 | grep MD_UUID | cut -d'=' -f2)" != "$(mdadm --examine -Y $part2 | grep MD_UUID | cut -d'=' -f2)" ]; then
-	echo "ERROR: \"Secondary\" disk $part2 MD_UUID does not match \"Primary\" disk /dev/sda2"
-	echo "(You should use blank_secondary to reset the second disk)"
-	exit 1
-fi
-if [ -b $part2 ] && [ $(mdadm --examine -Y /dev/sda2 | grep TIME | cut -d'=' -f2) -lt $(mdadm --examine -Y $part2 | grep TIME | cut -d'=' -f2) ]; then
-	echo "ERROR: \"Secondary\" disk $part2 TIME is ahead of \"Primary\" disk /dev/sda2"
-	echo "(You should use blank_secondary to reset the second disk)"
-	exit 1
-fi
-if [ -b $part2 ] && [ $(mdadm --examine -Y /dev/sda2 | grep EVENTS | cut -d'=' -f2) -lt $(mdadm --examine -Y $part2 | grep EVENTS | cut -d'=' -f2) ]; then
-	echo "ERROR: \"Secondary\" disk $part2 EVENT count is higher than the \"Primary\" disk /dev/sda2"
-	echo "(You should use blank_secondary to reset the second disk)"
-	exit 1
-fi
-
-# Check if "Secondary" disk has been booted separately
-if [ -b $part2 ] && [ "$(mdadm --examine $part2 | grep "Array State" | cut -d' ' -f7)" != "AA" ]; then
-	echo "ERROR: \"Secondary\" disk $part2 has been used separately since last in sync"
-	echo "(You should use blank_secondary to reset the second disk)"
+	echo "ERROR: Unrecognised boot scheme on \"Primary\" disk /dev/$SDA"
 	exit 1
 fi
 
 # Ensure the Primary disk is mounted on /boot/efi (ie. not Secondary) if applicable
 if [ $boot = "EFI" ]; then
-	umount /boot/efi
-	mount /dev/sda1 /boot/efi
+	[ $DRY_RUN -eq 0 ] && umount /boot/efi 2>/dev/null 
+	[ $DRY_RUN -eq 0 ] && mount /dev/"$SDA"1 /boot/efi
+fi
+
+# Now get the user to load the Secondary disk
+SDB=$(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 2 | tail -n 1)
+SDB=$(basename $SDB)
+
+if [ $SDB != $SDA ] && [ $ACCEPT_LOAD == 0 ] && ([ ! -O $lockf ] || [ "$(cat $lockf)" != "$(lsblk --nodeps -no serial /dev/$SDB)" ]); then
+	echo "ERROR:\"Secondary\" disk /dev/$SDB must not be loaded before start of script"
+	echo "(You may want to use the '-A' option to [A]llow if this is intended)"
+	exit 1
+fi
+if [ $SDA == $SDB ] || [ ! -b /dev/$SDB ]; then
+	while [ $SDA == $SDB ] || [ ! -b /dev/$SDB ]; do
+		echo  -n -e "\rWaiting for disk /dev/$SDB to be loaded, use 'Control-C' to safely abort ... "
+		sleep 1
+		SDB=$(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 2 | tail -n 1)
+		SDB=$(basename $SDB)
+	done
+	echo  -n -e "\r                                                                              "
+	echo  -n -e "\rWaiting for disk /dev/$SDB to settle ... "
+	udevadm settle
+	sleep 2
+	echo $(lsblk --nodeps -no serial /dev/$SDB) > $lockf
+	echo -e "done.\n"
+fi
+
+# Perform sanity checks on secondary disk now that it's available
+if [ "$(cat /sys/block/$SDB/removable)" != "0" ]; then
+	echo "WARNING: \"Secondary\" disk /dev/$SDB is removable:"
+	echo -n " /dev/"$SDB": "$(lsblk --nodeps -no tran /dev/$SDB | tr [:lower:] [:upper:])
+	echo -n " "$(lsblk --nodeps -no type /dev/$SDB)
+	echo -n ", model" $(lsblk --nodeps -no model /dev/$SDB)
+	echo ", s/n "$(lsblk --nodeps -no serial /dev/$SDB)
+	echo -n "Press <Enter> if you wish to continue anyway (Control-C aborts) "
+	read $ans
+fi
+if mdadm --detail /dev/md0 | grep -q /dev/$SDB; then
+	echo "ERROR: \"Secondary\" disk /dev/$SDB is still part of RAID /dev/md0!!"
+	echo "(Perhaps you should actually be using 'recover_raid' instead?)"
+	exit 1
+fi
+if grep -q " $SDB" /proc/mdstat; then
+	echo "ERROR: \"Foreign\" RAID(s) detected on \"Secondary\" disk /dev/$SDB"
+	echo "(You may want to use blank_secondary to erase the second disk first)"
+	exit 1
+fi
+if grep -q ^/dev/$SDB /proc/mounts; then
+	echo "ERROR: Some part of \"Secondary\" disk /dev/$SDB is mounted!!"
+	exit 1
+fi
+if [ $(cat /sys/block/md0/size) -gt $(cat /sys/block/$SDB/size) ] ||
+    ([ -b /dev/"$SDB"2 ] && [ $(cat /sys/block/md0/size) -gt $(cat /sys/block/$SDB/"$SDB"2/size) ]); then
+	echo "ERROR: \"Secondary\" device /dev/$SDB is too small to house RAID /dev/md0"
+	exit 1
+fi
+if [ -b /dev/"$SDB"1 ] && [ ! -z "$(sgdisk -i1 /dev/$SDB | grep 'GUID code')" ] &&
+   (( [ $boot = "MBR" ] && ! $(partprobe -ds /dev/$SDB | grep -q msdos) ) ||
+    ( [ $boot = "BIOS" ] && [ -z "$(sgdisk -i1 /dev/$SDB | grep 'BIOS boot')" ] ) ||
+    ( [ $boot = "EFI" ] && [ -z "$(sgdisk -i1 /dev/$SDB | grep 'EFI [Ss]ystem')" ] )); then
+	echo "ERROR: boot scheme on \"Secondary\" disk /dev/$SDB does not match \"Primary\" disk /dev/$SDA"
+	echo "(You may want to use blank_secondary to erase the second disk first)"
+	exit 1
+fi
+
+# Cross-compare state of the RAID partitions
+if [ -b /dev/"$SDB"2 ] && [ "$(mdadm --examine -Y /dev/"$SDA"2 | grep MD_UUID | cut -d'=' -f2)" != "$(mdadm --examine -Y /dev/"$SDB"2 | grep MD_UUID | cut -d'=' -f2)" ]; then
+	echo "ERROR: \"Secondary\" disk /dev/"$SDB"2 MD_UUID does not match \"Primary\" disk /dev/"$SDA"2"
+	echo "(You may want to use blank_secondary to erase the second disk first)"
+	exit 1
+fi
+if [ -b /dev/"$SDB"2 ] && [ $(mdadm --examine -Y /dev/"$SDA"2 | grep TIME | cut -d'=' -f2) -lt $(mdadm --examine -Y /dev/"$SDB"2 | grep TIME | cut -d'=' -f2) ]; then
+	echo "ERROR: \"Secondary\" disk /dev/"$SDB"2 TIME is ahead of \"Primary\" disk /dev/"$SDA"2"
+	echo "(You may want to use blank_secondary to erase the second disk first)"
+	exit 1
+fi
+if [ -b /dev/"$SDB"2 ] && [ $(mdadm --examine -Y /dev/"$SDA"2 | grep EVENTS | cut -d'=' -f2) -lt $(mdadm --examine -Y /dev/"$SDB"2 | grep EVENTS | cut -d'=' -f2) ]; then
+	echo "ERROR: \"Secondary\" disk /dev/"$SDB"2 EVENT count is higher than the \"Primary\" disk /dev/"$SDA"2"
+	echo "(You may want to use blank_secondary to erase the second disk first)"
+	exit 1
+fi
+
+# Check if "Secondary" disk has been booted separately
+if [ -b /dev/"$SDB"2 ] && [ "$(mdadm --examine /dev/"$SDB"2 | grep "Array State" | cut -d' ' -f7)" != "AA" ]; then
+	echo "ERROR: \"Secondary\" disk /dev/"$SDB"2 has been used separately since last in sync"
+	echo "(You may want to use blank_secondary to erase the second disk first)"
+	exit 1
 fi
 
 
 # ------------- Everything looks sane so let's set to work ----------------
 
 # First repartition the Secondary disk by cloning the Primary's table if blank
-if [ "$(partprobe -s /dev/sda | cut -d' ' -f2-)" != "$(partprobe -s $disk | cut -d' ' -f2-)" ]; then
-	if [ "$(partprobe -s $disk | cut -d' ' -f3-)" = "partitions" ]; then
-		echo -n "Partitioning blank \"Secondary\" disk $disk ... "
+if [ "$(partprobe -s /dev/$SDA | cut -d' ' -f2-)" != "$(partprobe -s /dev/$SDB | cut -d' ' -f2-)" ]; then
+	if [ "$(partprobe -s /dev/$SDB | cut -d' ' -f3-)" = "partitions" ]; then
+		echo -n "Partitioning blank \"Secondary\" disk /dev/$SDB ... "
 		if [ $boot = "MBR" ]; then
-			sfdisk -d /dev/sda | sfdisk /dev/sdb > /dev/null
+			[ $DRY_RUN -eq 0 ] && sfdisk -d /dev/$SDA | sfdisk /dev/$SDB > /dev/null
 		else
-			sgdisk -R$disk /dev/sda > /dev/null
-			sgdisk -G $disk > /dev/null
+			[ $DRY_RUN -eq 0 ] && sgdisk -R/dev/$SDB /dev/$SDA > /dev/null
+			[ $DRY_RUN -eq 0 ] && sgdisk -G /dev/$SDB > /dev/null
 		fi
-		partprobe $disk
+		[ $DRY_RUN -eq 0 ] && partprobe /dev/$SDB
 		echo "done."
 	else
-		echo "ERROR: Partitioning of \"Secondary\" disk $disk does not match \"Primary\" disk /dev/sda"
-		echo "(You should use blank_secondary to reset the second disk)"
+		echo "ERROR: Partitioning of \"Secondary\" disk /dev/$SDB does not match \"Primary\" disk /dev/$SDA"
+		echo "(You may want to use blank_secondary to erase the second disk first)"
 		exit 1
 	fi
 fi
 
 # Next install the bootloader to the Secondary disk
 if [ $boot = "MBR" ] || [ $boot = "BIOS" ]; then
-	echo -n "Installing GRUB bootloader in BIOS mode on \"Secondary\" disk $disk ... "
-	grub-install $disk
+	echo -n "Installing GRUB bootloader in BIOS mode on \"Secondary\" disk /dev/$SDB ... "
+	[ $DRY_RUN -eq 0 ] && grub-install /dev/$SDB
 	echo "done."
 elif [ $boot = "EFI" ]; then
 	# Ensure the primary disk is mounted on /boot/efi (not anything else)
-	if ! grep "/boot/efi" /proc/mounts | grep -q /dev/sda1; then
-		umount /boot/efi
-		mount /dev/sda1 /boot/efi
+	if ! $(grep "/boot/efi" /proc/mounts | grep -q /dev/"$SDA"1); then
+		[ $DRY_RUN -eq 0 ] && umount /boot/efi
+		[ $DRY_RUN -eq 0 ] && mount /dev/"$SDA"1 /boot/efi
 	fi
 
-	echo -n "Installing GRUB bootloader in UEFI mode on \"Secondary\" disk $disk ... "
+	echo -n "Installing GRUB bootloader in UEFI mode on \"Secondary\" disk /dev/$SDB ... "
 	# Note Debian 9 `grub-install` essentially ignores the second argument and
 	# copies the grub EFI shim to /boot/efi, regardless what is mounted there.
 	# Instead, we refresh the grub install on the primary, and unmount it to 
 	# ensure it is consistent, then copy the whole ESP to the second disk. 
-	grub-install $disk 2> /dev/null		# suppress spurious warnings
-	umount /boot/efi
-	cp /dev/sda1 $part1
+	[ $DRY_RUN -eq 0 ] && grub-install /dev/$SDB 2> /dev/null		# suppress spurious warnings
+	[ $DRY_RUN -eq 0 ] && umount /boot/efi
+	[ $DRY_RUN -eq 0 ] && cp /dev/"$SDA"1 /dev/"$SDB"1
 	# and remount the primary on /boot/efi again
-	mount /dev/sda1 /boot/efi
+	[ $DRY_RUN -eq 0 ] && mount /dev/"$SDA"1 /boot/efi
 	echo "done."
 fi
 
 # Then add the Secondary RAID partition as a replacement into the RAIO
-echo "Adding \"Secondary\" disk $part2 to RAID array /dev/md0 ... "
-mdadm --zero-superblock $part2 2> /dev/null	# will fail if disk is blank
-mdadm /dev/md0 --add-spare $part2
+echo "Adding \"Secondary\" disk /dev/"$SDB"2 to RAID array /dev/md0 ... "
+[ $DRY_RUN -eq 0 ] && mdadm --zero-superblock /dev/"$SDB"2 2> /dev/null	# will fail if disk is blank
+[ $DRY_RUN -eq 0 ] && mdadm /dev/md0 --add-spare /dev/"$SDB"2
 sleep 1
+
+if [ $DRY_RUN -ne 0 ]; then
+	echo -e "\n\"Secondary\" disk /dev/$SDB was hopefully _NOT_ refreshed! ;-)"
+	exit 0
+fi
+
 
 # Check that the RAID is now rebuilding ie. the addition succeeded
 if ! (mdadm --detail /dev/md0 | grep -q ", recovering $"); then
@@ -255,6 +271,7 @@ if [ "$PROGRESS_METER" -ne 0 ]; then
 	done
 	echo -e "\ndone."
 else
+	echo -e "\n\"Secondary\" disk /dev/$SDB is now being refreshed."
 	echo "You can check on the recovery progress with 'mdstat'."
 
 fi

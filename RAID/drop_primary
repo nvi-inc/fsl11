@@ -42,17 +42,21 @@ if ! mdadm --detail /dev/md0 2>&1 | grep -qE ": (clean|active) $" ; then
         exit 1
 fi
 
+# Locate real primary by lexical sort on device connection path
+SDA=$(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 1)
+SDA=$(basename $SDA)
+
 # Perform sanity checks on primary disk first
-if ! mdadm --detail /dev/md0 | grep -q /dev/sda2; then
-        echo "ERROR: \"Primary\" disk /dev/sda is not part of RAID /dev/md0!!"
+if ! mdadm --detail /dev/md0 | grep -q /dev/"$SDA"2; then
+        echo "ERROR: \"Primary\" disk /dev/$SDA is not part of RAID /dev/md0!!"
 	exit 1
 fi
-if [ "$(cat /sys/block/sda/removable)" != "0" ]; then
-	echo "WARNING: \"Primary\" disk /dev/sda is removable:"
-	echo -n " /dev/sda: "$(lsblk --nodeps -no tran /dev/sda | tr [:lower:] [:upper:]) 
-	echo -n " "$(lsblk --nodeps -no type /dev/sda)
-	echo -n ", model" $(lsblk --nodeps -no model /dev/sda)
-	echo ", s/n "$(lsblk --nodeps -no serial /dev/sda)
+if [ "$(cat /sys/block/$SDA/removable)" != "0" ]; then
+	echo "WARNING: \"Primary\" disk /dev/$SDA is removable:"
+	echo -n " /dev/"$SDA": "$(lsblk --nodeps -no tran /dev/$SDA | tr [:lower:] [:upper:]) 
+	echo -n " "$(lsblk --nodeps -no type /dev/$SDA)
+	echo -n ", model" $(lsblk --nodeps -no model /dev/$SDA)
+	echo ", s/n "$(lsblk --nodeps -no serial /dev/$SDA)
 	echo -n "Press <Enter> if you wish to continue (Control-C aborts) "
 	read $ans
 fi
@@ -65,4 +69,4 @@ done
 echo -ne "\r                              \r"
 sync;sync
 sleep 1;
-mdadm /dev/md0 -f /dev/sda2
+mdadm /dev/md0 -f /dev/"$SDA"2
