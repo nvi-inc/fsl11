@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.24 - August 2022
+Version 0.0.25 - September 2022
 
 :sectnums:
 :experimental:
@@ -162,8 +162,8 @@ Also make sure that the motherboard time is set to the current Universal time, i
 UTC, and the motherboard can boot from the installation media.
 
 While you are in the motherboard menu, make sure that hot-swapping is
-enabled for both the primary and secondary controllers. This is
-necessary for disk rotation and recoverable testing.
+enabled for the controllers of both the _primary_ and _secondary_
+disks. This is necessary for disk rotation and recoverable testing.
 
 TIP: For UEFI, some motherboards may switch to booting to the UEFI
 shell if they fail to find a hard disk that will boot. This might
@@ -534,8 +534,7 @@ installed to the first ESP partition.
 
 At `Install GRUB to Master Boot Record` select `yes` then select _/dev/sda_
 
-When prompted, press kbd:[Enter] to install to the master boot record of the
-primary disk.
+When prompted, press kbd:[Enter] to install to the master boot record.
 
 === Disable Wayland (optional)
 
@@ -609,7 +608,7 @@ NOTE: If you do keep this account, you will not be able to run the FS from
 it unless you add this account into the additional hardware access groups
 such as is done for _oper_ and _prog_ by _fsadapt_.
 
-=== Install GRUB to the secondary disk (if available)
+=== Install GRUB to the second disk (if available)
 
 * If you installed with UEFI boot, run the command
 +
@@ -946,21 +945,32 @@ NOTE: An additional disk should be at least as large as the smallest
 disk already in use in the RAID.
 
 NOTE: You will need to have hot-swapping enabled in your motherboard's
-setup menu, at least for the secondary controller (it should also be
-enabled for the primary).
+setup menu, at least for the controller for the _secondary_ disk (it
+should also be enabled for the _primary_).
 
 NOTE: This subsection assumes you have followed the directions in the
 <<Install tools for RAID (Optional)>> section above.
 
-If you have a second disk (_secondary_) in the RAID, either because
-you installed with it or because you have just set it up,  make sure
-the RAID is synced by checking that
+. If you have a second disk (_secondary_) in the RAID, either because
+you installed with it or because you have subsequently set it up:
 
-    mdstat
+.. Shut the system down with the _rotation_shutdown_ command.
 
-shows no recovery in progress. _When_ there is none, shut down the
-machine safely. Remove the second disk and place it on the shelf.
-Proceed to the next step, <<Initialize new disk>>.
++
+
++
+
+This command will check the status of the RAID and proceed to shutting
+down _only_ if the RAID is synced. There are three errors that can
+prevent shutting down: (i) if the FS is running, you should terminate
+it before trying again; (ii) if the RAID is `recovering`, you will
+need to wait until the recovery is finished before shutting down, you
+can check the progress with the _mdstat_ command; and (iii) if the
+RAID is `degraded`, seek expert advice.
+
+.. Remove the _secondary_ disk and place it on the shelf.
+
+. Proceed to the next step, <<Initialize new disk>>.
 
 ==== Initialize new disk
 
@@ -974,7 +984,7 @@ different FS computer or a previous install on this computer.
 
 Follow these steps:
 
-. Boot with just the primary disk installed. 
+. Boot with just the _primary_ disk installed.
 
 +
 
@@ -988,11 +998,10 @@ TIP: If your system is already running with no second disk
 +
 
 The script will wait for the new disk to be turned on. Insert a new
-disk in the secondary slot. Turn the key to turn the disk on. There
-will be a prompts asking if wish to proceed. If it is a new disk or you
-are sure it safe to erase this disk, it is safe to answer `*y*`.
-If you are unsure about this or otherwise need to abort
-answer `*n*`.
+disk in the _secondary_ slot. Turn the key to turn the disk on. There
+will be a prompt asking if wish to proceed. If it is a new disk or you
+are sure it safe to erase this disk, answer `*y*`. If you are unsure
+about this or otherwise need to abort answer `*n*`.
 
 ==== Refresh secondary disk
 
@@ -1018,7 +1027,7 @@ that needs to be setup.
 
 === Consider additional customizations
 
-Please refer to the appendix <<Additional Setup Items>> below for
+Please refer to the appendix <<Additional Setup Items>> for
 customizations that your system may need or that you may find useful.
 
 [appendix]
@@ -2179,8 +2188,8 @@ in the <<raid.adoc#,Raid Notes for FSL11>> document.
 
 +
 
-If you are using a RAID, you can drop the primary disk out of the RAID
-to save as a backup:
+If you are using a RAID, you can drop the _primary_ disk out of the
+RAID to save as a backup:
 
  drop_primary
 
@@ -2215,10 +2224,14 @@ lvextend -L8G _Path_
 
 +
 
-IMPORTANT: Do not _interrupt_ the next command. If it is interrupted,
-you will need to utilize the "`failed`" branch of the
-<<raid.adoc#_recoverable_testing,Recoverable testing>> procedure in
-the <<raid.adoc#,Raid Notes for FSL11>> document.
+IMPORTANT: Do not _interrupt_ the next command. If it is interrupted
+and you are using the <<raid.adoc#_recoverable_testing,Recoverable
+testing>> procedure in the <<raid.adoc#,Raid Notes for FSL11>>
+document, you will need to utilize the
+<<raid.adoc#_if_the_update_is_deemed_to_have_failed,If the update is
+deemed to have failed>> subsection of that procedure. Otherwise, if
+you are not using that procedure, you will need to use your own
+recovery method.
 
 +
 
@@ -2271,13 +2284,16 @@ logical volume, there should be no differences.
 
 +
 
-NOTE: If you are not using the FSL11 RAID system, you will need to use
-your own methods to restore the system if there was a problem. The
-remainder of this step describes how to proceed if you using a RAID.
+NOTE: If you not are using the
+<<raid.adoc#_recoverable_testing,Recoverable testing>> procedure in
+the <<raid.adoc#,Raid Notes for FSL11>> document, you will need to use
+your own methods to restore the system if there was a problem. This
+step describes how to proceed if you are using the referenced
+procedure.
 
 +
 
-If you are using a RAID there are two options:
+There are two options:
 
 .. If you are satisfied with the change, you can recover the RAID
 with:
@@ -2296,7 +2312,9 @@ NOTE: The change in the volume size will not propagate to the _shelf_
 disk until the next disk rotation.
 
 .. If you are not satisfied with the change, you can try again if you
-first restore the RAID using the "`failed`" branch of the
+first restore the RAID using the
+<<raid.adoc#_if_the_update_is_deemed_to_have_failed,If the update is
+deemed to have failed>> subsection of the
 <<raid.adoc#_recoverable_testing,Recoverable testing>> procedure in
 the <<raid.adoc#,Raid Notes for FSL11>> document.
 
