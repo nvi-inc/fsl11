@@ -21,7 +21,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.27 - October 2022
+Version 0.0.28 - October 2022
 
 :sectnums:
 :experimental:
@@ -276,18 +276,22 @@ then press kbd:[Enter] to continue. It may well be simpler just to use
 the unofficial installer images mentioned above that include all
 available non-free firmware.
 
-=== If you are presented with a dialog asking which interface to use 
+=== Configure the network
 
-Typically only shown if two or more network interfaces are found,
+. If you are presented with a dialog asking which interface to use as
+`primary`
+
++
+
+This is typically only shown if two or more network interfaces are found,
 which might include a virtual FireWire interface in some cases.
 Select the interface you require (usually `eno1`) and press
 kbd:[Enter].
 
-=== Configure the network
-
 Unless you are using DHCP (which is not advisable) you will be
 prompted to:
 
+[start=2]
 . Type in the required static IP address in the form `_xxx.xxx.xxx.xxx_`
 (where each `_xxx_` is any integer from 0 - 255 inclusive) and press
 kbd:[Enter].
