@@ -21,7 +21,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.26 - October 2022
+Version 0.0.27 - October 2022
 
 :sectnums:
 :experimental:
@@ -88,10 +88,14 @@ at: https://nvi-inc.github.io/fs/misc/font_conventions.html.
 
 == Choosing architecture and creating installation media
 
-As of Field System version _10.0_, both _i386_ and _amd64_ architectures
-are supported natively. The _amd64_ architecture is preferred and
-should be used if possible (it should be unless the processor is very
-    old, from about 2010 or older).  However, some work may be
+#TODO: edit in correct version number below#
+
+FSL11 can be configured for either the _i386_ or _amd64_
+architectures. With FSL11 it is necessary to use Field System version
+#_10.1.1_# or later. Those FS versions support both architectures
+natively, so either may be used. The _amd64_ architecture is preferred
+and should be used if possible (it should be unless the processor is
+very old, from about 2010 or older). However, some work may be
 required to port your station code from a 32-bit to a 64-bit OS. Some
 automatic tools have been developed for this, and can be provided upon
 request. Usually the _i386_ architecture will work on any processor,
@@ -336,7 +340,10 @@ SATA HARDDISK`, and press kbd:[Enter]
 
 +
 
-NOTE: If some other file system, like `xfs`, or other old setup is
+[NOTE]
+====
+
+If some other file system, like `xfs`, or other old setup is
 displayed, you will need to delete it first. You may be able to do
 this by deleting individual partitions until you have a single `FREE
 SPACE` area. For more complicated layouts, it may be more expedient,
@@ -349,6 +356,13 @@ files in one partition (recommended for new users)`. You may be
 prompted to confirm deleting RAID partitions and/or removing logical
 volume data, which you must do to continue. Then you should be able to
 continue with selecting your disk, as above.
+
+If you have problems later creating the RAID or LVM partitions, then
+other means, such as exotic paths through the partitioner or writing a
+large number (perhaps 10 GB) of zeros at the start of the disk, may be
+necessary.
+
+====
 
 .. The installer may warn: `You have selected an entire device to
 partition…`. If so, select `Yes`
@@ -432,7 +446,7 @@ optional unless you are applying CIS hardening.
 |7 |_/tmp_           | `tmp`      | 50 G
 |8 |_/var_           | `var` *     | 8 G
 |9 |_/var/tmp_       | `vartmp` *  | 8 G
-|10|_/usr2_          | `usr2`     | remaining disk space _less ~50 GB_
+|10|_/usr2_          | `usr2`     | remaining disk space _less ~100 GB_
 |=======================================
 
 . In the LVM configuration window, select `Finish`
@@ -724,6 +738,9 @@ Using the arrow keys and kbd:[Space] make your selections and press kbd:[Enter].
 
 *  If you are not using a GPIB board or USB dongle, you can deselect the GPIB option.
 
+* If you are using the RAID configuration, you must _not_ deselect
+the `mdinc` option.
+
 ==== FS Adaptation: Setup (Window 2)
 
 All of the steps in Window 2 need to be done once (even if you do not
@@ -769,15 +786,6 @@ up and finish with _fsadapt_.
 
 Note that the _fsadapt_ script can be re-run at a later date should you need to
 change the adaptations.
-
-=== Disable suspend
-
-To disable system suspend for console inactivity, execute:
-
- ~/fsl11/disable_suspend
-
-#TODO: Eliminate the need for this script by implementing a proper
-fix, possibly in _fsadapt_.#
 
 === Set Passwords
 
@@ -865,21 +873,6 @@ install default copies of all the FS related directories.
    make install
 
 and enter `*y*` to confirm installation.
-
-=== Set default desktop
-
-To set the correct default desktop (it will be remembered per user):
-
-. Press kbd:[Ctrl+Alt+F1] to get to the GUI login.
-. Select `FS Operator`.
-. Select the "`gear`" icon in the lower right-hand corner.
-. Select `System X11 Default`.
-. Complete logging in with the password.
-. Logout with `exit`.
-. Repeat the above steps for `FS Programmer`.
-
-#TODO: Eliminate the need for these steps by implementing a proper
-fix, possibly in _fsadapt_.#
 
 === Make the FS
 
@@ -1836,6 +1829,22 @@ packages, but it will not install the new packages. While this method can
 be used to install the other updates, it is not recommended since
 there are presumably security patches needed for the kernel and they
 are not being installed in this case.
+
+[TIP]
+====
+
+When the kernel is upgraded, you maybe get messages such as:
+
+ update-initramfs: Generating /boot/initrd.img-5.10.0-16-amd64
+ W: Possible missing firmware /lib/firmware/ast_dp501_fw.bin for module ast
+
+These are usually benign, unless you need that firmware. If not, these
+messages can be silenced for future upgrades by creating an empty
+version of the file. For this example, enter:
+
+ touch /lib/firmware/ast_dp501_fw.bin
+
+====
 
 ==== Updating out-of-tree modules
 
