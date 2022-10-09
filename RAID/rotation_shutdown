@@ -25,7 +25,7 @@ usage() {
 	echo "Usage: $0 [-F][-h][-p]"
 	echo -e "  \t-F\toverride the FS running preventing shutdown"
 	echo -e "  \t-h\tdisplay this help and exit"
-	echo -e "  \t-p\tdisplay progress meter if recovering (no shutdown)"
+	echo -e "  \t-p\tdisplay progress meter if recovering (no shutdown regardless)"
 }
 
 PROGRESS_METER=0
@@ -47,18 +47,14 @@ done
 
 if mdadm --detail /dev/md0 | grep -q ", recovering $"; then
 	if [ "$PROGRESS_METER" -ne 0 ]; then
+		echo "No automatic shutdown because '-p' was used, only a recovery meter."
 		echo "(This may safely be interrupted with 'Control-C' if you don't want to wait)"
-		while ! grep -q recovery /proc/mdstat; do
-			echo "Waiting for recovery ... "
-			sleep 1;
-		done
-#
 		while grep -q recovery /proc/mdstat; do
 			recovery=$(grep recovery /proc/mdstat | cut -c32-)
 			echo -e -n "\r$recovery"
 			sleep 1;
 		done
-		echo -e "\nRecovery finished."
+		echo -e "\n\nRecovery finished (or hadn't fully started)."
 		echo "You can try '$0' again without '-p'."
 		exit 0
 	else
@@ -71,7 +67,7 @@ elif mdadm --detail /dev/md0 2>&1 | grep -q "degraded" ; then
 fi
 
 if [ "$PROGRESS_METER" -ne 0 ]; then
-	echo "RAID not degraded and not recovering."
+	echo -e "\nRAID not degraded and not recovering."
 	echo "You can try '$0' again without '-p'."
 	exit 0
 fi
@@ -79,19 +75,19 @@ fi
 if test -f /usr2/fs/bin/lognm ; then
 	if [ "$(/usr2/fs/bin/lognm 2>/dev/null)" ] ; then
 		if [ "$OVERRIDE_FS" -ne 0 ]; then
-			echo "The FS running, but -F was used to force a shutdown."
+			echo "The FS is running, but -F was used to force a shutdown."
 		else
-			echo "ERROR: The FS is running; won't shutdown. Override with -F (not recommended)."
+			echo "ERROR: The FS is running, no shutdown. Override with -F (not recommended)."
 			exit 1
 		fi
-	else
-		echo "The FS is not running. Shutting down is not prevented."
+#	else
+#		echo "The FS is not running. Shutting down is not prevented."
 	fi
-else
-	echo "The FS does not appear to be installed. Shutting down is not prevented."
+#else
+#	echo "The FS does not appear to be installed. Shutting down is not prevented."
 fi
 
-echo "RAID not degraded and not recovering. SAFE to rotate disks. Shutting down ..."
+echo -e "\nRAID not degraded and not recovering. SAFE to rotate disks. Shutting down ..."
 sleep 2;
 sync;sync
 sleep 1;
