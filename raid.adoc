@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 0.0.6 - September 2022
+Version 0.0.7 - October 2022
 
 :sectnums:
 :experimental:
@@ -356,8 +356,8 @@ of the disks for rotations (but that is not required). It should be
 straightforward to adapt them to other cases.
 
 If you need to initialize more than one disk, please follow the
-instructions in the <<installation.adoc#_setup_additional_disk,Setup
-additional disk>> section of the <<installation.adoc#,FS Linux 11
+instructions in the <<installation.adoc#_setup_additional_disks,Setup
+additional disks>> subsection of the <<installation.adoc#,FS Linux 11
 Installation Guide>> document.
 
 === Currently two disks are running in the RAID

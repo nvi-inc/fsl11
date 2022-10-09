@@ -1,4 +1,3 @@
-
 // Copyright (c) 2020-2021 NVI, Inc.
 //
 // This file is part of the FSL10 Linux distribution.
@@ -22,7 +21,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.25 - September 2022
+Version 0.0.26 - October 2022
 
 :sectnums:
 :experimental:
@@ -175,19 +174,24 @@ use of the UEFI Shell, which may eliminate this situation.
 
 == First Stage Installation
 
-WARNING: This guide assumes that you have two disks installed in the machine
-in order to set them up as a RAID pair. For the RAID to work seamlessly with a
-third disk later, you must make sure that the smallest disk of the three
-disks available is used as the first of this initial RAID pair. Use of a
-single disk (for a test install etc.) is also annotated below.
+This guide assumes that you have only one disk installed in the
+machine initially even if you intend to use a RAID configuration. Use
+of a single disk (for a test install etc.) is also annotated below.
 
-TIP: Installing to a single disk initially is recommended and has some
-advantages. It is faster and you can control when the syncing for the
-second disk occurs, such as when you leave for the evening. The setup
-of additional disks is covered in the <<Post Install>> section (which
-references the <<raid.adoc#,RAID notes for FSL11>> document). As
-mentioned in the warning above, you should start with the smallest
-disk.
+NOTE: The single dish install approach is used because it is faster
+than a dual disk install. It also allows you to control when the
+syncing for the second disk occurs, such as when you leave for the
+evening. The setup of a second and third disk is covered in the
+<<Setup additional disks>> subsection below.
+
+. Install your smallest disk in the _primary_ slot (the one connected
+to the lowest numbered SATA controller, usually `0`.
+
++
+
+CAUTION: For a RAID to work seamlessly with other disks later,
+you must make sure that the smallest disk of the ones available is
+used for the installation.
 
 === Boot from the installation medium
 
@@ -280,10 +284,6 @@ kbd:[Enter].
 Unless you are using DHCP (which is not advisable) you will be
 prompted to:
 
-NOTE: If you are only using the installer to initialize new disks, you
-may want to use `Go Back` and directly select `Detect disks` from the
-main menu to skip forward to <<Setup partitions>> below.
-
 . Type in the required static IP address in the form `_xxx.xxx.xxx.xxx_`
 (where each `_xxx_` is any integer from 0 - 255 inclusive) and press
 kbd:[Enter].
@@ -320,14 +320,12 @@ The installer now tries to set the time using NTP
 If this is not possible at your site due to your firewall etc., you may need
 to press kbd:[Enter] to cancel this process.
 
-=== Setup partitions 
+=== Partition the disk
 
 NOTE: If you are using UEFI and the disk was previously used for BIOS, you may need
 to confirm forcing UEFI installation.
 
-When prompted, select `Manual`
-
-==== Setup the first disk
+. When prompted for a partitioning method, select `Manual`
 
 . If needed, create a new partition table by:
 
@@ -386,10 +384,6 @@ it is possible to avoid using the software RAID layer entirely. Simply select `U
 for this partition instead and skip ahead to <<Setup Logical Volume Manager (LVM)>> below.
 However, please note that a single disk setup is not recommended for any _operational_ system.
 
-==== Setup the second disk
-
-Repeat the process for the second disk, if present.
-
 ==== Setup RAID
 
 . Select `Configure software RAID`. Then select `Yes` to write the
@@ -398,10 +392,9 @@ Repeat the process for the second disk, if present.
 . Select `Create MD device`, choose `RAID1` and enter `*2*` as number
 of devices and `*0*` as number of spares.
 
-. Select the RAID partitions we just created by pressing kbd:[Space]
--- these should be _sda2_ and _sdb2_, if you have just one disk, just
-pick _sda2_ -- then press kbd:[Enter] to continue. Select `yes` if
-prompted to write changes to disk.
+. Select the RAID partition we just created by pressing kbd:[Space].
+This should be _sda2_. Then press kbd:[Enter] to continue. Select
+`yes` if prompted to write changes to disk.
 
 . Select `Finish`.
 
@@ -608,21 +601,7 @@ NOTE: If you do keep this account, you will not be able to run the FS from
 it unless you add this account into the additional hardware access groups
 such as is done for _oper_ and _prog_ by _fsadapt_.
 
-=== Install GRUB to the second disk (if available)
 
-* If you installed with UEFI boot, run the command
-+
-    cp /dev/sda1 /dev/sdb1
-
-* If you installed with BIOS boot, install GRUB to the Master Boot Record by
-running: `*dpkg-reconfigure -plow grub-pc*` and after pressing
-kbd:[Enter] twice to accept the kernel command line extra arguments
-and default command line arguments, use the arrow keys and
-kbd:[Space] to select both _/dev/sda_ and _/dev/sdb_ (but not
-    _/dev/md0_) and press kbd:[Enter] to finalise the reconfiguration.
-(You should then see `Installation finished. No error reported` appear
- twice in the progress messages as GRUB is re-installed to both
- drives.)
 
 === Setup HTTP Proxy for APT (Optional)
 Should you wish to make APT use an HTTP proxy for downloads,
@@ -917,42 +896,31 @@ then
 
 to confirm that everything compiled correctly (no news is good news).
 
-=== Wait for the RAID1 disk mirroring to set up
+=== Reboot the new system
 
-If you installed the RAID (and RAID tools) check its progress with:
+Remove any DVD from the machine and to restart the machine using
+_reboot_ as _root_ or kbd:[Ctrl+Alt+Del] whilst watching that
+everything starts up smoothly.
 
-   mdstat
+== Fourth stage Installation
 
-until the array no-longer shows a recovery in progress.
+=== Setup additional disks
 
-The final steps are to remove any DVD from the machine and to restart the machine
-using _reboot_ as _root_ or kbd:[Ctrl+Alt+Del] whilst watching that everything
-starts up smoothly.
+If your are using a RAID, follow the steps in this subsection to setup
+the second and third disks.
 
-Your new FS machine should now be ready to be customised to your requirements
-by tailoring the control files in _/usr2/control_ and adding suitable station
-specific software to _/usr2/st_.  See the files in the _/usr2/fs/misc_ directory
-for more information.
-
-
-== Post Install
-
-All commands (except checking the RAID status) in this section need to be run as _root_.
-
-=== Setup additional disk
-
-NOTE: An additional disk should be at least as large as the smallest
-disk already in use in the RAID.
+NOTE: Additional disks should be at least as large as the disk already
+in use.
 
 NOTE: You will need to have hot-swapping enabled in your motherboard's
 setup menu, at least for the controller for the _secondary_ disk (it
 should also be enabled for the _primary_).
 
-NOTE: This subsection assumes you have followed the directions in the
-<<Install tools for RAID (Optional)>> section above.
+NOTE: This subsection assumes you have installed the RAID tools
+according to the <<Install tools for RAID (optional)>> subsection
+above.
 
-. If you have a second disk (_secondary_) in the RAID, either because
-you installed with it or because you have subsequently set it up:
+. If you have a second disk (_secondary_) in the RAID:
 
 .. Shut the system down with the _rotation_shutdown_ command.
 
@@ -968,64 +936,83 @@ need to wait until the recovery is finished before shutting down, you
 can check the progress with the _mdstat_ command; and (iii) if the
 RAID is `degraded`, seek expert advice.
 
-.. Remove the _secondary_ disk and place it on the shelf.
+.. Remove the disk in the _primary_ slot and place it on the shelf,
+labelled appropriately as the _shelf_ disk for this system with the
+date.
 
-. Proceed to the next step, <<Initialize new disk>>.
+.. Move the disk in the _secondary_ slot to the _primary_ slot.
 
-==== Initialize new disk
+. Initialize the new disk
+
++
 
 IMPORTANT: Do not initialize a disk unless you are sure there is no
 data on it that you need to preserve.
 
++
+
 For the first time use of an additional disk with a new install, the
-disk should be initialized to make sure it has no already existing
-structure. This should be done even if the disk has been used in a
-different FS computer or a previous install on this computer.
+disk should be initialized to make sure it has no existing structure.
+This should be done even if the disk has been used in a different FS
+computer or a previous install on this computer.
 
-Follow these steps:
-
-. Boot with just the _primary_ disk installed.
+.. Boot with just the _primary_ disk installed.
 
 +
 
 TIP: If your system is already running with no second disk
-(_secondary_) installed, you can skip booting.
+(_secondary_) installed, you can skip rebooting.
 
-. Use the script:
+.. Use the script:
 
    blank_secondary
 
 +
 
++
+
 The script will wait for the new disk to be turned on. Insert a new
-disk in the _secondary_ slot. Turn the key to turn the disk on. There
-will be a prompt asking if wish to proceed. If it is a new disk or you
-are sure it safe to erase this disk, answer `*y*`. If you are unsure
-about this or otherwise need to abort answer `*n*`.
+disk in the _secondary_ slot. The secondary slot is the one connected
+to second lowest numbered SATA controller, usually `1`. Turn the key
+to turn the disk on. There will be a prompt asking if wish to proceed.
+If it is a new disk or you are sure it safe to erase this disk, answer
+`*y*`. If you are unsure about this or otherwise need to abort, answer
+`*n*`.
 
-==== Refresh secondary disk
+. Refresh the now blank _secondary_ disk
 
-CAUTION: As written, this subsection is only to be used immediately
-after the previous subsection, <<Initialize new disk>>.
++
 
 Run the script:
 
     refresh_secondary
-  
+
++
+
 Once you reach the message that you can check on the recovery with
 _mdstat_ , you can resume using the computer as usual. You can safely
 reboot at this point, if it is needed; just don't remove either disk
 until the recovery is finished.
 
++
+
 You can check the progress of the recovery with:
 
     mdstat
 
-When the recovery is complete, you can repeat the process of the
-entire subsection, <<Setup additional disk>>, if you have a third disk
-that needs to be setup.
++
 
-=== Consider additional customizations
+When the recovery is complete, you can repeat the process of this
+entire subsection, <<Setup additional disks>>, to initialize another
+disk.
+
+== Post install
+
+Your new FS machine should now be ready to be customised to your
+requirements by tailoring the control files in _/usr2/control_ and
+adding suitable station specific software to _/usr2/st_. See the files
+in the _/usr2/fs/st.default/st-0.0.0_ directory for starter versions
+of the latter.
 
 Please refer to the appendix <<Additional Setup Items>> for
 customizations that your system may need or that you may find useful.
