@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 0.0.7 - October 2022
+Version 0.0.8 - October 2022
 
 :sectnums:
 :experimental:
@@ -353,7 +353,7 @@ The subsections below cover various scenarios for initializing one new
 disk to complete a set of three, i.e., one of three disks in a set has
 failed. It is assumed that you want to maintain the cyclic numbering
 of the disks for rotations (but that is not required). It should be
-straightforward to adapt them to other cases.
+straightforward to adapt the procedures for other cases.
 
 If you need to initialize more than one disk, please follow the
 instructions in the <<installation.adoc#_setup_additional_disks,Setup
@@ -369,7 +369,9 @@ This case corresponds to not having a good shelf disk.
 If the disks are in cyclical order (i.e., _primary_, _secondary_ are
 numbered in order: 1, 2, or 2, 3, or 3, 1), you should:
 
-. Take the disk from _primary_ slot, put it on the _shelf_
+. Take the disk from _primary_ slot, put it on the _shelf_, labeled
+with the date
+
 . Move the disk from the _secondary_ slot to the _primary_ slot, keyed-on
 
 If the disks are not in cyclical order (i.e., _primary_, _secondary_
@@ -772,7 +774,9 @@ or if any _missing_ disk:
 [start=3]
 . Has a later modification `TIME` than the _active_ disk
 . Has a higher `EVENT` count, i.e., is newer,  than the _active_ disk
-. Has been used (booted) separately (as mentioned above in the *WARNING* item)
+
+. Has been used (booted) separately (as mentioned above in the
+*IMPORTANT* item)
 
 or if no matching _missing_ disk can be found.
 

@@ -21,7 +21,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.28 - October 2022
+Version 0.0.29 - October 2022
 
 :sectnums:
 :experimental:
@@ -161,8 +161,9 @@ alternatives when the instructions differ.
 Decide which boot mode you want to use and select it through the motherboard
 _setup_ menu (typically by pressing kbd:[DEL] during POST).
 
-Also make sure that the motherboard time is set to the current Universal time, i.e.,
-UTC, and the motherboard can boot from the installation media.
+Make sure that the motherboard time is set to the current Coordinated
+Universal Time, i.e., UTC, and the motherboard can boot from the
+installation media.
 
 While you are in the motherboard menu, make sure that hot-swapping is
 enabled for the controllers of both the _primary_ and _secondary_
@@ -176,7 +177,7 @@ motherboard's _setup_ utility to restore booting from the hard disks.
 The `Boot` menu may be where this is set. You may able able to disable
 use of the UEFI Shell, which may eliminate this situation.
 
-== First Stage Installation
+== First stage installation
 
 This guide assumes that you have only one disk installed in the
 machine initially even if you intend to use a RAID configuration. Use
@@ -199,16 +200,20 @@ used for the installation.
 
 === Boot from the installation medium
 
-Connect an active network cable to your lowest numbered interface
+. Connect an active network cable to your lowest numbered interface
 (only). Usually it is on the left if there are two.
 
-Insert/plug-in your installation media and reboot.
+. Insert/plug-in your installation media and reboot.
+
++
 
 To boot from the installation media you may need to bring up your
 motherboard's _setup_ utility, which is typically accessed by pressing
 kbd:[F11] or kbd:[F12]. From there you may need to access a menu such
 as `Save{nbsp}&{nbsp}Exit` (or `Boot`), to select overriding to boot
 with the installation media.
+
++
 
 TIP: If the system was most recently booted from a hard disk, you may
 need to boot one time with no hard disk installed for the
@@ -324,9 +329,9 @@ password twice as prompted.
 
 === Get network time
 
-The installer now tries to set the time using NTP
-If this is not possible at your site due to your firewall etc., you may need
-to press kbd:[Enter] to cancel this process.
+The installer now tries to set the time using NTP. If this is not
+possible at your site due to your firewall etc., you may need to press
+kbd:[Enter] to cancel this process.
 
 === Partition the disk
 
@@ -416,7 +421,8 @@ This should be _sda2_. Then press kbd:[Enter] to continue. Select
 
 . Select `Finish`.
 
-. Back in partitioning, select the space _under_ `RAID1 device #0` and press kbd:[Enter]
+. Back in partitioning, select the (unassigned) partition `#1` _under_
+`RAID1 device #0` and press kbd:[Enter]
 
 . Select `Use as`, then select `physical volume for LVM`, then `Done
 setting up the partition`
@@ -473,8 +479,9 @@ usually only takes a few minutes.
 === Configure the package manager
 
 If you start from a _netinst_ CD image, the installer now assumes you
-will install only from the network, and jumps straight to the "`Choose your `Debian
-archive mirror country``" part of the dialogue as detailed below.
+will install only from the network, and jumps straight to the
+<<archive,`Choose your Debian archive mirror country`>> part of the
+dialogue as detailed below.
 
 If you are using DVD installer you will be prompted to scan additional DVDs.
 Scanning the additional DVDs (and obtaining copies of them in the
@@ -502,9 +509,10 @@ list may be suppressed.
 Select `Yes` and press  kbd:[Enter]  to use a network mirror (unless you
 have inadequate Internet access - but then you must scan all DVDs.)
 
-Choose your `Debian archive mirror country` from the list if available
-and press kbd:[Enter]. (If your country is not available choose the
-country nearest to you in a network connectivity sense.)
+<<archive,`Choose your Debian archive mirror country`>>[[archive]]:
+Select from the list if available and press kbd:[Enter]. (If your
+country is not available choose the country nearest to you in a
+network connectivity sense.)
 
 Select the fastest Debian mirror from those available.
 
@@ -552,13 +560,19 @@ When prompted, press kbd:[Enter] to install to the master boot record.
 This step should be executed when the installation stops for input in
 the next step, <<Remove installation media>>.
 
+#TODO: Is there a way to test for this without having to see if there
+is a problem after the reboot?#
+
 IMPORTANT: `Wayland` is enabled by default. If your CPU does not
-include a GPU, you will probably need to disable it. If you don't, the
-console may be nearly impossible to work with after rebooting. On the
-other hand, systems with other graphics solutions may be very
-difficult to work with if `Wayland` is disabled. You may need to try
-both approaches to see which works best. If you try one that doesn't
-work well, you may need to reinstall from scratch to try the other.
+include a GPU and you do not have an add-graphics card (in which case
+you are using the motherboard graphics), you will probably need to
+disable it. If you don't, the console may be nearly impossible to work
+with after rebooting. On the other hand, systems with those graphics
+solutions may be very difficult to work with if `Wayland` is disabled.
+You may need to try both approaches to see which works best. If you
+try one that doesn't work well, you may need to reinstall from scratch
+to try the other. Whether your choice works or not should be evident
+when you start the <<Second stage installation>> step below.
 
 To disable `Wayland`:
 
@@ -591,9 +605,9 @@ floppy i.e., anything other than the hard drive, in the BIOS just in
 case someone leaves something nasty in the machine's removable drives
 by mistake.
 
-== Second Stage Installation
+== Second stage installation
 
-You can now boot to your new OS.
+You should now have booted to your new OS.
 
 === Login as root 
 
@@ -610,8 +624,8 @@ earlier.
 
 === Remove the dummy Desktop User (optional)
 
-Unless you want another account that that is set up to use the default
-desktop environment, delete _desktop_ with:
+Unless you want an account that is set up to use the default desktop
+environment, delete the _desktop_ user with:
 
    deluser --remove-home desktop
 
@@ -620,8 +634,8 @@ it unless you add this account into the additional hardware access groups
 such as is done for _oper_ and _prog_ by _fsadapt_.
 
 
+=== Setup HTTP proxy for APT (optional)
 
-=== Setup HTTP Proxy for APT (Optional)
 Should you wish to make APT use an HTTP proxy for downloads,
 create the new file _/etc/apt/apt.conf.d/00proxies_ using _vi_ containing:
 
@@ -728,7 +742,7 @@ So that the update mechanism will work correctly, run
    apt-get clean
 
 
-== Third Stage Installation 
+== Third stage installation
 
 === fsadapt
 
@@ -740,7 +754,8 @@ In the _/root/fsl11_ directory, start _fsadapt_ with
 
 Using the arrow keys and kbd:[Space] make your selections and press kbd:[Enter].
 
-*  If you are not using a GPIB board or USB dongle, you can deselect the GPIB option.
+* If you are not using a GPIB board or USB dongle, you can deselect
+the GPIB option.
 
 * If you are using the RAID configuration, you must _not_ deselect
 the `mdinc` option.
@@ -760,7 +775,7 @@ NOTE: The `updates` option relies on email to _root_ being re-directed to some
       test it as well.  The installer sets it up to go the _desktop_ account
       by default which would definitely be a problem if you have removed that!
 
-==== GPIB driver configuration (Optional)
+==== GPIB driver configuration (optional)
 
 On the `/etc/gpib.conf` screen, use the up/down arrow keys to select the
 required GPIB controller and press kbd:[Enter] on `OK` to continue.
@@ -791,7 +806,7 @@ up and finish with _fsadapt_.
 Note that the _fsadapt_ script can be re-run at a later date should you need to
 change the adaptations.
 
-=== Set Passwords
+=== Set passwords
 
 Set passwords for the _oper_ and _prog_ accounts with:
 
@@ -800,7 +815,7 @@ Set passwords for the _oper_ and _prog_ accounts with:
 
 entering the passwords twice as prompted.
 
-=== Install tools for RAID (Optional)
+=== Install tools for RAID (optional)
 
 You can install some useful tools for working with the RAID, if you're actually using it, with:
 
@@ -1005,14 +1020,14 @@ disk.
 
 == Post install
 
-Your new FS machine should now be ready to be customised to your
-requirements by tailoring the control files in _/usr2/control_ and
-adding suitable station specific software to _/usr2/st_. See the files
-in the _/usr2/fs/st.default/st-0.0.0_ directory for starter versions
-of the latter.
+The FS on your newly installed system should now be ready to be
+customized for your site's requirements by tailoring the control files
+in _/usr2/control_ and adding suitable station specific software to
+_/usr2/st_. See the files in the _/usr2/fs/st.default/st-0.0.0_
+directory for starter versions of the latter.
 
-Please refer to the appendix <<Additional Setup Items>> for
-customizations that your system may need or that you may find useful.
+Please refer to the appendix <<Additional Setup Items>> for OS
+customizations that you may find useful.
 
 [appendix]
 :sectnumlevels: 4
@@ -1036,7 +1051,7 @@ the <<cis-setup.adoc#,CIS hardening FSL11>> document.
 If you don't want the complete CIS hardening, which creates some
 inconveniences and is only required in certain environments, you may
 still be interested in applying a subset of the remediations. You can
-pick and choose those from the <<cis-setup.adoc#,CIS hardening FSL11>>
+pick and choose those from the <<cis-setup.adoc#,CIS Hardening FSL11>>
 document and its script.
 
 A useful minimum set of features to apply would be to install _ufw_
@@ -1240,7 +1255,7 @@ Execute this command:
 apt-get purge modemmanger
 ....
 
-=== Remove Anacron package
+=== Remove anacron package
 
 If you enabled the weekly update job in _fsadapt_ (it is strongly
 recommended), we recommend that you also remove the _anacron_ package
@@ -1703,7 +1718,7 @@ instructions, please see the
 :sectnumlevels: 3
 [appendix]
 
-== Managing Security Updates
+== Managing security updates
 
 It is strongly recommended that you use the weekly _cron_ update
 download (the "`weekly _cron_ job`") as configured according to the
@@ -1719,7 +1734,7 @@ NOTE: An optional method for identifying available  updates without using
 the weekly _cron_ job is described below in the section
 <<Manually checking for updates>>.
 
-=== Installing updates (Upgrading)
+=== Installing updates (upgrading)
 
 TIP: It is recommended that a disk rotation be performed before any
 update is installed. This will make recovery much easier if a problem with the
@@ -1916,7 +1931,7 @@ If there is no output, there are no updates to install.
 
 If there is output, there are updates to install. You can install them
 by following the installation procedure in subsection
-<<Installing updates (Upgrading)>> above, except you will use the
+<<Installing updates (upgrading)>> above, except you will use the
 instructions from the output of the script above instead of from the
 weekly _cron_ job (the outputs should be equivalent for the same set
 of updates).  Additionally, please read the following *NOTE*.
