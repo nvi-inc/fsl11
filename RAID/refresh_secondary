@@ -113,7 +113,7 @@ if [ $SDB != $SDA ] && [ $ACCEPT_LOAD == 0 ] && ([ ! -O $lockf ] || [ "$(cat $lo
 fi
 if [ $SDA == $SDB ] || [ ! -b /dev/$SDB ]; then
 	while [ $SDA == $SDB ] || [ ! -b /dev/$SDB ]; do
-		echo  -n -e "\rWaiting for disk /dev/$SDB to be loaded, use 'Control-C' to safely abort ... "
+		echo  -n -e "\rWaiting for the \"Secondary\" disk to be loaded, use 'Control-C' to safely abort ... "
 		sleep 1
 		SDB=$(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 2 | tail -n 1)
 		SDB=$(basename $SDB)
