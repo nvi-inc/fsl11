@@ -71,9 +71,9 @@ if [ $SDB == $SDA ] || [ ! -b /dev/$SDB ]; then
 	echo  -n -e "\rWaiting for disk /dev/$SDB to settle ... "
 	udevadm settle
 	sleep 2
-	echo $(lsblk --nodeps -no serial /dev/$SDB) > $lockf
-	echo -e "done.\n"
+	echo -e "\r                                         "
 fi
+echo $(lsblk --nodeps -no serial /dev/$SDB) > $lockf
 
 if $(grep "/boot/efi" /proc/mounts | grep -q "/dev/$SDB"); then
 	# Ensure the secondary disk is not mounted on /boot/efi (mount primary instead)
@@ -187,6 +187,7 @@ for part in $(cd /dev/;ls "$SDB"?* 2>/dev/null); do
 		elif mdadm -b --examine /dev/$part 2>&1 | grep -q ARRAY ; then
 			OFFSET=$(mdadm --examine /dev/$part | grep "Data Offset"| cut -d':' -f2 | cut -d' ' -f2)
 			BS=$(cat /sys/block/$SDB/queue/physical_block_size)
+			OFFSET=$(( OFFSET * 512 / $BS ))
 			SIZE=1048576		# a megabyte to start with
 			dd if=/dev/$part skip=$OFFSET bs=$BS count=$(($SIZE/$BS)) of=/tmp/lvm_head.$$ 2> /dev/null
 			SIZE=$(pvck --dump headers /tmp/lvm_head.$$ | grep mda_header_1.start | cut -d'.' -f2 | cut -d ' ' -f2)
@@ -196,19 +197,18 @@ for part in $(cd /dev/;ls "$SDB"?* 2>/dev/null); do
 			if [ $VERBOSE -ne 0 ]; then
 				echo -n "Detected (unused) RAID component: "
 				mdadm --examine /dev/$part
-				dd if=/dev/$part skip=$OFFSET bs=$BS count=$(($SIZE/$BS)) of=/tmp/lvm_head.$$ 2> /dev/null
 				echo "With content"
 			       	file -b /tmp/lvm_head.$$
 				rm -f /tmp/lvm_head.$$
 				echo -n "Delete RAID contents (Control-C aborts)? "
 				read $ans
 				if [ ! -z $SIZE ]; then
-					echo "Erasing $SIZE bytes of  LVM metadata ..."
+					echo "Erasing $SIZE bytes of LVM metadata ..."
 					[ $DRY_RUN -eq 0 ] && dd if=/dev/zero seek=$OFFSET bs=$BS count=$(($SIZE/$BS)) of=/dev/$part
 				fi
 				[ $DRY_RUN -eq 0 ] && mdadm --zero-superblock --force /dev/$part 2>/dev/null
 			else
-				[ $DRY_RUN -eq 0 ] && [ ! -z $SIZE ] && dd if=/dev/zero seek=$OFFSET bs=$BS count=$(($SIZE/$BS)) of=/dev/$part 2> /dev/null
+				[ $DRY_RUN -eq 0 ] && [ ! -z $SIZE ] && dd if=/dev/zero seek=$OFFSET bs=$BS count=$(($SIZE/$BS)) of=/dev/$part 2>/dev/null
 				[ $DRY_RUN -eq 0 ] && mdadm --zero-superblock --force /dev/$part > /dev/null 2>&1
 				rm -f /tmp/lvm_head.$$
 			fi

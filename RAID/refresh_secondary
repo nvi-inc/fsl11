@@ -122,9 +122,9 @@ if [ $SDA == $SDB ] || [ ! -b /dev/$SDB ]; then
 	echo  -n -e "\rWaiting for disk /dev/$SDB to settle ... "
 	udevadm settle
 	sleep 2
-	echo $(lsblk --nodeps -no serial /dev/$SDB) > $lockf
-	echo -e "done.\n"
+	echo -e "\r                                         "
 fi
+echo $(lsblk --nodeps -no serial /dev/$SDB) > $lockf
 
 # Perform sanity checks on secondary disk now that it's available
 if [ "$(cat /sys/block/$SDB/removable)" != "0" ]; then
