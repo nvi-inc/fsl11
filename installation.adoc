@@ -21,7 +21,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.29 - October 2022
+Version 0.0.30 - October 2022
 
 :sectnums:
 :experimental:
@@ -1269,14 +1269,14 @@ apt-get purge anacron
 
 === Configure e-mail
 
-The configuration described here (`Internet site` or `mail
-sent by smarthost` in the _exim4_ configuration, no incoming
-mail, reply-to-filter, and modified user names), provides
-good support of the FS _msg_ and _rdbemsg_ utilities.
+The configuration described here (`Internet site` or `mail sent by
+smarthost` in the _exim4_ configuration, no incoming mail, reply-to
+filter, and modified user names), provides good support for system
+messages and the FS _msg_ and _rdbemsg_ utilities.
 
 . As `root`, enter:
 
-   dpkg-reconfigure exim4-config
+ dpkg-reconfigure exim4-config
 
 +
 
@@ -1290,40 +1290,60 @@ will also need to enable SMTP connections in `Window 4` of _fsadapt_
 connections for it). We recommend that you NOT receive incoming mail
 on this computer.
 
-. If you follow the recommendation not to receive incoming mail and
-your system is not setup for `local delivery only`, you should set the
-`Reply-To` address for outgoing messages to a real e-mail account at
-your institution that is read regularly. You can do this by (all as
-_root_):
+. <<replyfilter,Reply-To filter>>[[replyfilter]]: If you follow the
+recommendation not to receive incoming mail and your system is not
+setup for `local delivery only`, you should set the `Reply-To` address
+for outgoing messages to a real e-mail account at your institution
+that is read regularly. You can do this by (all as _root_):
 
 +
-.. Create a file with contents
-(four lines):
+
+.. Create the filter (four lines in file):
+
 +
-./etc/exim4/reply-to-filter
-[source]
-----
+
++
+
+[subs="+quotes"]
+....
+cat >/etc/exim4/reply-to-filter <<EOF
 # Exim filter          << THIS LINE REQUIRED
 
 headers remove "Reply-To"
-headers add "Reply-To: email@address"
-----
+headers add "Reply-To: _email@address_"
+EOF
+....
+
 +
-Where `email@address` is the e-mail address you want replies to be
+
+Change `_email@address_` to the e-mail address you want replies to be
 addressed to. If you want more than one, separate them with commas.
 
-.. In _/etc/exim4/exim4.conf.template_, at the beginning of
-the file add (two lines):
 +
-....
-#set reply to
-system_filter = /etc/exim4/reply-to-filter
-....
+
+.. Create a file for local customizations:
+
+ touch /etc/exim4/conf.d/main/00-exim-localmacros
+ ln -sfn /etc/exim4/conf.d/main/00-exim-localmacros /etc/exim4/exim4.conf.localmacros
+
++
+
+NOTE: The file is constructed this way so that it will work for both
+non-split or split _exim4_ configurations.
+
+.. Add a call to the filter to _/etc/exim4/exim4.conf.localmacros_:
+
+ cat >>/etc/exim4/exim4.conf.localmacros <<EOF
+ #set reply to
+ system_filter = /etc/exim4/reply-to-filter
+ EOF
+
++
 
 .. Then execute
 
-    update-exim4.conf
-    systemctl restart exim4
+ update-exim4.conf
+ systemctl restart exim4
 
 . You should change your _/etc/aliases_ so _root_ and _prog_ e-mail goes to _oper_.
 
@@ -1443,20 +1463,30 @@ sure to change the owner of the file to be _oper_.
 
 If mail from your system is being rejected by some servers because
 _exim4_ is not providing a Fully Qualified Domain Name (FQDN), in its `HELO`
-message, the following solution should fix the problem.
+message, the following steps should fix the problem.
 
-Add the following line to the beginning of _/etc/exim4/exim4.conf.template_:
 
-....
-MAIN_HARDCODE_PRIMARY_HOSTNAME=ETC_MAILNAME
-....
+. If you have not already created
+_/etc/exim4/conf.d/main/00-exim-localmacros_ (see
+<<replyfilter,Reply-To filter>> above), do so:
 
-Then execute:
+ touch /etc/exim4/conf.d/main/00-exim-localmacros
+ ln -sfn /etc/exim4/conf.d/main/00-exim-localmacros /etc/exim4/exim4.conf.localmacros
 
-....
-update-exim4.conf
-systemctl restart exim4
-....
+. Add the necessary line to the file:
+
+ cat >>/etc/exim4/exim4.conf.localmacros <<EOF
+ MAIN_HARDCODE_PRIMARY_HOSTNAME=ETC_MAILNAME
+ EOF
+
+. Then execute:
+
+ update-exim4.conf
+ systemctl restart exim4
+
+. Verify that the change has taken effect:
+
+ exim4 -bP primary_hostname
 
 === Set X display resolution at boot
 
