@@ -69,8 +69,7 @@ if ! mdadm --detail /dev/md0 2>&1 | grep -q ", degraded $" ; then
 fi
 
 # Perform sanity checks on primary disk first
-SDA=$(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 1)
-SDA=$(basename $SDA)
+SDA=$(basename $(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 1))
 
 if ! mdadm --detail /dev/md0 | grep -q /dev/$SDA; then
 	echo "ERROR: \"Primary\" disk /dev/$SDA is not part of RAID /dev/md0!!"
@@ -103,8 +102,7 @@ if [ $boot = "EFI" ]; then
 fi
 
 # Now get the user to load the Secondary disk
-SDB=$(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 2 | tail -n 1)
-SDB=$(basename $SDB)
+SDB=$(basename $(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 2 | tail -n 1))
 
 if [ $SDB != $SDA ] && [ $ACCEPT_LOAD == 0 ] && ([ ! -O $lockf ] || [ "$(cat $lockf)" != "$(lsblk --nodeps -no serial /dev/$SDB)" ]); then
 	echo "ERROR:\"Secondary\" disk /dev/$SDB must not be loaded before start of script"
@@ -115,8 +113,11 @@ if [ $SDA == $SDB ] || [ ! -b /dev/$SDB ]; then
 	while [ $SDA == $SDB ] || [ ! -b /dev/$SDB ]; do
 		echo  -n -e "\rWaiting for the \"Secondary\" disk to be loaded, use 'Control-C' to safely abort ... "
 		sleep 1
-		SDB=$(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 2 | tail -n 1)
-		SDB=$(basename $SDB)
+		SDB=$(basename $(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 2 | tail -n 1))
+		if [ $SDA != $(basename $(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 1)) ]; then
+			echo -e "\n\nERROR: Active disk must be in the \"Primary\" slot. Aborting!!"
+			exit 1
+		fi
 	done
 	echo  -n -e "\r                                                                              "
 	echo  -n -e "\rWaiting for disk /dev/$SDB to settle ... "

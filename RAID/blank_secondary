@@ -48,12 +48,10 @@ done
 
 lockf=/tmp/.accept_load
 
-SDA=$(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 1)
-SDA=$(basename $SDA)
+SDA=$(basename $(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 1))
 
 # Now get the user to load the Secondary disk
-SDB=$(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 2 | tail -n 1)
-SDB=$(basename $SDB)
+SDB=$(basename $(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 2 | tail -n 1))
 
 if [ $SDB != $SDA ] && [ -b /dev/$SDB ] && [ $ACCEPT_LOAD == 0 ] && ([ ! -O $lockf ] || [ "$(cat $lockf)" != "$(lsblk --nodeps -no serial /dev/$SDB)" ]); then
 	echo "ERROR:\"Secondary\" disk /dev/$SDB must not be loaded before start of script"
@@ -64,8 +62,11 @@ if [ $SDB == $SDA ] || [ ! -b /dev/$SDB ]; then
 	while [ $SDB == $SDA ] || [ ! -b /dev/$SDB ]; do
 		echo  -n -e "\rWaiting for the \"Secondary\" disk to be loaded, use 'Control-C' to safely abort ... "
 		sleep 1
-		SDB=$(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 2 | tail -n 1)
-		SDB=$(basename $SDB)
+		SDB=$(basename $(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 2 | tail -n 1))
+		if [ $SDA != $(basename $(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 1)) ]; then
+			echo -e "\n\nERROR: Active disk must be in the \"Primary\" slot. Aborting!!"
+			exit 1
+		fi
 	done
 	echo  -n -e "\r                                                                              "
 	echo  -n -e "\rWaiting for disk /dev/$SDB to settle ... "
