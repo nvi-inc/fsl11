@@ -21,7 +21,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.30 - October 2022
+Version 0.0.31 - October 2022
 
 :sectnums:
 :experimental:
@@ -340,10 +340,25 @@ to confirm forcing UEFI installation.
 
 . When prompted for a partitioning method, select `Manual`
 
-. If needed, create a new partition table by:
+==== Setup physical partitions
+
+. Create a new partition table by:
 
 .. Select your disk, something like `SCSI1 (0,0,0) (sda) - 4 TB ATA
-SATA HARDDISK`, and press kbd:[Enter]
+SATA HARDDISK`, and press kbd:[Enter].
+
++
+
++
+
+WARNING: Do _not_ select your installation media.
+
+.. The installer may warn: `You have selected an entire device to
+partition…`. If so, select `Yes`.
+
+.. If you are prompted to delete RAID partitions, select `Yes`.
+
+. Select the (one and only entry) `FREE SPACE` under your disk.
 
 +
 
@@ -352,31 +367,46 @@ SATA HARDDISK`, and press kbd:[Enter]
 [NOTE]
 ====
 
-If some other file system, like `xfs`, or other old setup is
-displayed, you will need to delete it first. You may be able to do
-this by deleting individual partitions until you have a single `FREE
-SPACE` area. For more complicated layouts, it may be more expedient,
-and it may be necessary, to use `Guided partitioning` to delete the
-existing configuration (and temporarily create new partitions). In
-this case, select `Guided partitioning`, then select `Guided - use
-entire disk`. Then select your disk, such as listed above, do not
-select a RAID or your installation media device. Then select `All
-files in one partition (recommended for new users)`. You may be
-prompted to confirm deleting RAID partitions and/or removing logical
-volume data, which you must do to continue. Then you should be able to
-continue with selecting your disk, as above.
+If you have other entries and/or you have RAID or LVM partitions, you
+will need to delete the other entries before proceeding.
 
-If you have problems later creating the RAID or LVM partitions, then
-other means, such as exotic paths through the partitioner or writing a
-large number (perhaps 10 GB) of zeros at the start of the disk, may be
-necessary.
+If you do _not_ have any RAID or LVM partitions shown, a possible
+solution may be to delete individual partitions until you have a
+single entry, `FREE SPACE`.
+
+If that doesn't work or RAID and/or LVM partitions are shown, you may
+be able to use `Guided partitioning` to delete the existing
+configuration (and temporarily create new partitions). In this case,
+select `Guided partitioning`, then select `Guided - use entire disk`.
+Then select your disk, such as listed above, do _not_ select a RAID or
+your installation media device. Then select `All files in one
+partition (recommended for new users)`. You may be prompted to confirm
+deleting RAID partitions and/or removing logical volume data, which
+you must do to continue. Then you should be able to continue with
+selecting your disk, as above.
+
+If the `Guided partitioning` method above doesn't work or you have
+problems later creating the RAID or LVM partitions, then other means
+will be needed. There may be more complicated paths through the
+partitioner that will work or you may need to overwrite the start of
+the disk with a large number, say 2 GiB (but possibly more), of zeros.
+
+<<zeros,Overwriting with zeros>>[[zeros]]: can be implemented (for 2
+GiB) at this stage in the installer with:
+
+. Press kbd:[Ctrl+Alt+F2] to switch to a different console.
+
+. Press kbd:[Enter] to activate the console.
+
+. Execute:
+
+ dd if=/dev/zero of=/dev/sda bs=1G count=2
+ sync;sync
+ reboot
+
+. When the system reboots, restart the installation.
 
 ====
-
-.. The installer may warn: `You have selected an entire device to
-partition…`. If so, select `Yes`
-
-. Select the `FREE SPACE` under your disk.
 
 . Select `Create a new partition`
 
@@ -410,19 +440,34 @@ However, please note that a single disk setup is not recommended for any _operat
 ==== Setup RAID
 
 . Select `Configure software RAID`. Then select `Yes` to write the
-  changes to the disks.
+  changes to the disk.
 
-. Select `Create MD device`, choose `RAID1` and enter `*2*` as number
-of devices and `*0*` as number of spares.
+. Select `Create MD device`, choose `RAID1` and use `*2*` as the
+number of devices and `*0*` as the number of spares.
 
-. Select the RAID partition we just created by pressing kbd:[Space].
-This should be _sda2_. Then press kbd:[Enter] to continue. Select
-`yes` if prompted to write changes to disk.
+. Despite the fact that the instructions say you must select exactly
+two partitions, select only one. Select the RAID partition you just
+created by pressing kbd:[Space]. This should be _/dev/sda2_. Then
+press kbd:[Enter] to continue. Select `yes` if prompted to write
+changes to the disk.
+
++
+
+NOTE: If the newly created RAID partition doesn't appear as an option,
+you may need to use the method of <<zeros,Overwriting with zeros>> in
+the <<Setup physical partitions>> step above.
 
 . Select `Finish`.
 
-. Back in partitioning, select the (unassigned) partition `#1` _under_
+. Back in partitioning, select the partition `#1` (with no designated use) _under_
 `RAID1 device #0` and press kbd:[Enter]
+
++
+
+NOTE: If that partition appears immediately after being created
+already having a designated use, perhaps `lvm`, you may need to use
+the method of <<zeros,Overwriting with zeros>> in the
+<<Setup physical partitions>> sub-step above.
 
 . Select `Use as`, then select `physical volume for LVM`, then `Done
 setting up the partition`
@@ -430,8 +475,8 @@ setting up the partition`
 ==== Setup Logical Volume Manager (LVM)
 
 . Now choose `Configure the Logical Volume Manager` and select `Yes`
-if prompted to write the changes to disk or to keep the current layout
-and configure LVM.
+if prompted to write the changes to the disk and keep the current
+layout and configure LVM.
 
 
 . Choose `Create volume group`
@@ -470,7 +515,7 @@ optional unless you are applying CIS hardening.
 . For the `swap` logical volume, select `Use as` then select `swap area`, followed by `Done setting up this partition`
 
 . Back in the partition screen, select `Finish partitioning and write changes to
-the disks` and select `Yes` to write the changes. For big disks, it may take
+the disk` and select `Yes` to write the changes. For big disks, it may take
 a little time to create the `ext4` file systems.
 
 The Debian base system is now installed from the installation media, which
