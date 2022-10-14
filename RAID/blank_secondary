@@ -21,12 +21,13 @@
 
 # For systems with GPT LVM RAID arrays, tries to reset everything on second disk
 
-usage() { echo "Usage: $0 [-A][-h]"; echo -e "  where\t-A\tAllow \"Secondary\" disk to be loaded at start"; echo -e "  \t-h\tdisplay this help and exit"; }
+usage() { echo "Usage: $0 [-A][-h]"; echo -e "  where\t-A\tAllow \"Secondary\" disk to be loaded at start or alternatively\n\t\t\tto be too small to contain the current RAID"; echo -e "  \t-h\tdisplay this help and exit"; }
 
 ACCEPT_LOAD=0
 DRY_RUN=0
 VERBOSE=0
-while getopts "Anvh" arg; do
+COUNT=
+while getopts "AnvZh" arg; do
 	case $arg in
 		A)
 			ACCEPT_LOAD=1
@@ -36,6 +37,13 @@ while getopts "Anvh" arg; do
 			;;
 		v)
 			VERBOSE=1
+			;;
+		Z)
+			if [ -z $COUNT ]; then
+				COUNT=2048
+			else
+				COUNT=$(( $COUNT * 2 ))
+			fi
 			;;
 		h | *)
 			usage
@@ -91,8 +99,9 @@ if grep -q ^/dev/$SDB /proc/mounts; then
 	echo "ERROR: Some part of \"Secondary\" disk /dev/$SDB is mounted!!"
 	exit 1
 fi
-if [ $(cat /sys/block/md0/size) -gt $(cat /sys/block/$SDB/size) ]; then
+if [ $ACCEPT_LOAD == 0 ] && [ $(cat /sys/block/md0/size) -gt $(cat /sys/block/$SDB/size) ]; then
 	echo "ERROR: \"Secondary\" device $SDB is too small to house RAID /dev/md0"
+	echo "(You may want to use the '-A' option to [A]llow if required)"
 	exit 1
 fi
 if [ "$(cat /sys/block/$SDB/removable)" != "0" ]; then
@@ -243,9 +252,14 @@ for part in $(cd /dev/;ls "$SDB"?* 2>/dev/null); do
 	if [ $VERBOSE -ne 0 ]; then
 		echo -n "Wiping partition /dev/$part ... "
 		[ $DRY_RUN -eq 0 ] && wipefs -af /dev/$part
+		if [ ! -z $COUNT ]; then
+			echo -n "Overwriting first $(( $COUNT / 2 )) kiB ..."
+			[ $DRY_RUN -eq 0 ] && dd if=/dev/zero bs=512 count=$COUNT of=/dev/$part
+		fi
 		echo -e "done.\n"
 	else
 		[ $DRY_RUN -eq 0 ] && wipefs -afq /dev/$part > /dev/null
+		[ $DRY_RUN -eq 0 ] && [ ! -z $COUNT ] && dd if=/dev/zero bs=512 count=$COUNT of=/dev/$part 2>/dev/null
 	fi
 done
 if [ $VERBOSE -ne 0 ]; then
@@ -257,6 +271,7 @@ if [ $VERBOSE -ne 0 ]; then
 		[ $DRY_RUN -eq 0 ] && sgdisk -Z -o /dev/$SDB
 	fi
 	[ $DRY_RUN -eq 0 ] && wipefs -a /dev/$SDB
+	[ $DRY_RUN -eq 0 ] && [ ! -z $COUNT ] && dd if=/dev/zero bs=512 count=2048 of=/dev/$SDB
 else
 	if $(partprobe -ds /dev/$SDB | grep -q msdos); then
 		[ $DRY_RUN -eq 0 ] && sfdisk --delete /dev/$SDB > /dev/null
@@ -264,6 +279,7 @@ else
 		[ $DRY_RUN -eq 0 ] && sgdisk -Z -o /dev/$SDB > /dev/null
 	fi
 	[ $DRY_RUN -eq 0 ] && wipefs -aq /dev/$SDB > /dev/null
+	[ $DRY_RUN -eq 0 ] && [ ! -z $COUNT ] && dd if=/dev/zero bs=512 count=2048 of=/dev/$SDB 2>/dev/null
 fi
 if [ $DRY_RUN -eq 0 ]; then
 	echo -e "\n\"Secondary\" disk /dev/$SDB is hopefully now blank!"
