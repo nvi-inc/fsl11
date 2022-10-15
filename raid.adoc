@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 0.0.9 - October 2022
+Version 0.0.10 - October 2022
 
 :sectnums:
 :experimental:
@@ -658,6 +658,14 @@ _md0_`" check above, but is included out of an abundance of caution.
 
 . Has a partition that is included in any RAID.
 
+. Is smaller in size than the _primary_ disk
+
++
+
+This may be relaxed with the `-A` option, if the script is being used
+to blank a disk that will _not_ be used in this RAID.
+
+
 If the _primary_ disk is removable, the user will be provided with some
 information about the disk and given an opportunity to continue with
 kbd:[Enter] or abort with kbd:[Ctrl+C].  Typically, if a USB disk is
@@ -674,9 +682,20 @@ possible and must be used with extra care.
 
 If the disk is turned on (when prompted) during the script, it will
 automatically be "`Allowed`" by both this script and
-_refresh_secondary_, which also supports this feature.  This allows
-you to then run _refresh_secondary_ immediately without having to
-shutdown, turn the disk off, reboot, start the script, and turn the disk on.
+_refresh_secondary_, which also supports this feature. This allows you
+to then run _refresh_secondary_ immediately without having to
+shutdown, turn the disk off, reboot, start the script, and turn the
+disk on.
+
+The `-A` will also allow blanking of a disk that is too small to
+support the current RAID. This might be used to initialize a disk that
+will not be used in the current RAID. As before, use the `-A` option
+only will expert advice.
+
+The `-Z` option (for expert use only) will "`zap`" the partition
+tables with 1 MiB of zeros. Each additional `-Z` specified will double
+the number of zeros written. This option can be useful to force a disk
+into a state that the installer can handle.
 
 NOTE: On the 32-bit _i386_ platform, due to a broken _vgremove_ binary, this
 script can give WARNINGs when erasing disks that were used for LVM.  These
