@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 0.0.8 - October 2022
+Version 0.0.9 - October 2022
 
 :sectnums:
 :experimental:
@@ -598,6 +598,28 @@ refreshing, but it may be a little slow.
 The system can rebooted while the refresh is still active, as long as
 the neither disk is removed until it is finished. The refresh will
 resume automatically after the reboot.
+
+[NOTE]
+====
+
+If the _primary_ disk has a larger capacity than the _secondary_ and
+the latter is new or has been blanked (typically with
+_blank_secondary_), you may see a warning like:
+
+ Caution! Secondary header was placed beyond the disk's limits! Moving the
+ header, but other problems may occur!
+
+In this case, the message is benign and can be ignored _if_ the
+_primary_ disk has a partition layout that will fit on the smaller
+disk. This should be the case if the system was setup initially as
+described in the <<installation.adoc#,FS Linux 11 Installation Guide>>
+document and the _primary_ was most recently refreshed from a disk
+used in the RAID that has the partition layout of the smallest disk.
+This situation can occur if one (or more) of the disks is larger than
+the smallest one, perhaps because it was obtained as a replacement for
+a failed disk.
+
+====
 
 === blank_secondary
 
