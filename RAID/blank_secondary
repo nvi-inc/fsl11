@@ -130,8 +130,16 @@ fi
 
 for part in $(cd /dev/;ls -f "$SDB"?* $SDB 2>/dev/null); do
 	partnum=$(echo $part | sed -e "s/$SDB//")
+	# Make sure any (foreign) RAID arrays are assembled
+	if mdadm -b --examine /dev/$part 2>&1 | grep -q ARRAY ; then
+		if [ $VERBOSE -ne 0 ]; then
+			mdadm --incremental /dev/$part 2>/dev/null
+		else
+			mdadm --incremental /dev/$part >/dev/null 2>&1
+		fi
+	fi
 	[ $VERBOSE -ne 0 ] && [ ! -z $partnum ] && sgdisk -i$partnum /dev/$SDB | head -n 1
-	raid=$(grep $part /proc/mdstat | cut -d' ' -f1)
+	raid=$(grep "$part\[" /proc/mdstat | cut -d' ' -f1)
 	if [ "$raid" = "md0" ]; then 
 		# Belt _and_ braces!
         	echo "ERROR: \"Secondary\" disk /dev/$SDB is currently part of RAID /dev/md0!!"
@@ -147,13 +155,14 @@ for part in $(cd /dev/;ls -f "$SDB"?* $SDB 2>/dev/null); do
 			echo -n "Detected /dev/$part in \"foreign\" RAID array: "
 			mdadm --detail /dev/$raid
 		fi
+		[ $VERBOSE -ne 0 ] && echo "Scanning /dev/$raid partitions (if any):"
 		for rprt in $(cd /dev/;ls -f "$raid"p?* $raid 2>/dev/null); do
 			if pvdisplay /dev/$rprt 2>/dev/null | grep -q "/dev/$rprt" ; then
 				VG=$(pvs --noheadings -o vg_name /dev/$rprt | tr -d " ")
 				VG_UUID=$(pvs --noheadings -o vg_uuid /dev/$rprt | tr -d " ")
 				LVS=$(pvs --noheadings -o lv_name /dev/$rprt | tr -d " " | sort -u)
 				if [ $VERBOSE -ne 0 ]; then
-					echo "In use as LVM physical volume:"
+					echo "Detected an LVM physical volume: /dev/$rprt"
 					pvdisplay /dev/$rprt
 					echo -n "Which contains LV(s):"
 					for lv in $LVS; do
@@ -174,10 +183,13 @@ for part in $(cd /dev/;ls -f "$SDB"?* $SDB 2>/dev/null); do
 					[ $DRY_RUN -eq 0 ] && pvremove -ff -y /dev/$rprt > /dev/null
 				fi
 			elif [ $VERBOSE -ne 0 ]; then
-				file -s /dev/$rprt
 				if [ "$rprt" != "$raid" ]; then
+					echo "Detected RAID partition /dev/$rprt:"
+					file -bs /dev/$rprt
 					echo -n "Delete RAID partition contents (Control-C aborts)? "
 				else
+					echo "Detected RAID device /dev/$rprt:"
+					file -bs /dev/$rprt
 					echo -n "Delete RAID contents (Control-C aborts)? "
 				fi
 				read $ans
@@ -219,7 +231,7 @@ for part in $(cd /dev/;ls -f "$SDB"?* $SDB 2>/dev/null); do
 		        	SIZE=$(( $SIZE + $(pvck --dump headers /tmp/lvm_head.$$ | grep mda_header_1.size | cut -d'.' -f2 | cut -d ' ' -f2) ))
 			fi
 			if [ $VERBOSE -ne 0 ]; then
-				echo -n "Detected (unused) RAID component: "
+				echo -n "Detected (unused) RAID component: /dev/$part"
 				mdadm --examine /dev/$part
 				echo "With content"
 			       	file -b /tmp/lvm_head.$$
@@ -241,7 +253,7 @@ for part in $(cd /dev/;ls -f "$SDB"?* $SDB 2>/dev/null); do
 			VG_UUID=$(pvs --noheadings -o vg_uuid /dev/$part | tr -d " ")
 			LVS=$(pvs --noheadings -o lv_name /dev/$part | tr -d " " | sort -u)
 			if [ $VERBOSE -ne 0 ]; then
-				echo "Detected LVM physical volume:"
+				echo "Detected LVM physical volume: /dev/$part"
 				pvdisplay /dev/$part
 				echo -n "Which contains LV(s):"
 				for lv in $LVS; do
