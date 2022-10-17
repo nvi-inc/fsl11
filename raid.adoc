@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 0.0.11 - October 2022
+Version 0.0.12 - October 2022
 
 :sectnums:
 :experimental:
@@ -690,9 +690,10 @@ support the current RAID. This might be used to initialize a disk that
 will not be used in the current RAID. As before, use the `-A` option
 only will expert advice.
 
-The `-Z` option (for expert use only) will "`zap`" the partition
-tables with 1 MiB of zeros. Each additional `-Z` specified will double
-the number of zeros written. This option can be useful to force a disk
+The `-Z` option (for expert use only) will "`zap`" the partition table
+and the start of each individual partition with 1 MiB of zeros. Each
+additional `-Z` specified will double the number of zeros written to
+the individual partitions. This option may be useful to force a disk
 into a state that the installer can handle.
 
 NOTE: On the 32-bit _i386_ platform, due to a broken _vgremove_ binary, this

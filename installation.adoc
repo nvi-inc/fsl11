@@ -21,7 +21,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.32 - October 2022
+Version 0.0.33 - October 2022
 
 :sectnums:
 :experimental:
@@ -97,7 +97,7 @@ natively, so either may be used. The _amd64_ architecture is preferred
 and should be used if possible (it should be unless the processor is
 very old, from about 2010 or older). However, some work may be
 required to port your station code from a 32-bit to a 64-bit OS. An
-automatic tool have been developed to help with this, and can be
+automatic tool has been developed to help with this, and can be
 provided upon request. Usually the _i386_ architecture will work on
 any processor, but requires use of the `Legacy` (or `BIOS`) boot mode
 in most cases. The _amd64_ installation media will fail to boot on a
@@ -175,8 +175,8 @@ shell if they fail to find a hard disk that will boot. This might
 happen, for example, if you attempt to boot from a blank disk. If you
 become stuck booting to the UEFI shell, you may need to enter the
 motherboard's _setup_ utility to restore booting from the hard disks.
-The `Boot` menu may be where this is set. You may able to disable use
-of the UEFI Shell, which may eliminate this situation.
+The `Boot` menu may be where this is set. You may be able to disable
+use of the UEFI Shell, which may eliminate this situation.
 
 == First stage installation
 
