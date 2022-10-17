@@ -21,7 +21,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.31 - October 2022
+Version 0.0.32 - October 2022
 
 :sectnums:
 :experimental:
@@ -47,8 +47,8 @@ not want to use the software RAID.
 If you are using the RAID configuration, you may wish to review the
 <<raid.adoc#_recommended_practices,Recommended practices>> subsection
 of the <<raid.adoc#,RAID notes for FSL11>> document before installing.
-However, all of the practices listed there can implemented after the
-installation steps below are complete.
+However, all of the practices listed there can be implemented after
+the installation steps below are complete.
 
 TIP: Removable disks should be used with a carrier/receiver system
 that can tolerate a large number of insertions; "`bare`" disks should
@@ -96,12 +96,12 @@ architectures. With FSL11 it is necessary to use Field System version
 natively, so either may be used. The _amd64_ architecture is preferred
 and should be used if possible (it should be unless the processor is
 very old, from about 2010 or older). However, some work may be
-required to port your station code from a 32-bit to a 64-bit OS. Some
-automatic tools have been developed for this, and can be provided upon
-request. Usually the _i386_ architecture will work on any processor,
-but requires use of the `Legacy` (or `BIOS`) boot mode in most cases.
-The _amd64_ installation media will fail to boot on a system that is
-32-bit only.
+required to port your station code from a 32-bit to a 64-bit OS. An
+automatic tool have been developed to help with this, and can be
+provided upon request. Usually the _i386_ architecture will work on
+any processor, but requires use of the `Legacy` (or `BIOS`) boot mode
+in most cases. The _amd64_ installation media will fail to boot on a
+system that is 32-bit only.
 
 To install Debian _11_, you can either use a DVD or USB drive. The latter is
 faster, and also easier if you wish to use UEFI. Directions for creating your
@@ -158,8 +158,9 @@ emulation ("`Legacy`"). UEFI is the preferred approach.  Either mode of
 boot is supported by this installation guide, and you will be given
 alternatives when the instructions differ. 
 
-Decide which boot mode you want to use and select it through the motherboard
-_setup_ menu (typically by pressing kbd:[DEL] during POST).
+Decide which boot mode you want to use and select it through the
+motherboard _setup_ menu (typically by pressing kbd:[Delete] during
+the power-on self test, aka POST).
 
 Make sure that the motherboard time is set to the current Coordinated
 Universal Time, i.e., UTC, and the motherboard can boot from the
@@ -174,14 +175,14 @@ shell if they fail to find a hard disk that will boot. This might
 happen, for example, if you attempt to boot from a blank disk. If you
 become stuck booting to the UEFI shell, you may need to enter the
 motherboard's _setup_ utility to restore booting from the hard disks.
-The `Boot` menu may be where this is set. You may able able to disable
-use of the UEFI Shell, which may eliminate this situation.
+The `Boot` menu may be where this is set. You may able to disable use
+of the UEFI Shell, which may eliminate this situation.
 
 == First stage installation
 
 This guide assumes that you have only one disk installed in the
 machine initially even if you intend to use a RAID configuration. Use
-of a single disk (for a test install etc.) is also annotated below.
+of a single disk (for a test install, etc.) is also annotated below.
 
 NOTE: The single dish install approach is used because it is faster
 than a dual disk install. It also allows you to control when the
@@ -194,9 +195,9 @@ to the lowest numbered SATA controller, usually `0`.
 
 +
 
-CAUTION: For a RAID to work seamlessly with other disks later,
-you must make sure that the smallest disk of the ones available is
-used for the installation.
+CAUTION: For the RAID to work seamlessly with other disks later, you
+must make sure that the smallest disk of the ones available is used
+for the installation.
 
 === Boot from the installation medium
 
@@ -209,9 +210,9 @@ used for the installation.
 
 To boot from the installation media you may need to bring up your
 motherboard's _setup_ utility, which is typically accessed by pressing
-kbd:[F11] or kbd:[F12]. From there you may need to access a menu such
-as `Save{nbsp}&{nbsp}Exit` (or `Boot`), to select overriding to boot
-with the installation media.
+kbd:[Delete] during the POST. From there you may need to access a menu
+such as `Save{nbsp}&{nbsp}Exit` (or `Boot`), to select overriding to
+boot with the installation media.
 
 +
 
@@ -354,11 +355,11 @@ SATA HARDDISK`, and press kbd:[Enter].
 WARNING: Do _not_ select your installation media.
 
 .. The installer may warn: `You have selected an entire device to
-partition…`. If so, select `Yes`.
+partition…`. If so, select `Yes`. If you are prompted to delete RAID
+partitions, select `Yes`.
 
-.. If you are prompted to delete RAID partitions, select `Yes`.
-
-. Select the (one and only entry) `FREE SPACE` under your disk.
+. Select the (one and only entry) `FREE SPACE` under your disk. There
+should be no RAID or LVM partitions shown.
 
 +
 
@@ -367,12 +368,12 @@ partition…`. If so, select `Yes`.
 [NOTE]
 ====
 
-If you have other entries and/or you have RAID or LVM partitions, you
-will need to delete the other entries before proceeding.
+If other entries and/or RAID or LVM partitions are shown, you will
+need to delete them before proceeding.
 
-If you do _not_ have any RAID or LVM partitions shown, a possible
-solution may be to delete individual partitions until you have a
-single entry, `FREE SPACE`.
+If no RAID and/or LVM partitions are shown, a possible solution may be
+to delete individual partitions until you have a single entry, `FREE
+SPACE`.
 
 If that doesn't work or RAID and/or LVM partitions are shown, you may
 be able to use `Guided partitioning` to delete the existing
@@ -388,8 +389,9 @@ selecting your disk, as above.
 If the `Guided partitioning` method above doesn't work or you have
 problems later creating the RAID or LVM partitions, then other means
 will be needed. There may be more complicated paths through the
-partitioner that will work or you may need to overwrite the start of
-the disk with a large number, say 2 GiB (but possibly more), of zeros.
+partitioner that will work or, perhaps easier, you may need to
+overwrite the start of the disk with a large number, say 2 GiB (but
+possibly more, if that doesn't solve the problem), of zeros.
 
 <<zeros,Overwriting with zeros>>[[zeros]]: can be implemented (for 2
 GiB) at this stage in the installer with:
@@ -484,9 +486,10 @@ layout and configure LVM.
 . Select the raid device _md0_ (or _sda2_ if not using RAID)  by pressing kbd:[Space], then press kbd:[Enter]
 to continue
 
-. For each item in the following table run `Create logical volume`, select the
-your volume group and assign the corresponding label. Those marked with `*` are
-optional unless you are applying CIS hardening.
+. For each item in the following table run `Create logical volume`,
+select your volume group and assign the corresponding name. Those
+marked with `*` are optional unless you are applying CIS hardening.
+
 +
 .Logical volumes
 |=======================================
@@ -523,8 +526,8 @@ usually only takes a few minutes.
 
 === Configure the package manager
 
-If you start from a _netinst_ CD image, the installer now assumes you
-will install only from the network, and jumps straight to the
+If you started from a _netinst_ CD image, the installer now assumes
+you will install only from the network, and jumps straight to the
 <<archive,`Choose your Debian archive mirror country`>> part of the
 dialogue as detailed below.
 
@@ -534,8 +537,9 @@ first place) is entirely optional, and is only useful if you don't have a
 reliable network connection to a suitable Debian mirror and hence would
 prefer not to download packages you could get from the DVD.
 
-NOTE: If you do want to use a mirror in future, it is better not to scan any
-DVDs at this stage and to scan them later during Stage 2 using _apt-cdrom_.
+NOTE: If you do want to use a mirror in the future, it is better not
+to scan any DVDs at this stage and to scan them later during Stage 2
+using _apt-cdrom_.
 
 For each additional DVD you wish to scan, insert it in the drive, select
 `Yes` and press  kbd:[Enter]  to perform the scan (which takes a while.)
@@ -609,15 +613,15 @@ the next step, <<Remove installation media>>.
 is a problem after the reboot?#
 
 IMPORTANT: `Wayland` is enabled by default. If your CPU does not
-include a GPU and you do not have an add-graphics card (in which case
-you are using the motherboard graphics), you will probably need to
-disable it. If you don't, the console may be nearly impossible to work
-with after rebooting. On the other hand, systems with those graphics
-solutions may be very difficult to work with if `Wayland` is disabled.
-You may need to try both approaches to see which works best. If you
-try one that doesn't work well, you may need to reinstall from scratch
-to try the other. Whether your choice works or not should be evident
-when you start the <<Second stage installation>> step below.
+include a GPU and you do not have an add-on graphics card (in which
+case you are using the motherboard graphics), you will probably need
+to disable it. If you don't, the console may be nearly impossible to
+work with after rebooting. On the other hand, systems with those
+graphics solutions may be very difficult to work with if `Wayland` is
+disabled. You may need to try both approaches to see which works best.
+If you try one that doesn't work well, you may need to reinstall from
+scratch to try the other. Whether your choice works or not should be
+evident when you start the <<Second stage installation>> step below.
 
 To disable `Wayland`:
 
@@ -815,10 +819,12 @@ two related options on this page (but do not deselect `set_perms` as it
 is always required). Otherwise, simply press kbd:[Enter] with the `OK`
 selected to continue.
 
-NOTE: The `updates` option relies on email to _root_ being re-directed to some
-      mailbox that will be read regularly, so make sure you set that up and
-      test it as well.  The installer sets it up to go the _desktop_ account
-      by default which would definitely be a problem if you have removed that!
+NOTE: The `updates` option relies on email to _root_ being re-directed
+to some mailbox that will be read regularly, so make sure you set that
+up and test it as well (see the <<Configure e-mail>> section in the
+<<Additional Setup Items>> appendix). The installer sets it up to go
+the _desktop_ account by default which would definitely be a problem
+if you have removed that!
 
 ==== GPIB driver configuration (optional)
 
@@ -908,7 +914,9 @@ later.
 [IMPORTANT]
 ====
 
-Although _10.1.0_ is the current release at the time this was written,
+#TODO: edit in correct version number below#
+
+Although #_10.1.0_# is the current release at the time this was written,
 and should suffice for an initial installation, it may well not be the
 most up-to-date release when you are installing. To find more recent
 releases, go to:
@@ -1927,14 +1935,14 @@ are not being installed in this case.
 [TIP]
 ====
 
-When the kernel is upgraded, you maybe get messages such as:
+When the kernel is upgraded, you may get messages such as:
 
  update-initramfs: Generating /boot/initrd.img-5.10.0-16-amd64
  W: Possible missing firmware /lib/firmware/ast_dp501_fw.bin for module ast
 
-These are usually benign, unless you need that firmware. If not, these
-messages can be silenced for future upgrades by creating an empty
-version of the file. For this example, enter:
+These are usually benign, unless you need that firmware. If you don't,
+these messages can be silenced for future upgrades by creating an
+empty version of the file. For this example, enter:
 
  touch /lib/firmware/ast_dp501_fw.bin
 

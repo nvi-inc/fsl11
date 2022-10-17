@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 0.0.10 - October 2022
+Version 0.0.11 - October 2022
 
 :sectnums:
 :experimental:
@@ -613,11 +613,9 @@ In this case, the message is benign and can be ignored _if_ the
 _primary_ disk has a partition layout that will fit on the smaller
 disk. This should be the case if the system was setup initially as
 described in the <<installation.adoc#,FS Linux 11 Installation Guide>>
-document and the _primary_ was most recently refreshed from a disk
-used in the RAID that has the partition layout of the smallest disk.
-This situation can occur if one (or more) of the disks is larger than
-the smallest one, perhaps because it was obtained as a replacement for
-a failed disk.
+document. This situation can occur if one (or more) of the disks is
+larger than the smallest one, perhaps because it was obtained as a
+replacement for a failed disk.
 
 ====
 
