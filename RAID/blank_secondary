@@ -158,9 +158,9 @@ for part in $(cd /dev/;ls -f "$SDB"?* $SDB 2>/dev/null); do
 		[ $VERBOSE -ne 0 ] && echo "Scanning /dev/$raid partitions (if any):"
 		for rprt in $(cd /dev/;ls -f "$raid"p?* $raid 2>/dev/null); do
 			if pvdisplay /dev/$rprt 2>/dev/null | grep -q "/dev/$rprt" ; then
-				VG=$(pvs --noheadings -o vg_name /dev/$rprt | tr -d " ")
-				VG_UUID=$(pvs --noheadings -o vg_uuid /dev/$rprt | tr -d " ")
-				LVS=$(pvs --noheadings -o lv_name /dev/$rprt | tr -d " " | sort -u)
+				VG=$(pvs --noheadings -o vg_name /dev/$rprt 2>/dev/null | tr -d " ")
+				VG_UUID=$(pvs --noheadings -o vg_uuid /dev/$rprt 2>/dev/null | tr -d " ")
+				LVS=$(pvs --noheadings -o lv_name /dev/$rprt 2>/dev/null | tr -d " " | sort -u)
 				if [ $VERBOSE -ne 0 ]; then
 					echo "Detected an LVM physical volume: /dev/$rprt"
 					pvdisplay /dev/$rprt
@@ -178,8 +178,8 @@ for part in $(cd /dev/;ls -f "$SDB"?* $SDB 2>/dev/null); do
 					[ $DRY_RUN -eq 0 ] && vgremove -v -f -S vg_uuid=$VG_UUID
 					[ $DRY_RUN -eq 0 ] && pvremove -v -ff -y /dev/$rprt
 				else
-					[ $DRY_RUN -eq 0 ] && lvremove -f -S vg_uuid=$VG_UUID > /dev/null
-					[ $DRY_RUN -eq 0 ] && vgremove -f -S vg_uuid=$VG_UUID > /dev/null
+					[ $DRY_RUN -eq 0 ] && lvremove -f -S vg_uuid=$VG_UUID > /dev/null 2>&1
+					[ $DRY_RUN -eq 0 ] && vgremove -f -S vg_uuid=$VG_UUID > /dev/null 2>&1
 					[ $DRY_RUN -eq 0 ] && pvremove -ff -y /dev/$rprt > /dev/null
 				fi
 			elif [ $VERBOSE -ne 0 ]; then
@@ -249,9 +249,9 @@ for part in $(cd /dev/;ls -f "$SDB"?* $SDB 2>/dev/null); do
 				rm -f /tmp/lvm_head.$$
 			fi
 		elif pvdisplay /dev/$part 2>/dev/null | grep -q "/dev/$part" ; then
-			VG=$(pvs --noheadings -o vg_name /dev/$part | tr -d " ")
-			VG_UUID=$(pvs --noheadings -o vg_uuid /dev/$part | tr -d " ")
-			LVS=$(pvs --noheadings -o lv_name /dev/$part | tr -d " " | sort -u)
+			VG=$(pvs --noheadings -o vg_name /dev/$part 2>/dev/null | tr -d " ")
+			VG_UUID=$(pvs --noheadings -o vg_uuid /dev/$part 2>/dev/null | tr -d " ")
+			LVS=$(pvs --noheadings -o lv_name /dev/$part 2>/dev/null | tr -d " " | sort -u)
 			if [ $VERBOSE -ne 0 ]; then
 				echo "Detected LVM physical volume: /dev/$part"
 				pvdisplay /dev/$part
@@ -265,8 +265,8 @@ for part in $(cd /dev/;ls -f "$SDB"?* $SDB 2>/dev/null); do
 				[ $DRY_RUN -eq 0 ] && vgremove -v -f -S vg_uuid=$VG_UUID 
 				[ $DRY_RUN -eq 0 ] && pvremove -v -ff -y /dev/$part
 			else
-				[ $DRY_RUN -eq 0 ] && lvremove -f -S vg_uuid=$VG_UUID > /dev/null
-				[ $DRY_RUN -eq 0 ] && vgremove -f -S vg_uuid=$VG_UUID > /dev/null
+				[ $DRY_RUN -eq 0 ] && lvremove -f -S vg_uuid=$VG_UUID > /dev/null 2>&1
+				[ $DRY_RUN -eq 0 ] && vgremove -f -S vg_uuid=$VG_UUID > /dev/null 2>&1
 				[ $DRY_RUN -eq 0 ] && pvremove -ff -y /dev/$part > /dev/null
 			fi
 		elif [ $VERBOSE -ne 0 ] && [ ! -z $partnum ]; then
