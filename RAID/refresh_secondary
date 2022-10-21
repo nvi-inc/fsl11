@@ -111,7 +111,7 @@ if [ $SDB != $SDA ] && [ $ACCEPT_LOAD == 0 ] && ([ ! -O $lockf ] || [ "$(cat $lo
 fi
 if [ $SDA == $SDB ] || [ ! -b /dev/$SDB ]; then
 	while [ $SDA == $SDB ] || [ ! -b /dev/$SDB ]; do
-		echo  -n -e "\rWaiting for the \"Secondary\" disk to be loaded, use 'Control-C' to safely abort ... "
+		echo  -n -e "\rWaiting for \"Secondary\" disk to be loaded, use 'Control-C' to safely abort ... "
 		sleep 1
 		SDB=$(basename $(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 2 | tail -n 1))
 		if [ $SDA != $(basename $(ls -l /sys/block/sd* | cut -d'>' -f2 | grep /ata | sort | head -n 1)) ]; then
@@ -119,11 +119,11 @@ if [ $SDA == $SDB ] || [ ! -b /dev/$SDB ]; then
 			exit 1
 		fi
 	done
-	echo  -n -e "\r                                                                              "
+	echo  -n -e "\r                                                                               "
 	echo  -n -e "\rWaiting for disk /dev/$SDB to settle ... "
 	udevadm settle
 	sleep 2
-	echo -e "\r                                         "
+	echo -n -e "\r                                         \r"
 fi
 echo $(lsblk --nodeps -no serial /dev/$SDB) > $lockf
 
@@ -241,6 +241,7 @@ echo "Adding \"Secondary\" disk /dev/"$SDB"2 to RAID array /dev/md0 ... "
 [ $DRY_RUN -eq 0 ] && mdadm --zero-superblock /dev/"$SDB"2 2> /dev/null	# will fail if disk is blank
 [ $DRY_RUN -eq 0 ] && mdadm /dev/md0 --add-spare /dev/"$SDB"2
 sleep 1
+echo "done."
 
 if [ $DRY_RUN -ne 0 ]; then
 	echo -e "\n\"Secondary\" disk /dev/$SDB was hopefully _NOT_ refreshed! ;-)"
@@ -274,5 +275,4 @@ if [ "$PROGRESS_METER" -ne 0 ]; then
 else
 	echo -e "\n\"Secondary\" disk /dev/$SDB is now being refreshed."
 	echo "You can check on the recovery progress with 'mdstat'."
-
 fi
