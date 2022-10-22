@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 0.0.7 - August 2022
+Version 0.0.8 - October 2022
 
 == Introduction
 
@@ -802,17 +802,24 @@ instead:
 
 To set the correct default desktop (it is remembered per user):
 
+ cat > /var/lib/AccountsService/users/dehorsley <<EOF
+ [User]
+ Language=
+ XSession=default
+ Icon=/usr2/dehorsleyley/.face
+ SystemAccount=false
+ EOF
+
++
+
+Alternatively, if you have access to the console:
+
 .. Press kbd:[Ctrl+Alt+F1] to get to the GUI login.
 .. Enter `*dhorsley*` as the `Username`.
 .. Select the "`gear`" icon in the lower right-hand corner.
 .. Select `System X11 Default`.
 .. Complete logging in with the password.
 .. Logout with `exit`.
-
-+
-
-#TODO: Eliminate the need for these steps by implementing a proper
-fix, possibly in _fsadapt_.#
 
 === Setting hostname alias
 
