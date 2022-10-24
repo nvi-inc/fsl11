@@ -20,6 +20,7 @@
 #
 
 set -e
+
 # set-up preconfgure on /root/tmp
 #
 # select /root/tmp for preconfigure

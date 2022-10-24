@@ -19,6 +19,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+set -e
+
 if [ $1x = "-dx" ]; then
   echo "Description: FS Linux 10"
 else

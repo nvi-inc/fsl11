@@ -19,6 +19,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+set -e
+
 # Recover any failed and/or missing devices back into an active RAID
 
 set -e
@@ -125,6 +127,6 @@ if [ "$PROGRESS_METER" -ne 0 ]; then
 	done
 	echo -e "\ndone."
 else
-	echo -e "\n\RAID $raid is now in the process of rebuilding."
+	echo -e "\nRAID $raid is now in the process of rebuilding."
 	echo "You can check on the recovery progress with 'mdstat'."
 fi

@@ -19,6 +19,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+set -e
+
 # For systems with GPT LVM RAID arrays, tries to reset everything on second disk
 
 usage() { echo "Usage: $0 [-A][-h]"; echo -e "  where\t-A\tAllow \"Secondary\" disk to be loaded at start or alternatively\n\t\t\tto be too small to contain the current RAID"; echo -e "  \t-h\tdisplay this help and exit"; }
