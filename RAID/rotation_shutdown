@@ -22,7 +22,7 @@
 set -e
 
 usage() {
-	echo "Usage: $0 [-F][-h][-p]"
+	echo "Usage: $(basename $0) [-F][-h][-p]"
 	echo -e "  \t-F\toverride the FS running preventing shutdown"
 	echo -e "  \t-h\tdisplay this help and exit"
 	echo -e "  \t-p\tdisplay progress meter if recovering (no shutdown regardless)"
@@ -55,7 +55,7 @@ if mdadm --detail /dev/md0 | grep -q ", recovering $"; then
 			sleep 1;
 		done
 		echo -e "\n\nRecovery finished (or hadn't fully started)."
-		echo "You can try '$0' again without '-p'."
+		echo "You can try '$(basename $0)' again without '-p'."
 		exit 0
 	else
 		echo -e "ERROR: RAID is recovering. Check progress with 'mdstat'. NOT safe to rotate disks."
@@ -68,7 +68,7 @@ fi
 
 if [ "$PROGRESS_METER" -ne 0 ]; then
 	echo -e "\nRAID not degraded and not recovering."
-	echo "You can try '$0' again without '-p'."
+	echo "You can try '$(basename $0)' again without '-p'."
 	exit 0
 fi
 
