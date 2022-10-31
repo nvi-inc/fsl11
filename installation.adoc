@@ -21,7 +21,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.33 - October 2022
+Version 0.0.34 - October 2022
 
 :sectnums:
 :experimental:
@@ -1801,7 +1801,7 @@ instructions, please see the
 :sectnumlevels: 3
 [appendix]
 
-== Managing security updates
+== Managing Security Updates
 
 It is strongly recommended that you use the weekly _cron_ update
 download (the "`weekly _cron_ job`") as configured according to the
@@ -2086,7 +2086,7 @@ This may generate an error about a `Release` file having expired, but that is be
 
 [appendix]
 
-== Other maintenance procedures
+== Other Maintenance Procedures
 
 This appendix covers additional procedures for maintaining your
 system.
@@ -2418,7 +2418,7 @@ the <<raid.adoc#,Raid Notes for FSL11>> document.
 
 [appendix]
 
-== Rescue mode
+== Rescue Mode
 
 Rescue mode is useful for repairing some problems that prevent booting
 and/or logging in.
