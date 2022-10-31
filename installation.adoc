@@ -606,22 +606,19 @@ When prompted, press kbd:[Enter] to install to the master boot record.
 
 === Disable Wayland (optional)
 
-This step should be executed when the installation stops for input in
-the next step, <<Remove installation media>>.
+This step should only be needed if your CPU does not include a GPU and
+you do not have an add-on graphics card. In that case, you are using
+the motherboard graphics support. Disabling Wayland is known
+specifically to be necessary for the `X11SCA-F` motherboard, which
+uses the `AST2500` graphics chip. If you don't know that you need to
+disable Wayland, we recommend that initially leave it enabled. Whether
+your choice works or not should be evident when you start the
+<<Second stage installation>> step below. If it doesn't work, the
+*NOTE* following the instructions for disabling Wayland covers some
+possible recovery methods.
 
-#TODO: Is there a way to test for this without having to see if there
-is a problem after the reboot?#
-
-IMPORTANT: `Wayland` is enabled by default. If your CPU does not
-include a GPU and you do not have an add-on graphics card (in which
-case you are using the motherboard graphics), you will probably need
-to disable it. If you don't, the console may be nearly impossible to
-work with after rebooting. On the other hand, systems with those
-graphics solutions may be very difficult to work with if `Wayland` is
-disabled. You may need to try both approaches to see which works best.
-If you try one that doesn't work well, you may need to reinstall from
-scratch to try the other. Whether your choice works or not should be
-evident when you start the <<Second stage installation>> step below.
+TIP: This step can be executed when the installation stops for input
+in the next step, <<Remove installation media>>.
 
 To disable `Wayland`:
 
@@ -642,6 +639,27 @@ The only editor available at this point may be _nano_.
  exit
 
 . Press kbd:[Ctrl+Alt+F1] to return to the Installer dialog.
+
+[NOTE]
+====
+
+If Wayland is enabled when it shouldn't be or not enabled when it
+should be, the console may be very difficult, even impossible, to work
+with. If you find you have made the wrong choice, there are at least
+three possible ways to recover:
+
+. If the console is marginally usable, you may be able to login on a
+text console to adjust the contents of _/etc/gdm3/daemon.config_ as
+needed, then execute:
+
+ systemctl restart gmd3
+
+. Use the procedure in the <<Rescue Mode>> appendix and adjust the
+contents of _/etc/gdm3/daemon.config_ as needed.
+
+. Reinstall from scratch and make the opposite choice for this step.
+
+====
 
 === Remove installation media 
 
