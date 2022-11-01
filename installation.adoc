@@ -21,7 +21,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.34 - October 2022
+Version 0.0.35 - November 2022
 
 :sectnums:
 :experimental:
@@ -608,19 +608,19 @@ When prompted, press kbd:[Enter] to install to the master boot record.
 
 This step should only be needed if your CPU does not include a GPU and
 you do not have an add-on graphics card. In that case, you are using
-the motherboard graphics support. Disabling Wayland is known
+the motherboard graphics support. Disabling `Wayland` is known
 specifically to be necessary for the `X11SCA-F` motherboard, which
 uses the `AST2500` graphics chip. If you don't know that you need to
-disable Wayland, we recommend that initially leave it enabled. Whether
-your choice works or not should be evident when you start the
-<<Second stage installation>> step below. If it doesn't work, the
-*NOTE* following the instructions for disabling Wayland covers some
-possible recovery methods.
-
-TIP: This step can be executed when the installation stops for input
-in the next step, <<Remove installation media>>.
+disable `Wayland`, we recommend that you initially leave it enabled.
+Whether your choice works or not should be evident when you start the
+<<Second stage installation>> step below. The console may be very
+difficult, even impossible, to work with. In that case, please see the
+<<wayland_recovery,Wayland recovery>> *NOTE* below.
 
 To disable `Wayland`:
+
+TIP: These instructions step can be executed when the installation
+stops for input in the next step, <<Remove installation media>>.
 
 . Press kbd:[Ctrl+Alt+F2] to switch to a different console.
 
@@ -643,10 +643,9 @@ The only editor available at this point may be _nano_.
 [NOTE]
 ====
 
-If Wayland is enabled when it shouldn't be or not enabled when it
-should be, the console may be very difficult, even impossible, to work
-with. If you find you have made the wrong choice, there are at least
-three possible ways to recover:
+<<wayland_recovery,Wayland recovery>>[[wayland_recovery]]: If you find
+you have made the wrong choice, there are at least three possible ways
+to recover:
 
 . If the console is marginally usable, you may be able to login on a
 text console to adjust the contents of _/etc/gdm3/daemon.config_ as
@@ -657,7 +656,7 @@ needed, then execute:
 . Use the procedure in the <<Rescue Mode>> appendix and adjust the
 contents of _/etc/gdm3/daemon.config_ as needed.
 
-. Reinstall from scratch and make the opposite choice for this step.
+. Reinstall from scratch and make the opposite choice.
 
 ====
 
