@@ -442,7 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h1>FS Linux 11 Installation Guide</h1>
 <div class="details">
 <span id="author" class="author">J.F.H. Quick, D.E. Horsley, and W.E. Himwich</span><br>
-<span id="revdate">Version 0.0.34 - October 2022</span>
+<span id="revdate">Version 0.0.35 - November 2022</span>
 </div>
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
@@ -1724,14 +1724,17 @@ installed to the first ESP partition.
 <div class="paragraph">
 <p>This step should only be needed if your CPU does not include a GPU and
 you do not have an add-on graphics card. In that case, you are using
-the motherboard graphics support. Disabling Wayland is known
+the motherboard graphics support. Disabling <code>Wayland</code> is known
 specifically to be necessary for the <code>X11SCA-F</code> motherboard, which
 uses the <code>AST2500</code> graphics chip. If you don&#8217;t know that you need to
-disable Wayland, we recommend that initially leave it enabled. Whether
-your choice works or not should be evident when you start the
-<a href="#_second_stage_installation">Second stage installation</a> step below. If it doesn&#8217;t work, the
-<strong>NOTE</strong> following the instructions for disabling Wayland covers some
-possible recovery methods.</p>
+disable <code>Wayland</code>, we recommend that you initially leave it enabled.
+Whether your choice works or not should be evident when you start the
+<a href="#_second_stage_installation">Second stage installation</a> step below. The console may be very
+difficult, even impossible, to work with. In that case, please see the
+<a href="#wayland_recovery">Wayland recovery</a> <strong>NOTE</strong> below.</p>
+</div>
+<div class="paragraph">
+<p>To disable <code>Wayland</code>:</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -1740,14 +1743,11 @@ possible recovery methods.</p>
 <div class="title">Tip</div>
 </td>
 <td class="content">
-This step can be executed when the installation stops for input
-in the next step, <a href="#_remove_installation_media">Remove installation media</a>.
+These instructions step can be executed when the installation
+stops for input in the next step, <a href="#_remove_installation_media">Remove installation media</a>.
 </td>
 </tr>
 </table>
-</div>
-<div class="paragraph">
-<p>To disable <code>Wayland</code>:</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -1786,10 +1786,9 @@ exit</pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p>If Wayland is enabled when it shouldn&#8217;t be or not enabled when it
-should be, the console may be very difficult, even impossible, to work
-with. If you find you have made the wrong choice, there are at least
-three possible ways to recover:</p>
+<p><a href="#wayland_recovery">Wayland recovery</a><a id="wayland_recovery"></a>: If you find
+you have made the wrong choice, there are at least three possible ways
+to recover:</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -1808,7 +1807,7 @@ needed, then execute:</p>
 contents of <em>/etc/gdm3/daemon.config</em> as needed.</p>
 </li>
 <li>
-<p>Reinstall from scratch and make the opposite choice for this step.</p>
+<p>Reinstall from scratch and make the opposite choice.</p>
 </li>
 </ol>
 </div>
@@ -3427,9 +3426,9 @@ section for setting the ownership and  permissions on <em>~/.ssh/config</em>.</p
 <li>
 <p>Mouse cursor disappearing on text console after suspend</p>
 <div class="paragraph">
-<p>The FSL11 installation disables suspend by default as part of the
+<p>The FSL11 installation disables suspend by default (as part of the
 <code>greeter</code> item in the <a href="#_fs_adaptation_setup_window_2">FS Adaptation: Setup (Window 2)</a> sub-step of
-<a href="#_fsadapt">fsadapt</a> in the <a href="#_third_stage_installation">Third stage installation</a>. If you chose not to
+<a href="#_fsadapt">fsadapt</a> in the <a href="#_third_stage_installation">Third stage installation</a>). If you did not
 disable suspend, you may encounter this issue. An easy to way to fix
 it is to switch to a different text console and then back again. The
 cursor should reappear.</p>
@@ -3437,9 +3436,10 @@ cursor should reappear.</p>
 </li>
 <li>
 <p>Disable power switch from shutting the system down</p>
-<div class="paragraph">
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
 <p>Add the following to the <em>/etc/gdm3/greeter.dconf-defaults</em> file:</p>
-</div>
 <div class="literalblock">
 <div class="content">
 <pre># Disable restart buttons
@@ -3448,9 +3448,20 @@ disable-restart-buttons=true</pre>
 </div>
 </li>
 <li>
+<p>Restart <em>gdm3</em>:</p>
+<div class="literalblock">
+<div class="content">
+<pre>systemctl restart gdm3</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
 <p>Disable user controls, such as <span class="keyseq"><kbd>Ctlr</kbd>+<kbd>Alt</kbd>+<kbd>Del</kbd></span> to reboot</p>
 <div class="paragraph">
-<p>This item is provided without a detailed explanationI because it is
+<p>This item is provided without a detailed explanation because it is
 not expected that anyone will need it. If you do, the file
 <a href="powerlock.tar.gz" class="bare">powerlock.tar.gz</a> may be helpful. It contains the contents of
 the files that need to be changed or created.</p>
@@ -4672,7 +4683,7 @@ EOF</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-10-31 18:47:06 -0400
+Last updated 2022-11-01 06:08:29 -0400
 </div>
 </div>
 </body>
