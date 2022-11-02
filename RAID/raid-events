@@ -19,8 +19,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-set -e
-
 # For systems with GPT LVM RAID arrays, copies the partition table onto
 # the second disk (if missing), rebuilds the boot sector and adds the RAID
 # partition back into the array as a spare to be rebuilt.

@@ -19,8 +19,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-set -e
-
 # fsadapt  -- adapt a Debian 11.x installation for FS Linux 11
 # $Id: fsadapt,v 11.0 2022/08/04 14:19:30 jfq Exp $
 

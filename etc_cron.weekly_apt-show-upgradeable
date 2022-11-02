@@ -19,8 +19,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-set -e
-
 #
 # cron script to display all upgradeable packages using apt-listchanges
 # (designed to replace the APT::Periodic::Unattended-Upgrade mechanism)

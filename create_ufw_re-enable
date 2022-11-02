@@ -20,7 +20,6 @@
 #
 
 set -e
-
 # create boot job to disable and then enable UFW
 #
 systemctl disable ufw_re-enable || :

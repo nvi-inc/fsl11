@@ -20,7 +20,6 @@
 #
 
 set -e
-
 if echo $DISPLAY |grep -q localhost; then
   sudo -u oper XCOOKIE="$(xauth list $DISPLAY)" -i "$@"
 else

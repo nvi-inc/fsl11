@@ -19,8 +19,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-set -e
-
 # Recover any failed and/or missing devices back into an active RAID
 
 set -e
