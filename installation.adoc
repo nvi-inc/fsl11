@@ -21,7 +21,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.33 - October 2022
+Version 0.0.36 - November 2022
 
 :sectnums:
 :experimental:
@@ -606,24 +606,21 @@ When prompted, press kbd:[Enter] to install to the master boot record.
 
 === Disable Wayland (optional)
 
-This step should be executed when the installation stops for input in
-the next step, <<Remove installation media>>.
-
-#TODO: Is there a way to test for this without having to see if there
-is a problem after the reboot?#
-
-IMPORTANT: `Wayland` is enabled by default. If your CPU does not
-include a GPU and you do not have an add-on graphics card (in which
-case you are using the motherboard graphics), you will probably need
-to disable it. If you don't, the console may be nearly impossible to
-work with after rebooting. On the other hand, systems with those
-graphics solutions may be very difficult to work with if `Wayland` is
-disabled. You may need to try both approaches to see which works best.
-If you try one that doesn't work well, you may need to reinstall from
-scratch to try the other. Whether your choice works or not should be
-evident when you start the <<Second stage installation>> step below.
+This step should only be needed if your CPU does not include a GPU and
+you do not have an add-on graphics card. In that case, you are using
+the motherboard graphics support. Disabling `Wayland` is known
+specifically to be necessary for the `X11SCA-F` motherboard, which
+uses the `AST2500` graphics chip. If you don't know that you need to
+disable `Wayland`, we recommend that you initially leave it enabled.
+Whether your choice works or not should be evident when you start the
+<<Second stage installation>> step below. The console may be very
+difficult, even impossible, to work with. In that case, please see the
+<<wayland_recovery,Wayland recovery>> *NOTE* below.
 
 To disable `Wayland`:
+
+TIP: These instructions step can be executed when the installation
+stops for input in the next step, <<Remove installation media>>.
 
 . Press kbd:[Ctrl+Alt+F2] to switch to a different console.
 
@@ -642,6 +639,26 @@ The only editor available at this point may be _nano_.
  exit
 
 . Press kbd:[Ctrl+Alt+F1] to return to the Installer dialog.
+
+[NOTE]
+====
+
+<<wayland_recovery,Wayland recovery>>[[wayland_recovery]]: If you find
+you have made the wrong choice, there are at least three possible ways
+to recover:
+
+. If the console is marginally usable, you may be able to login on a
+text console to adjust the contents of _/etc/gdm3/daemon.config_ as
+needed, then execute:
+
+ systemctl restart gmd3
+
+. Use the procedure in the <<Rescue Mode>> appendix and adjust the
+contents of _/etc/gdm3/daemon.config_ as needed.
+
+. Reinstall from scratch and make the opposite choice.
+
+====
 
 === Remove installation media 
 
@@ -1725,6 +1742,41 @@ system.
 Please check the end of the <<Use KeepAlive to prevent VLAN firewall inactivity time-out>>
 section for setting the ownership and  permissions on _~/.ssh/config_.
 
+=== Suspend, shutdown, and restart issues
+
+. Mouse cursor disappearing on text console after suspend
+
++
+
+The FSL11 installation disables suspend by default (as part of the
+`greeter` item in the <<FS Adaptation: Setup (Window 2)>> sub-step of
+<<_fsadapt>> in the <<Third stage installation>>). If you did not
+disable suspend, you may encounter this issue. A way to fix it is to
+switch to a different text console and then back again. The cursor
+should reappear.
+
+. Disable the power switch from shutting the system down
+
++
+
+.. Add the following to the _/etc/gdm3/greeter.dconf-defaults_ file:
+
+ # Disable restart buttons
+ disable-restart-buttons=true
+
+.. Restart _gdm3_:
+
+ systemctl restart gdm3
+
+. Disable use of restart for ordinary users
+
++
+
+It is possible to disable all use of restart for ordinary users with a
+bit more work -- the details are available on request. The file
+link:powerlock.tar.gz[] may be helpful for this. It contains sample
+contents of the files that need to be changed or created.
+
 === Printer setup
 
 . Make sure your printer is connected, to the computer or the network, as appropriate.
@@ -1801,7 +1853,7 @@ instructions, please see the
 :sectnumlevels: 3
 [appendix]
 
-== Managing security updates
+== Managing Security Updates
 
 It is strongly recommended that you use the weekly _cron_ update
 download (the "`weekly _cron_ job`") as configured according to the
@@ -2086,7 +2138,7 @@ This may generate an error about a `Release` file having expired, but that is be
 
 [appendix]
 
-== Other maintenance procedures
+== Other Maintenance Procedures
 
 This appendix covers additional procedures for maintaining your
 system.
@@ -2418,7 +2470,7 @@ the <<raid.adoc#,Raid Notes for FSL11>> document.
 
 [appendix]
 
-== Rescue mode
+== Rescue Mode
 
 Rescue mode is useful for repairing some problems that prevent booting
 and/or logging in.
