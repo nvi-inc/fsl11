@@ -21,7 +21,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.35 - November 2022
+Version 0.0.36 - November 2022
 
 :sectnums:
 :experimental:
@@ -1742,7 +1742,7 @@ system.
 Please check the end of the <<Use KeepAlive to prevent VLAN firewall inactivity time-out>>
 section for setting the ownership and  permissions on _~/.ssh/config_.
 
-=== Suspend and power button issues
+=== Suspend, shutdown, and restart issues
 
 . Mouse cursor disappearing on text console after suspend
 
@@ -1751,11 +1751,11 @@ section for setting the ownership and  permissions on _~/.ssh/config_.
 The FSL11 installation disables suspend by default (as part of the
 `greeter` item in the <<FS Adaptation: Setup (Window 2)>> sub-step of
 <<_fsadapt>> in the <<Third stage installation>>). If you did not
-disable suspend, you may encounter this issue. An easy to way to fix
-it is to switch to a different text console and then back again. The
-cursor should reappear.
+disable suspend, you may encounter this issue. A way to fix it is to
+switch to a different text console and then back again. The cursor
+should reappear.
 
-. Disable power switch from shutting the system down
+. Disable the power switch from shutting the system down
 
 +
 
@@ -1768,15 +1768,14 @@ cursor should reappear.
 
  systemctl restart gdm3
 
-. Disable user controls, such as kbd:[Ctlr+Alt+Del] to reboot
+. Disable use of restart for ordinary users
 
 +
 
-This item is provided without a detailed explanation because it is
-not expected that anyone will need it. If you do, the file
-link:powerlock.tar.gz[] may be helpful. It contains the contents of
-the files that need to be changed or created.
-
+It is possible to disable all use of restart for ordinary users with a
+bit more work -- the details are available on request. The file
+link:powerlock.tar.gz[] may be helpful for this. It contains sample
+contents of the files that need to be changed or created.
 
 === Printer setup
 
