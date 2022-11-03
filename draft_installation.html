@@ -442,7 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h1>FS Linux 11 Installation Guide</h1>
 <div class="details">
 <span id="author" class="author">J.F.H. Quick, D.E. Horsley, and W.E. Himwich</span><br>
-<span id="revdate">Version 0.0.35 - November 2022</span>
+<span id="revdate">Version 0.0.36 - November 2022</span>
 </div>
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
@@ -512,7 +512,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_set_x_display_resolution_at_boot">A.10. Set X display resolution at boot</a></li>
 <li><a href="#_use_keepalive_to_prevent_vlan_firewall_inactivity_time_out">A.11. Use KeepAlive to prevent VLAN firewall inactivity time-out</a></li>
 <li><a href="#_remove_login_banners_for_commands_run_by_ssh_on_remote_systems">A.12. Remove login banners for commands run by ssh on remote systems</a></li>
-<li><a href="#_suspend_and_power_button_issues">A.13. Suspend and power button issues</a></li>
+<li><a href="#_suspend_shutdown_and_restart_issues">A.13. Suspend, shutdown, and restart issues</a></li>
 <li><a href="#_printer_setup">A.14. Printer setup</a></li>
 <li><a href="#_ntp_configuration">A.15. NTP configuration</a></li>
 <li><a href="#_add_raid_events_scripts">A.16. Add raid-events scripts</a></li>
@@ -3420,7 +3420,7 @@ section for setting the ownership and  permissions on <em>~/.ssh/config</em>.</p
 </div>
 </div>
 <div class="sect2">
-<h3 id="_suspend_and_power_button_issues">A.13. Suspend and power button issues</h3>
+<h3 id="_suspend_shutdown_and_restart_issues">A.13. Suspend, shutdown, and restart issues</h3>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -3429,13 +3429,13 @@ section for setting the ownership and  permissions on <em>~/.ssh/config</em>.</p
 <p>The FSL11 installation disables suspend by default (as part of the
 <code>greeter</code> item in the <a href="#_fs_adaptation_setup_window_2">FS Adaptation: Setup (Window 2)</a> sub-step of
 <a href="#_fsadapt">fsadapt</a> in the <a href="#_third_stage_installation">Third stage installation</a>). If you did not
-disable suspend, you may encounter this issue. An easy to way to fix
-it is to switch to a different text console and then back again. The
-cursor should reappear.</p>
+disable suspend, you may encounter this issue. A way to fix it is to
+switch to a different text console and then back again. The cursor
+should reappear.</p>
 </div>
 </li>
 <li>
-<p>Disable power switch from shutting the system down</p>
+<p>Disable the power switch from shutting the system down</p>
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
@@ -3459,12 +3459,12 @@ disable-restart-buttons=true</pre>
 </div>
 </li>
 <li>
-<p>Disable user controls, such as <span class="keyseq"><kbd>Ctlr</kbd>+<kbd>Alt</kbd>+<kbd>Del</kbd></span> to reboot</p>
+<p>Disable use of restart for ordinary users</p>
 <div class="paragraph">
-<p>This item is provided without a detailed explanation because it is
-not expected that anyone will need it. If you do, the file
-<a href="powerlock.tar.gz" class="bare">powerlock.tar.gz</a> may be helpful. It contains the contents of
-the files that need to be changed or created.</p>
+<p>It is possible to disable all use of restart for ordinary users with a
+bit more work&#8201;&#8212;&#8201;the details are available on request. The file
+<a href="powerlock.tar.gz" class="bare">powerlock.tar.gz</a> may be helpful for this. It contains sample
+contents of the files that need to be changed or created.</p>
 </div>
 </li>
 </ol>
@@ -4683,7 +4683,7 @@ EOF</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-11-01 06:08:29 -0400
+Last updated 2022-11-03 09:26:30 -0400
 </div>
 </div>
 </body>
