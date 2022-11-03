@@ -168,6 +168,7 @@ fonts-dejavu-extra				install
 fonts-droid-fallback				install
 fonts-lato					install
 fonts-liberation2				install
+fonts-lyx					install
 fonts-noto-color-emoji				install
 fonts-noto-mono					install
 fonts-opensymbol				install
@@ -764,6 +765,7 @@ libgif7:amd64					install
 libgirepository-1.0-1:amd64			install
 libgit2-1.1:amd64				install
 libgit2-glib-1.0-0:amd64			install
+libgiza0:amd64					install
 libgjs0g:amd64					install
 libgl1:amd64					install
 libgl1-mesa-dri:amd64				install
@@ -879,6 +881,7 @@ libieee1284-3:amd64				install
 libigdgmm11:amd64				install
 libijs-0.35:amd64				install
 libilmbase25:amd64				install
+libimagequant0:amd64				install
 libimobiledevice6:amd64				install
 libinput-bin					install
 libinput10:amd64				install
@@ -904,6 +907,7 @@ libjcat1:amd64					install
 libjim0.79:amd64				install
 libjpeg62-turbo:amd64				install
 libjs-jquery					install
+libjs-jquery-ui					install
 libjson-c5:amd64				install
 libjson-glib-1.0-0:amd64			install
 libjson-glib-1.0-common				install
@@ -1560,6 +1564,7 @@ pulseaudio-module-bluetooth			install
 pulseaudio-utils				install
 pv						install
 python-apt-common				install
+python-matplotlib-data				install
 python-pip-whl					install
 python3						install
 python3-apt					install
@@ -1569,6 +1574,8 @@ python3-certifi					install
 python3-chardet					install
 python3-cups:amd64				install
 python3-cupshelpers				install
+python3-cycler					install
+python3-dateutil				install
 python3-dbus					install
 python3-debconf					install
 python3-debian					install
@@ -1582,16 +1589,21 @@ python3-gpg					install
 python3-httplib2				install
 python3-ibus-1.0				install
 python3-idna					install
+python3-kiwisolver				install
 python3-ldb					install
 python3-lib2to3					install
 python3-louis					install
 python3-mako					install
 python3-markupsafe				install
+python3-matplotlib				install
 python3-minimal					install
 python3-numpy					install
+python3-olefile					install
+python3-pil:amd64				install
 python3-pkg-resources				install
 python3-pyatspi					install
 python3-pycurl					install
+python3-pyparsing				install
 python3-pysimplesoap				install
 python3-reportbug				install
 python3-requests				install
@@ -1704,6 +1716,7 @@ tracker-extract					install
 tracker-miner-fs				install
 transmission-common				install
 transmission-gtk				install
+ttf-bitstream-vera				install
 tzdata						install
 ucf						install
 udev						install
