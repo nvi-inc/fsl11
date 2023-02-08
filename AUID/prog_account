@@ -20,6 +20,17 @@
 #
 
 set -e
+
+if [[ "$USER" =~ ^(oper)$ ]]; then
+  echo "ERROR: Cannot promote to prog from $USER account. Promote from $SUDO_USER instead."
+  exit 1
+else
+  if [[ "$USER" =~ ^prog$ ]]; then
+    echo "ERROR: Already in $USER account."
+    exit 1
+  fi
+fi
+
 if echo $DISPLAY |grep -q localhost; then
   sudo -u prog XCOOKIE="$(xauth list $DISPLAY)" -i "$@"
 else

@@ -20,6 +20,12 @@
 #
 
 set -e
+
+if [[ "$USER" =~ ^(oper|prog)$ ]]; then
+  echo "ERROR: Cannot promote to root from $USER account. Promote from $SUDO_USER instead."
+  exit 1
+fi
+
 if echo $DISPLAY |grep -q localhost; then
   sudo -u root XCOOKIE="$(xauth list $DISPLAY)" -i "$@"
 else
