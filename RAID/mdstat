@@ -1,9 +1,9 @@
 #!/bin/sh
 #
-# Copyright (c) 2020 NVI, Inc.
+# Copyright (c) 2020, 2023 NVI, Inc.
 #
-# This file is part of FSL10 Linux distribution.
-# (see http://github.com/nvi-inc/fsl10).
+# This file is part of FSL11 Linux distribution.
+# (see http://github.com/nvi-inc/fsl11).
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

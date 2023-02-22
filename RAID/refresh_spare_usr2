@@ -1,9 +1,9 @@
 #!/bin/bash
 #
-# Copyright (c) 2020-2021 NVI, Inc.
+# Copyright (c) 2020-2021, 2023 NVI, Inc.
 #
-# This file is part of FSL10 Linux distribution.
-# (see http://github.com/nvi-inc/fsl10).
+# This file is part of FSL11 Linux distribution.
+# (see http://github.com/nvi-inc/fsl11).
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -269,11 +269,11 @@ exit 1
 #           leading '#') '#remote_user=spare'.
 #        D. Save the result.
 #   3. Follow the other directions in the 'Installing refresh_spare_usr2'
-#      subsection of the 'RAID Notes for FSL10' document.
+#      subsection of the 'RAID Notes for FSL11' document.
 #      The CIS hardening approach may be a useful alternative, or necessary if
 #      you have a CIS hardened system.  For more information, see the
 #      'Installing refresh_spare_usr2 with CIS hardening' subsection of the
-#      'CIS Hardening for FSL10' document.
+#      'CIS Hardening for FSL11' document.
 #   4. Test it the first time just after the Spare system's disk has been
 #      rotated.
 
