@@ -1,7 +1,8 @@
-// Copyright (c) 2020-2021 NVI, Inc.
 //
-// This file is part of the FSL10 Linux distribution.
-// (see http://github.com/nvi-inc/fsl10).
+// Copyright (c) 2020-2023 NVI, Inc.
+//
+// This file is part of the FSL11 Linux distribution.
+// (see http://github.com/nvi-inc/fsl11).
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.36 - November 2022
+Version 0.0.37 - February 2023
 
 :sectnums:
 :experimental:
