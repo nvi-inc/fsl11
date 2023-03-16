@@ -89,11 +89,9 @@ at: https://nvi-inc.github.io/fs/misc/font_conventions.html.
 
 == Choosing architecture and creating installation media
 
-#TODO: edit in correct version number below#
-
 FSL11 can be configured for either the _i386_ or _amd64_
 architectures. With FSL11 it is necessary to use Field System version
-#_10.1.1_# or later. Those FS versions support both architectures
+_10.2_ or later. Those FS versions support both architectures
 natively, so either may be used. The _amd64_ architecture is preferred
 and should be used if possible (it should be unless the processor is
 very old, from about 2010 or older). However, some work may be
@@ -917,41 +915,50 @@ TIP: More information about RAID operation can be found in the
 
 [subs="+quotes"]
 ....
-   cd /usr2
-   git clone https://github.com/nvi-inc/fs fs-git
-   cd /usr2/fs-git
-   git checkout -q ed/fsl11
+ cd /usr2
+ git clone https://github.com/nvi-inc/fs fs-git
+ cd /usr2/fs-git
+ git checkout -q _tag_
 ....
 
-#TODO: restore using `git checkout -q _tag_` when a FS that supports
-FSL11 is released.#
+where `_tag_` is the latest available release, _10.2.0_ or later.
 
-where `_tag_` is the latest available release, be it _10.1.0_ or
-later.
+[TIP]
+====
+
+At the time of this writing, _10.2.0_ has not been officially
+released. The `_tag_` for the latest alpha version is currently
+_10.2.0-alpha3_. That, or a later tagged alpha version or beta
+pre-release, should suffice for an initial installation. However they
+should not be used for operations. You should update to _10.2.0_ as
+soon as it is available. If _10.2.0_ has not been officially released,
+you should ignore the *IMPORTANT* block immediately below.
+
+You can find the most recent beta release of _10.2_ at:
+
+https://github.com/nvi-inc/fs/releases
+
+If none are available, you can find the most recent tagged alpha
+version of _10.2_ at:
+
+https://github.com/nvi-inc/fs/tags
+
+====
 
 [IMPORTANT]
 ====
 
-#TODO: edit in correct version number below#
-
-Although #_10.1.0_# is the current release at the time this was written,
-and should suffice for an initial installation, it may well not be the
-most up-to-date release when you are installing. To find more recent
-releases, go to:
+You should install the latest official release. To find it, go to:
 
 https://github.com/nvi-inc/fs/releases
 
-You should probably use the most recent release ending in _.0_ (a
-so-called _feature_ release) with no trailing _-<string>_, e.g.,
-_10.0.0_. However, if there is a more recent _patch_ release (not
-ending _.0_) for the most recent feature release, you should use the
-most recent patch release.  For example, if _10.1.0_ is the most
-recent feature release and there are corresponding patch releases,
-_10.1.1_ and _10.1.2_, the last one, ending _.2_, is probably the best
-choice.
-
-NOTE: Releases _numbered_ before _10.0.0_ are listed mostly for historical
-reference. They are not intended for operational use.
+You should probably use the most recent _feature_ release (ending in
+_.0_ with no trailing _-<string>_, e.g., _10.2.0_. However, if there
+is a more recent _patch_ release (not ending _.0_) for the most recent
+feature release, you should use the most recent patch release. For
+example, if _10.2.0_ is the most recent feature release and there are
+corresponding patch releases, _10.2.1_ and _10.2.2_, then the last
+one, ending _.2_, is probably the best choice.
 
 ====
 
