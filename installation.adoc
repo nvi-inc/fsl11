@@ -130,6 +130,10 @@ https://www.debian.org/releases/bullseye/installmanual
 
 == Motherboard setup
 
+CAUTION: If you are installing to a virtual machine, make sure it is
+configured to have at least two cores. This is required for FS display
+server support.
+
 [NOTE]
 ====
 
