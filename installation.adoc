@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.38 - March 2023
+Version 0.0.39 - April 2023
 
 :sectnums:
 :experimental:
@@ -2550,14 +2550,17 @@ prompts, ultimately continuing below.
 NOTE: The selected time zone will have no effect on the timestamps
 stored on the disk for any changes you may make, but will affect the displayed times you see.
 
-. Select `Assemble RAID array`
-. Press kbd:[Space] on `Automatic`
+. Unless you are not using Software RAID, select `Assemble RAID array`
 +
+Press kbd:[Space] on `Automatic`
 Press kbd:[Enter] to continue
 
 . Select your root file system (_/dev/vg0/root_)
 . Select `Yes` to mount separate _/boot_ partition (_/boot_), unless it is corrupt
-. Select `Yes` to mount separate _/boot/efi_ partition (_/boot/efi_), unless it is corrupt
++
+For UEFI boot also select `Yes` to mount separate _/boot/efi_ partition (_/boot/efi_),
+unless it is corrupt
+
 . Select _Execute a shell in /dev/vg0/root_ (or whatever your root file system is)
 . Select `Continue` to enter rescue mode
 . Use whatever commands are needed for your repair
