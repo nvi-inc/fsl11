@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.39 - April 2023
+Version 0.0.40 - April 2023
 
 :sectnums:
 :experimental:
@@ -118,10 +118,10 @@ recommended mainly for sites with little to poor Internet connectivity (even
 then, use of a single DVD may suffice) and the equivalent use of a "`Debian
 GNU/Linux _11.<x>_ Bullseye - Official _i386_/_amd64_ netinst CD`" would suffice for
 installation at most sites with good connectivity. Official images for the installer
-can be found at: https://cdimage.debian.org/cdimage/archive/ or alternatively,
+can be found at: https://cdimage.debian.org/cdimage/release/ or alternatively,
 should your hardware require non-free firmware, unofficial images for the
 installer that also include all available non-free firmware can be found at:
-https://cdimage.debian.org/cdimage/unofficial/non-free/cd-including-firmware/archive/
+https://cdimage.debian.org/cdimage/unofficial/non-free/cd-including-firmware/
 
 The details of creating your installation media can be found in the Debian
 installation guide available from:
@@ -992,7 +992,7 @@ to confirm that everything compiled correctly (no news is good news).
 
 === Reboot the new system
 
-Remove any DVD from the machine and to restart the machine using
+Remove any DVD from the machine and restart the machine using
 _reboot_ as _root_ or kbd:[Ctrl+Alt+Del] whilst watching that
 everything starts up smoothly.
 
@@ -1133,7 +1133,7 @@ the <<cis-setup.adoc#,CIS hardening FSL11>> document.
 If you don't want the complete CIS hardening, which creates some
 inconveniences and is only required in certain environments, you may
 still be interested in applying a subset of the remediations. You can
-pick and choose those from the <<cis-setup.adoc#,CIS Hardening FSL11>>
+pick and choose those from the <<cis-setup.adoc#,CIS hardening FSL11>>
 document and its script.
 
 A useful minimum set of features to apply would be to install _ufw_
@@ -1334,7 +1334,7 @@ ModemManager package to avoid conflicts over access to the ports.
 Execute this command:
 
 ....
-apt-get purge modemmanger
+apt-get purge modemmanager
 ....
 
 === Remove anacron package
@@ -2106,7 +2106,7 @@ available.
 
 === End of security updates
 
-When support for _bullseye_ ends, currently expected in June 2022,
+When support for _bullseye_ ends, currently expected in May 2024,
 there will be no more security updates.  At that time, the existing
 packages will be migrated to the Debian archive site. This will be
 visible in the output from the weekly _cron_ job script as errors that
@@ -2160,7 +2160,7 @@ system.
 This is useful if the computer is physically moved to a different
 site, its IP address changes, or its network information needs to be
 updated for a different reason. This is typically not needed if you
-use DHCP, which may still require some of the changes in the
+use DHCP, though that may still require some of the changes in the
 <<sysfiles,Modify other system files>> step below (please let us know
 if you gain experience).
 
