@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.40 - April 2023
+Version 0.0.41 - April 2023
 
 :sectnums:
 :experimental:
@@ -1209,6 +1209,28 @@ some careless errors.
 3. Add the command `set -o noclobber` to avoid accidently overwriting
 existing files with I/O redirection. Other options to consider setting
 are `physical` and `ignoreeof`.
+
+=== Create root's .inputrc file
+
+The _readline_ package is used by _bash_, and other programs, to
+maintain a history of commands that can be edited and then
+re-executed. By default, it will retain edits of history entries that
+have _not_ been re-executed. This makes the unedited history entries
+more difficult to locate and re-execute. Retaining the un-executed
+edits can be disabled for _root_ by creating the file:
+
+./root/.inputrc
+[source]
+----
+$include /etc/inputrc
+set revert-all-at-newline on
+----
+
+The `$include /etc/inputrc` line preserves the other system wide
+_readline_ defaults.
+
+NOTE: The standard fresh FS installation creates this file for the
+_oper_ and _prog_ (and AUID) accounts.
 
 === Setup /etc/hosts
 
