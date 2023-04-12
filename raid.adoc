@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 0.0.13 - February 2023
+Version 0.0.14 - April 2023
 
 :sectnums:
 :experimental:
@@ -328,7 +328,7 @@ procedure can be completed when time allows.
 
 . Shut the system down with the _rotation_shutdown_ command.
 
-. Take the disk from _primary_ slot, put it on the _shelf_
+. Take the disk from _primary_ slot, put it back on the _shelf_
 . Move the disk from the _secondary_ slot to the _primary_ slot, keyed-on
 . Insert the remaining disk, that was set aside, in the _secondary_ slot, keyed-off.
 . Reboot (_primary_ keyed-on, _secondary_ keyed-off)
@@ -664,11 +664,11 @@ This may be relaxed with the `-A` option, if the script is being used
 to blank a disk that will _not_ be used in this RAID.
 
 
-If the _primary_ disk is removable, the user will be provided with some
+If the _secondary_ disk is removable, the user will be provided with some
 information about the disk and given an opportunity to continue with
 kbd:[Enter] or abort with kbd:[Ctrl+C].  Typically, if a USB disk is
-identified as the _primary_, one would not want to continue. However
-for some machines the SATA disk that is the _primary_ may be marked
+identified as the _secondary_, one would not want to continue. However
+for some machines the SATA disk that is the _secondary_ may be marked
 removable if it is hot swappable, but would still be appropriate to
 use. 
 
@@ -695,12 +695,6 @@ and the start of each individual partition with 1 MiB of zeros. Each
 additional `-Z` specified will double the number of zeros written to
 the individual partitions. This option may be useful to force a disk
 into a state that the installer can handle.
-
-NOTE: On the 32-bit _i386_ platform, due to a broken _vgremove_ binary, this
-script can give WARNINGs when erasing disks that were used for LVM.  These
-warnings can safely be ignored - the disk will be successfully blanked (despite
-_vgremove_ having segmentation-faulted instead of performing the requisite
-action thereby causing _pvremove_ to complain about the VG still being active.)
 
 === drop_primary
 
@@ -958,7 +952,7 @@ using _sudo_ in a regular account a usable alternative. For details on
 that approach, please see the
 <<cis-setup.adoc#_installing_refresh_spare_usr2_with_cis_hardening,Installing
 refresh_spare_usr2 with CIS hardening>> subsection of the
-<<cis-setup.adoc#,CIS Hardening for FSL11>> document.
+<<cis-setup.adoc#,CIS hardening for FSL11>> document.
 
 All the steps below must be performed as _root_ on the specified
 system. You should read all of each step and sub-step before following
