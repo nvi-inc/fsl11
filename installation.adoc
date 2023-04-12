@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.41 - April 2023
+Version 1.0.0 - April 2023
 
 :sectnums:
 :experimental:
@@ -81,7 +81,7 @@ explanations that impact what you actually type.
 |          | _jessie_     |     _8.0_      | _3.16.0_ |
 |  _10_    | _stretch_    |     _9.0_      | _4.9.0_  | 2020
 |          | _buster_     |    _10.0_      | _4.19.0_ |
-|  _11_    | _bullseye_  |     _11.0_      | _5.10.0_ | 2022
+|  _11_    | _bullseye_  |     _11.0_      | _5.10.0_ | 2023
 |=============================================================
 
 The FSL11 documents follow the FS font conventions, which can be found
