@@ -1,7 +1,8 @@
-// Copyright (c) 2020-2021 NVI, Inc.
 //
-// This file is part of the FSL10 Linux distribution.
-// (see http://github.com/nvi-inc/fsl10).
+// Copyright (c) 2020-2023 NVI, Inc.
+//
+// This file is part of the FSL11 Linux distribution.
+// (see http://github.com/nvi-inc/fsl11).
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 0.0.33 - October 2022
+Version 1.0.0 - April 2023
 
 :sectnums:
 :experimental:
@@ -80,7 +81,7 @@ explanations that impact what you actually type.
 |          | _jessie_     |     _8.0_      | _3.16.0_ |
 |  _10_    | _stretch_    |     _9.0_      | _4.9.0_  | 2020
 |          | _buster_     |    _10.0_      | _4.19.0_ |
-|  _11_    | _bullseye_  |     _11.0_      | _5.10.0_ | 2022
+|  _11_    | _bullseye_  |     _11.0_      | _5.10.0_ | 2023
 |=============================================================
 
 The FSL11 documents follow the FS font conventions, which can be found
@@ -88,11 +89,9 @@ at: https://nvi-inc.github.io/fs/misc/font_conventions.html.
 
 == Choosing architecture and creating installation media
 
-#TODO: edit in correct version number below#
-
 FSL11 can be configured for either the _i386_ or _amd64_
 architectures. With FSL11 it is necessary to use Field System version
-#_10.1.1_# or later. Those FS versions support both architectures
+_10.2_ or later. Those FS versions support both architectures
 natively, so either may be used. The _amd64_ architecture is preferred
 and should be used if possible (it should be unless the processor is
 very old, from about 2010 or older). However, some work may be
@@ -119,10 +118,10 @@ recommended mainly for sites with little to poor Internet connectivity (even
 then, use of a single DVD may suffice) and the equivalent use of a "`Debian
 GNU/Linux _11.<x>_ Bullseye - Official _i386_/_amd64_ netinst CD`" would suffice for
 installation at most sites with good connectivity. Official images for the installer
-can be found at: https://cdimage.debian.org/cdimage/archive/ or alternatively,
+can be found at: https://cdimage.debian.org/cdimage/release/ or alternatively,
 should your hardware require non-free firmware, unofficial images for the
 installer that also include all available non-free firmware can be found at:
-https://cdimage.debian.org/cdimage/unofficial/non-free/cd-including-firmware/archive/
+https://cdimage.debian.org/cdimage/unofficial/non-free/cd-including-firmware/
 
 The details of creating your installation media can be found in the Debian
 installation guide available from:
@@ -130,6 +129,10 @@ https://www.debian.org/releases/bullseye/installmanual
 
 
 == Motherboard setup
+
+CAUTION: If you are installing to a virtual machine, make sure it is
+configured to have at least two cores. This is required for FS display
+server support.
 
 [NOTE]
 ====
@@ -606,24 +609,21 @@ When prompted, press kbd:[Enter] to install to the master boot record.
 
 === Disable Wayland (optional)
 
-This step should be executed when the installation stops for input in
-the next step, <<Remove installation media>>.
-
-#TODO: Is there a way to test for this without having to see if there
-is a problem after the reboot?#
-
-IMPORTANT: `Wayland` is enabled by default. If your CPU does not
-include a GPU and you do not have an add-on graphics card (in which
-case you are using the motherboard graphics), you will probably need
-to disable it. If you don't, the console may be nearly impossible to
-work with after rebooting. On the other hand, systems with those
-graphics solutions may be very difficult to work with if `Wayland` is
-disabled. You may need to try both approaches to see which works best.
-If you try one that doesn't work well, you may need to reinstall from
-scratch to try the other. Whether your choice works or not should be
-evident when you start the <<Second stage installation>> step below.
+This step should only be needed if your CPU does not include a GPU and
+you do not have an add-on graphics card. In that case, you are using
+the motherboard graphics support. Disabling `Wayland` is known
+specifically to be necessary for the `X11SCA-F` motherboard, which
+uses the `AST2500` graphics chip. If you don't know that you need to
+disable `Wayland`, we recommend that you initially leave it enabled.
+Whether your choice works or not should be evident when you start the
+<<Second stage installation>> step below. The console may be very
+difficult, even impossible, to work with. In that case, please see the
+<<wayland_recovery,Wayland recovery>> *NOTE* below.
 
 To disable `Wayland`:
+
+TIP: These instructions step can be executed when the installation
+stops for input in the next step, <<Remove installation media>>.
 
 . Press kbd:[Ctrl+Alt+F2] to switch to a different console.
 
@@ -642,6 +642,26 @@ The only editor available at this point may be _nano_.
  exit
 
 . Press kbd:[Ctrl+Alt+F1] to return to the Installer dialog.
+
+[NOTE]
+====
+
+<<wayland_recovery,Wayland recovery>>[[wayland_recovery]]: If you find
+you have made the wrong choice, there are at least three possible ways
+to recover:
+
+. If the console is marginally usable, you may be able to login on a
+text console to adjust the contents of _/etc/gdm3/daemon.config_ as
+needed, then execute:
+
+ systemctl restart gmd3
+
+. Use the procedure in the <<Rescue Mode>> appendix and adjust the
+contents of _/etc/gdm3/daemon.config_ as needed.
+
+. Reinstall from scratch and make the opposite choice.
+
+====
 
 === Remove installation media 
 
@@ -899,41 +919,50 @@ TIP: More information about RAID operation can be found in the
 
 [subs="+quotes"]
 ....
-   cd /usr2
-   git clone https://github.com/nvi-inc/fs fs-git
-   cd /usr2/fs-git
-   git checkout -q ed/fsl11
+ cd /usr2
+ git clone https://github.com/nvi-inc/fs fs-git
+ cd /usr2/fs-git
+ git checkout -q _tag_
 ....
 
-#TODO: restore using `git checkout -q _tag_` when a FS that supports
-FSL11 is released.#
+where `_tag_` is the latest available release, _10.2.0_ or later.
 
-where `_tag_` is the latest available release, be it _10.1.0_ or
-later.
+[TIP]
+====
+
+At the time of this writing, _10.2.0_ has not been officially
+released. The `_tag_` for the latest alpha version is currently
+_10.2.0-alpha3_. That, or a later tagged alpha version or beta
+pre-release, should suffice for an initial installation. However they
+should not be used for operations. You should update to _10.2.0_ as
+soon as it is available. If _10.2.0_ has not been officially released,
+you should ignore the *IMPORTANT* block immediately below.
+
+You can find the most recent beta release of _10.2_ at:
+
+https://github.com/nvi-inc/fs/releases
+
+If none are available, you can find the most recent tagged alpha
+version of _10.2_ at:
+
+https://github.com/nvi-inc/fs/tags
+
+====
 
 [IMPORTANT]
 ====
 
-#TODO: edit in correct version number below#
-
-Although #_10.1.0_# is the current release at the time this was written,
-and should suffice for an initial installation, it may well not be the
-most up-to-date release when you are installing. To find more recent
-releases, go to:
+You should install the latest official release. To find it, go to:
 
 https://github.com/nvi-inc/fs/releases
 
-You should probably use the most recent release ending in _.0_ (a
-so-called _feature_ release) with no trailing _-<string>_, e.g.,
-_10.0.0_. However, if there is a more recent _patch_ release (not
-ending _.0_) for the most recent feature release, you should use the
-most recent patch release.  For example, if _10.1.0_ is the most
-recent feature release and there are corresponding patch releases,
-_10.1.1_ and _10.1.2_, the last one, ending _.2_, is probably the best
-choice.
-
-NOTE: Releases _numbered_ before _10.0.0_ are listed mostly for historical
-reference. They are not intended for operational use.
+You should probably use the most recent _feature_ release (ending in
+_.0_ with no trailing _-<string>_, e.g., _10.2.0_. However, if there
+is a more recent _patch_ release (not ending _.0_) for the most recent
+feature release, you should use the most recent patch release. For
+example, if _10.2.0_ is the most recent feature release and there are
+corresponding patch releases, _10.2.1_ and _10.2.2_, then the last
+one, ending _.2_, is probably the best choice.
 
 ====
 
@@ -963,7 +992,7 @@ to confirm that everything compiled correctly (no news is good news).
 
 === Reboot the new system
 
-Remove any DVD from the machine and to restart the machine using
+Remove any DVD from the machine and restart the machine using
 _reboot_ as _root_ or kbd:[Ctrl+Alt+Del] whilst watching that
 everything starts up smoothly.
 
@@ -1104,7 +1133,7 @@ the <<cis-setup.adoc#,CIS hardening FSL11>> document.
 If you don't want the complete CIS hardening, which creates some
 inconveniences and is only required in certain environments, you may
 still be interested in applying a subset of the remediations. You can
-pick and choose those from the <<cis-setup.adoc#,CIS Hardening FSL11>>
+pick and choose those from the <<cis-setup.adoc#,CIS hardening FSL11>>
 document and its script.
 
 A useful minimum set of features to apply would be to install _ufw_
@@ -1180,6 +1209,28 @@ some careless errors.
 3. Add the command `set -o noclobber` to avoid accidently overwriting
 existing files with I/O redirection. Other options to consider setting
 are `physical` and `ignoreeof`.
+
+=== Create root's .inputrc file
+
+The _readline_ package is used by _bash_, and other programs, to
+maintain a history of commands that can be edited and then
+re-executed. By default, it will retain edits of history entries that
+have _not_ been re-executed. This makes the unedited history entries
+more difficult to locate and re-execute. Retaining the un-executed
+edits can be disabled for _root_ by creating the file:
+
+./root/.inputrc
+[source]
+----
+$include /etc/inputrc
+set revert-all-at-newline on
+----
+
+The `$include /etc/inputrc` line preserves the other system wide
+_readline_ defaults.
+
+NOTE: The standard fresh FS installation creates this file for the
+_oper_ and _prog_ (and AUID) accounts.
 
 === Setup /etc/hosts
 
@@ -1305,7 +1356,7 @@ ModemManager package to avoid conflicts over access to the ports.
 Execute this command:
 
 ....
-apt-get purge modemmanger
+apt-get purge modemmanager
 ....
 
 === Remove anacron package
@@ -1725,6 +1776,41 @@ system.
 Please check the end of the <<Use KeepAlive to prevent VLAN firewall inactivity time-out>>
 section for setting the ownership and  permissions on _~/.ssh/config_.
 
+=== Suspend, shutdown, and restart issues
+
+. Mouse cursor disappearing on text console after suspend
+
++
+
+The FSL11 installation disables suspend by default (as part of the
+`greeter` item in the <<FS Adaptation: Setup (Window 2)>> sub-step of
+<<_fsadapt>> in the <<Third stage installation>>). If you did not
+disable suspend, you may encounter this issue. A way to fix it is to
+switch to a different text console and then back again. The cursor
+should reappear.
+
+. Disable the power switch from shutting the system down
+
++
+
+.. Add the following to the _/etc/gdm3/greeter.dconf-defaults_ file:
+
+ # Disable restart buttons
+ disable-restart-buttons=true
+
+.. Restart _gdm3_:
+
+ systemctl restart gdm3
+
+. Disable use of restart for ordinary users
+
++
+
+It is possible to disable all use of restart for ordinary users with a
+bit more work -- the details are available on request. The file
+link:powerlock.tar.gz[] may be helpful for this. It contains sample
+contents of the files that need to be changed or created.
+
 === Printer setup
 
 . Make sure your printer is connected, to the computer or the network, as appropriate.
@@ -1801,7 +1887,7 @@ instructions, please see the
 :sectnumlevels: 3
 [appendix]
 
-== Managing security updates
+== Managing Security Updates
 
 It is strongly recommended that you use the weekly _cron_ update
 download (the "`weekly _cron_ job`") as configured according to the
@@ -2042,7 +2128,7 @@ available.
 
 === End of security updates
 
-When support for _bullseye_ ends, currently expected in June 2022,
+When support for _bullseye_ ends, currently expected in May 2024,
 there will be no more security updates.  At that time, the existing
 packages will be migrated to the Debian archive site. This will be
 visible in the output from the weekly _cron_ job script as errors that
@@ -2086,7 +2172,7 @@ This may generate an error about a `Release` file having expired, but that is be
 
 [appendix]
 
-== Other maintenance procedures
+== Other Maintenance Procedures
 
 This appendix covers additional procedures for maintaining your
 system.
@@ -2096,7 +2182,7 @@ system.
 This is useful if the computer is physically moved to a different
 site, its IP address changes, or its network information needs to be
 updated for a different reason. This is typically not needed if you
-use DHCP, which may still require some of the changes in the
+use DHCP, though that may still require some of the changes in the
 <<sysfiles,Modify other system files>> step below (please let us know
 if you gain experience).
 
@@ -2418,7 +2504,7 @@ the <<raid.adoc#,Raid Notes for FSL11>> document.
 
 [appendix]
 
-== Rescue mode
+== Rescue Mode
 
 Rescue mode is useful for repairing some problems that prevent booting
 and/or logging in.
@@ -2486,14 +2572,16 @@ prompts, ultimately continuing below.
 NOTE: The selected time zone will have no effect on the timestamps
 stored on the disk for any changes you may make, but will affect the displayed times you see.
 
-. Select `Assemble RAID array`
-. Press kbd:[Space] on `Automatic`
+. Unless you are not using Software RAID, select `Assemble RAID array`
 +
-Press kbd:[Enter] to continue
+Press kbd:[Space] on `Automatic` and kbd:[Enter] to continue
 
 . Select your root file system (_/dev/vg0/root_)
 . Select `Yes` to mount separate _/boot_ partition (_/boot_), unless it is corrupt
-. Select `Yes` to mount separate _/boot/efi_ partition (_/boot/efi_), unless it is corrupt
++
+For UEFI boot also select `Yes` to mount separate _/boot/efi_ partition (_/boot/efi_),
+unless it is corrupt
+
 . Select _Execute a shell in /dev/vg0/root_ (or whatever your root file system is)
 . Select `Continue` to enter rescue mode
 . Use whatever commands are needed for your repair
