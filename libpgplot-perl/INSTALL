@@ -1,0 +1,14 @@
+These packages do not form part of FSLinux 11 per se, but are supplied as a
+courtesy for those who really want to use the non-free PGPLOT library instead
+of its free replacement giza.
+
+Note that they will be summarily overwritten should libpgplot-perl undergo any
+security-related upgrade unless you pin them in APT to prevent that.
+
+To install:
+
+  apt install pgplot5
+  dpkg -i libpgplot-perl_2.24-1+b2+anu0_{amd64,i386}.deb
+
+
+NB: Use of these packages is at your own risk.
