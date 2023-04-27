@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.0.1 - April 2023
+Version 1.0.2 - April 2023
 
 :sectnums:
 :experimental:
@@ -932,7 +932,7 @@ where `_tag_` is the latest available release, _10.2.0_ or later.
 
 At the time of this writing, _10.2.0_ has not been officially
 released. The `_tag_` for the latest alpha version is currently
-_10.2.0-alpha2_. That, or a later tagged alpha version or beta
+_10.2.0-alpha3_. That, or a later tagged alpha version or beta
 pre-release, should suffice for an initial installation. However they
 should not be used for operations. You should update to _10.2.0_ as
 soon as it is available. If _10.2.0_ has not been officially released,
@@ -1883,6 +1883,22 @@ instructions, please see the
 <<raid.adoc#_refresh_spare_usr2,refresh_spare_usr2>> subsection in the
 <<raid.adoc#_script_descriptions,Script descriptions>> section of the
 <<raid.adoc#,RAID Notes for FSL 11>> document.
+
+=== Install pgplot version of pgperl
+
+IMPORTANT: This step is "`use as at your risk.`" It installs a
+non-standard package.
+
+This replaces the use of the _giza_ package in _pgperl_ with _pgplot_.
+It will restore the behavior of _pgperl_ (used by _plotlog_) from
+distributions FSL10 and earlier. Full directions can be found in the
+_INSTALL_ file in sub-directory
+https://github.com/nvi-inc/fsl11/tree/main/libpgplot-perl[libpgplot-perl].
+
+This package uses the same _pgperl_ source as the standard version,
+but it is built against _pgplot_ instead. If _pgperl_ receives a
+security update, the _pgplot_ version will be overwritten. It is
+possible to prevent it from being updated if you prefer.
 
 :sectnumlevels: 3
 [appendix]
