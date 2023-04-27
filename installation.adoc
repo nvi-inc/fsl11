@@ -1884,6 +1884,22 @@ instructions, please see the
 <<raid.adoc#_script_descriptions,Script descriptions>> section of the
 <<raid.adoc#,RAID Notes for FSL 11>> document.
 
+=== Install pgplot version of pgperl
+
+IMPORTANT: This step is "`use as at your risk.`" It installs a
+non-standard package.
+
+This replaces the use of the _giza_ package in _pgperl_ with _pgplot_.
+It will restore the behavior of _pgperl_ (used by _plotlog_) from
+distributions FSL10 and earlier. Full directions can be found in the
+_INSTALL_ file in sub-directory
+https://github.com/nvi-inc/fsl11/tree/main/libpgplot-perl[libpgplot-perl].
+
+This package uses the same _pgperl_ source as the standard version,
+but it is built against _pgplot_ instead. If _pgperl_ receives a
+security update, the _pgplot_ version will be overwritten. It is
+possible to prevent it from being updated if you prefer.
+
 :sectnumlevels: 3
 [appendix]
 
