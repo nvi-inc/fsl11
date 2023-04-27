@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.0.1 - April 2023
+Version 1.0.2 - April 2023
 
 :sectnums:
 :experimental:
