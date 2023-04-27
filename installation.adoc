@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.0.2 - April 2023
+Version 1.0.3 - April 2023
 
 :sectnums:
 :experimental:
@@ -1886,8 +1886,9 @@ instructions, please see the
 
 === Install pgplot version of pgperl
 
-IMPORTANT: This step is "`use as at your risk.`" It installs a
-non-standard package.
+IMPORTANT: This step is "`use as at your own risk.`" Every effort has
+been made to make it safe, but it installs a non-standard package. It
+is best to avoid installing it if you don't require it.
 
 This replaces the use of the _giza_ package in _pgperl_ with _pgplot_.
 It will restore the behavior of _pgperl_ (used by _plotlog_) from
@@ -1898,7 +1899,7 @@ https://github.com/nvi-inc/fsl11/tree/main/libpgplot-perl[libpgplot-perl].
 This package uses the same _pgperl_ source as the standard version,
 but it is built against _pgplot_ instead. If _pgperl_ receives a
 security update, the _pgplot_ version will be overwritten. It is
-possible to prevent it from being updated if you prefer.
+possible to prevent that if you prefer.
 
 :sectnumlevels: 3
 [appendix]
