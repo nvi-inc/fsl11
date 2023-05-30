@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.0.4 - April 2023
+Version 1.0.5 - May 2023
 
 :sectnums:
 :experimental:
@@ -2160,19 +2160,18 @@ the packages files can't be found. Two steps are needed at that time:
 . Change the _/etc/apt/sources.list_ file to point to the archive
 site. Although there will be no more security updates, this will enable
 downloading of additional packages if they are needed. The new lines that
-should replace the corresponding lines are:
+should replace the corresponding existing lines are:
 +
    deb http://archive.debian.org/debian/ bullseye main contrib non-free
    deb http://archive.debian.org/debian-security bullseye/updates main contrib non-free
-   deb http://archive.debian.org/debian-volatile bullseye/volatile main contrib non-free
 +
 And if you are using `deb-src` lines:
 +
    deb-src http://archive.debian.org/debian/ bullseye main contrib non-free
    deb-src http://archive.debian.org/debian-security bullseye/updates main contrib non-free
-   deb-src http://archive.debian.org/debian-volatile bullseye/volatile main contrib non-free
 +
-Otherwise the `deb-src` lines can be commented out (with a leading `#`).
+Otherwise the `deb-src` lines can be commented out (with a leading `#`).  Any other `deb` or
+`deb-src` lines relating to updates, proposed-updates etc. should likewise be commented out.
 +
 In addition, if you want to install packages from more recent
 distributions that have been backported to _bullseye_ you can add:
@@ -2186,6 +2185,9 @@ Lastly, update the index files:
     apt-get update
 +
 This may generate an error about a `Release` file having expired, but that is benign.
+
+NOTE: When bullseye becomes no longer supported, it is strongly advised that you move
+your FS machine behind a firewall or upgrade it to a more recent FS Linux release.
 
 [appendix]
 
