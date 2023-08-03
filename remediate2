@@ -81,38 +81,15 @@ Ciphers aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@opens
 HostKeyAlgorithms ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,ssh-rsa-cert-v01@openssh.com,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-rsa,rsa-sha2-512,rsa-sha2-256
 # 40069
 PubkeyAcceptedKeyTypes ssh-ed25519,ssh-ed25519-cert-v01@openssh.com,ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,ssh-rsa-cert-v01@openssh.com,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-rsa,rsa-sha2-512,rsa-sha2-256
+# 40076
+#Subsystem sftp /usr/lib/sftp-server -f AUTH -l INFO"
+#Subsystem sftp /usr/lib/openssh/sftp-server -f AUTH -l INFO"
 # 40715
 AllowAgentForwarding no
 EOT
 #
 # 40076
-SFTP_LIBS=$( dpkg-query -S sftp-server | grep -Ev "(man|doc|\.build-id)" | grep sftp-server | awk '{print $2}' | sed "s/\//\\\\\//g" )
-for SFTP_LIB in ${SFTP_LIBS[*]}
-do
-  if [ ! -h $SFTP_LIB ]
-  then
-    SED_INLINE="s/^Subsystem.*$/Subsystem sftp $SFTP_LIB -f AUTH -l INFO/"
-    ECHO_APPEND="Subsystem sftp $SFTP_LIB -f AUTH -l INFO"
-    INCLUDES=$( grep -E "^Include" /etc/ssh/sshd_config | sed 's/\s+/\ /g' | awk '{ print $2 }' )
-    if ls $INCLUDES &> /dev/null
-    then
-      CONFFILES=( ${CONFFILES[*]} ${INCLUDES[*]} )
-    fi
-    FIXED=1
-    for CONFIG_FILE in ${CONFFILES[*]}
-    do
-      if [[ $( grep -E $EXISTS_IF_REGEX $CONFIG_FILE ) ]]
-      then
-        sed -i.bak "$SED_INLINE" $CONFIG_FILE; rm -f "$CONFIG_FILE.bak"
-        FIXED=0
-      fi
-    done
-    if [[ "$FIXED" != "0" ]]
-    then
-      [[ $(uname) == "Darwin" ]] && CONFIG_FILE=/etc/ssh/sshd_config.d/0-ASCS.conf || CONFIG_FILE=/etc/ssh/sshd_config
-      echo $ECHO_APPEND >> $CONFIG_FILE fi
-    fi
-done
+sed -i 's/^Subsystem\s\+sftp.*/#&\n# 40076\n& -f AUTH -l INFO/' /etc/ssh/sshd_config
 # 40558
 cp -n /etc/gdm3/daemon.conf "$BACKUPS"
 sed -i '/^#.\+AutomaticLoginEnable/a # 40558\nAutomaticLoginEnable = false' /etc/gdm3/daemon.conf
