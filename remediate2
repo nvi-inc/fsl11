@@ -1,0 +1,114 @@
+#!/bin/bash -x
+#
+# Copyright (c) 2020, 2023 NVI, Inc.
+#
+# This file is part of FSL11 Linux distribution.
+# (see http://github.com/nvi-inc/fsl11).
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+
+set -e
+#
+if ! [ $(id -u) = 0 ]; then
+   echo "This script must be run as root."
+   exit 1
+fi
+# 20012
+echo > /etc/securetty
+sed -i '/^auth.\+pam_faildelay\.so/a # 20012\nauth [success=ok new_authtok_reqd=ok ignore=ignore user_unknown=bad default=die] pam_securetty.so' /etc/pam.d/login
+#
+touch /etc/audit/rules.d/ADD.rules
+cat >>/etc/audit/rules.d/ADD.rules <<EOT
+#20024
+-a always,exit -F arch=b64 -S rmdir -S renameat2 -F auid>=1000 -F auid!=4294967295 -k delete
+-a always,exit -F arch=b32 -S rmdir -S renameat2 -F auid>=1000 -F auid!=4294967295 -k delete
+#20026
+-w /usr/bin/kmod -p x -F key=modules
+-a always,exit -F arch=b64 -S create_module -S finit_module -k modules
+-a always,exit -F arch=b32 -S create_module -S finit_module -k modules
+-a always,exit -F arch=b32 -S sys_kexec_load -F key=KEXEC
+-a always,exit -F arch=b64 -S kexec_load -F key=KEXEC
+-w /etc/sysctl.conf -p wa -F key=sysctl
+-w /etc/sysctl.d -p wa -F key=sysctl
+-w /etc/modprobe.conf -p wa -F key=modprobe
+-w /etc/modprobe.d -p wa -F key=modprobe
+EOT
+#
+# 20036
+fold -s > /etc/issue << EOF
+By accessing and using this information system, you acknowledge and consent to the following:
+
+You are accessing a U.S. Government information system, which includes: (1) this computer; (2) this computer network; (3) all computers connected to this network including end user systems; (4) all devices and storage media attached to this network or to any computer on this network; and (5) cloud and remote information services. This information system is provided for U.S. Government-authorized use only. This system contains Controlled Unclassified Information (CUI). You have no reasonable expectation of privacy regarding any communication transmitted through or data stored on this information system. At any time, and for any lawful purpose, the U.S. Government may monitor, intercept, search, and seize any communication or data transiting, stored on, or traveling to or from this information system. You are NOT authorized to process classified information on this information system. Unauthorized or improper use of this system may result in suspension or loss of access privileges, disciplinary action, and civil and/or criminal penalties.
+EOF
+#
+#20053
+chmod 000 /etc/gshadow
+#20055
+chmod 000 /etc/shadow
+#
+#20126
+touch /etc/security/pwquality.conf 
+cat >>/etc/security/pwquality.conf <<EOT
+#
+# 20126
+retry = 3
+EOT
+#20165
+sed -i 's/^\(auth\s\+\[success=1 default=ignore\]\s\+pam_unix\.so\)\s\+nullok.*/# 20126\n#&\n\1/' /etc/pam.d/common-auth
+#
+touch /etc/ssh/sshd_config
+cat >>/etc/ssh/sshd_config <<EOT
+# 40038
+Ciphers aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com
+# 40045
+HostKeyAlgorithms ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,ssh-rsa-cert-v01@openssh.com,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-rsa,rsa-sha2-512,rsa-sha2-256
+# 40069
+PubkeyAcceptedKeyTypes ssh-ed25519,ssh-ed25519-cert-v01@openssh.com,ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,ssh-rsa-cert-v01@openssh.com,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-rsa,rsa-sha2-512,rsa-sha2-256
+# 40715
+AllowAgentForwarding no
+EOT
+#
+# 40076
+SFTP_LIBS=$( dpkg-query -S sftp-server | grep -Ev "(man|doc|\.build-id)" | grep sftp-server | awk '{print $2}' | sed "s/\//\\\\\//g" )
+for SFTP_LIB in ${SFTP_LIBS[*]}
+do
+  if [ ! -h $SFTP_LIB ]
+  then
+    SED_INLINE="s/^Subsystem.*$/Subsystem sftp $SFTP_LIB -f AUTH -l INFO/"
+    ECHO_APPEND="Subsystem sftp $SFTP_LIB -f AUTH -l INFO"
+    INCLUDES=$( grep -E "^Include" /etc/ssh/sshd_config | sed 's/\s+/\ /g' | awk '{ print $2 }' )
+    if ls $INCLUDES &> /dev/null
+    then
+      CONFFILES=( ${CONFFILES[*]} ${INCLUDES[*]} )
+    fi
+    FIXED=1
+    for CONFIG_FILE in ${CONFFILES[*]}
+    do
+      if [[ $( grep -E $EXISTS_IF_REGEX $CONFIG_FILE ) ]]
+      then
+        sed -i.bak "$SED_INLINE" $CONFIG_FILE; rm -f "$CONFIG_FILE.bak"
+        FIXED=0
+      fi
+    done
+    if [[ "$FIXED" != "0" ]]
+    then
+      [[ $(uname) == "Darwin" ]] && CONFIG_FILE=/etc/ssh/sshd_config.d/0-ASCS.conf || CONFIG_FILE=/etc/ssh/sshd_config
+      echo $ECHO_APPEND >> $CONFIG_FILE fi
+    fi
+done
+# 40558
+sed -i 's/^#.\+AutomaticLoginEnable/a # 40558\nAutomaticLoginEnable = false' /etc/gdm3/daemon.conf
+# 40566
+sed -i 's/^banner-message-text=.*/#&\n# 40566\nbanner-message-test='By accessing and using this information system, you acknowledge and consent to the following:\n\n You are accessing a U.S. Government information system, which includes: (1) this computer; (2) this computer network; (3) all computers connected to this network including end user systems; (4) all devices and storage media attached to this network or to any computer on this network; and (5) cloud and remote information services. This information system is provided for U.S. Government-authorized use only. This system contains Controlled Unclassified Information (CUI). You have no reasonable expectation of privacy regarding any communication transmitted through or data stored on this information system. At any time, and for any lawful purpose, the U.S. Government may monitor, intercept, search, and seize any communication or data transiting, stored on, or traveling to or from this information system. You are NOT authorized to process classified information on this information system. Unauthorized or improper use of this system may result in suspension or loss of access privileges, disciplinary action, and civil and/or criminal penalties.' /etc/gdm3/greeter.dconf-defaults
