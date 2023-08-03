@@ -30,10 +30,13 @@ if [ ! -d "$BACKUPS" ]; then
    mkdir "$BACKUPS"
 fi
 # 20012
+touch /etc/securetty
+cp -n /etc/securetty "$BACKUPS"
 echo > /etc/securetty
 sed -i '/^auth.\+pam_faildelay\.so/a # 20012\nauth [success=ok new_authtok_reqd=ok ignore=ignore user_unknown=bad default=die] pam_securetty.so' /etc/pam.d/login
 #
 touch /etc/audit/rules.d/ADD.rules
+cp -n /etc/audit/rules.d/ADD.rules "$BACKUPS"
 cat >>/etc/audit/rules.d/ADD.rules <<EOT
 #20024
 -a always,exit -F arch=b64 -S rmdir -S renameat2 -F auid>=1000 -F auid!=4294967295 -k delete
@@ -65,15 +68,19 @@ chmod 000 /etc/shadow
 #
 #20126
 touch /etc/security/pwquality.conf 
+cp -n /etc/security/pwquality.conf "$BACKUPS"
 cat >>/etc/security/pwquality.conf <<EOT
 #
 # 20126
 retry = 3
 EOT
 #20165
+touch /etc/pam.d/common-auth
+cp -n /etc/pam.d/common-auth "$BACKUPS"
 sed -i 's/^\(auth\s\+\[success=1 default=ignore\]\s\+pam_unix\.so\)\s\+nullok.*/# 20126\n#&\n\1/' /etc/pam.d/common-auth
 #
 touch /etc/ssh/sshd_config
+cp -n /etc/ssh/sshd_config "$BACKUPS"
 cat >>/etc/ssh/sshd_config <<EOT
 # 40038
 Ciphers aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com
