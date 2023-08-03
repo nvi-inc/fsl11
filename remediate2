@@ -47,6 +47,7 @@ cat >>/etc/audit/rules.d/ADD.rules <<EOT
 EOT
 #
 # 20036
+cp -n /etc/issue /etc/issue.remediate2_backup
 fold -s > /etc/issue << EOF
 By accessing and using this information system, you acknowledge and consent to the following:
 
