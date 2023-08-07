@@ -62,9 +62,9 @@ You are accessing a U.S. Government information system, which includes: (1) this
 EOF
 #
 #20053
-chmod 000 /etc/gshadow
+chmod 0000 /etc/gshadow
 #20055
-chmod 000 /etc/shadow
+chmod 0000 /etc/shadow
 #
 #20126
 touch /etc/security/pwquality.conf 
