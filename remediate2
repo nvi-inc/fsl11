@@ -38,13 +38,16 @@ sed -i '/^auth.\+pam_faildelay\.so/a # 20012\nauth [success=ok new_authtok_reqd=
 touch /etc/audit/rules.d/ADD.rules
 cp -n /etc/audit/rules.d/ADD.rules "$BACKUPS"
 cat >>/etc/audit/rules.d/ADD.rules <<EOT
-#20024
--a always,exit -F arch=b64 -S rmdir -S renameat2 -F auid>=1000 -F auid!=4294967295 -k delete
--a always,exit -F arch=b32 -S rmdir -S renameat2 -F auid>=1000 -F auid!=4294967295 -k delete
+# 20024
+# must all be one line
+-a always,exit -F arch=b32 -S rmdir,unlink,unlinkat,rename,renameat,renameat2 -F auid>=1000 -F auid!=4294967295 -F key=file_deletion_events
+-a always,exit -F arch=b64 -S rmdir,unlink,unlinkat,rename,renameat,renameat2 -F auid>=1000 -F auid!=4294967295 -F key=file_deletion_events
 #20026
 -w /usr/bin/kmod -p x -F key=modules
--a always,exit -F arch=b64 -S create_module -S finit_module -k modules
--a always,exit -F arch=b32 -S create_module -S finit_module -k modules
+# must all be one line ...
+-a always,exit -F arch=b32 -S create_module,init_module,delete_module,finit_module -F key=modules
+-a always,exit -F arch=b64 -S create_module,init_module,delete_module,finit_module -F key=modules
+# ... to here
 -a always,exit -F arch=b32 -S sys_kexec_load -F key=KEXEC
 -a always,exit -F arch=b64 -S kexec_load -F key=KEXEC
 -w /etc/sysctl.conf -p wa -F key=sysctl
