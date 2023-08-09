@@ -98,8 +98,6 @@ PubkeyAcceptedKeyTypes ssh-ed25519,ssh-ed25519-cert-v01@openssh.com,ecdsa-sha2-n
 AllowAgentForwarding no
 EOT
 #
-# 40076
-sed -i 's/^Subsystem\s\+sftp.*/#&\n# 40076\n& -f AUTH -l INFO/' /etc/ssh/sshd_config
 # 40558
 cp -n /etc/gdm3/daemon.conf "$BACKUPS"
 sed -i '/^#.\+AutomaticLoginEnable/a # 40558\nAutomaticLoginEnable = false' /etc/gdm3/daemon.conf
