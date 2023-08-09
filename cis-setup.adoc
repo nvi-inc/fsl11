@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.0.1a - November 2023
+Version 1.0.1b - August 2023
 
 == Introduction
 
@@ -91,6 +91,8 @@ Installation`" steps in the FSL11 instructions, before any further
 changes have been made to the system (however initializing and adding
 other disks to the RAID can intervene).
 
+To apply these remediations, execute the commands:
+
 ....
 cd /root/fsl11
 script ../remediate.txt
@@ -112,10 +114,46 @@ The system should be rebooted to make sure all the remediations have
 been applied. Some aren't enforced until a reboot.
 
 After the reboot, all the CIS remediations that can applied at this
-point have been completed. The next subsection describes some other
+point have been completed. The
+<<Additional CIS policies>> subsection below describes some other
 policies that can be considered.
 
-=== CIS issues that need to be addressed
+==== Additional scripted remediations
+
+A second round of scripted remediations that go beyond the CIS
+benchmark can be applied. Before applying these remediations, an account
+must be created that will have the ability to promote to _root_.
+Please see the <<Enabling user promotion to oper/prog and root>> and
+<<Adding AUID accounts>> sections of the
+<<Additional set-up for FS operations>> appendix for the details of
+configuring such an account.
+
+IMPORTANT: These remediations including disabling direct _root_ login.
+If there is no account that is able to promote to _root_ before they
+are applied, it will become impossible to get _root_ access.
+
+===== Run the script
+
+To apply these remediations, execute the commands:
+
+....
+cd /root/fsl11
+script ../remediate2.txt
+./remediate2
+exit
+....
+
+IMPORTANT: This script should not be run more than once on a system.
+
+This script will place a backup of all the original files modified by
+the script in the directory _/root/remediate2_backups_.
+
+===== Reboot
+
+The system should be rebooted to make sure all the remediations have
+been applied. Some aren't enforced until a reboot.
+
+=== Additional CIS policies
 
 :sectnums!:
 
@@ -584,13 +622,21 @@ method described here, and in the next subsection, uses _dhorsley_ as
 an example AUID account name.
 
 For _oper_ and _prog_, we suggest creating two groups that can _sudo_
-to the accounts.
+to the accounts. There are two options:
 
-run _visudo_ then add at end:
+. If you did _not_ use the remediate2_ script, run _visudo_ then add
+at end:
 
     %operators      ALL=(oper) NOPASSWD: ALL
     %programmers    ALL=(prog) NOPASSWD: ALL
     %programmers    ALL=(oper) NOPASSWD: ALL
+
+. If you _did_ use the remediate2_ script, run _visudo_ then add at
+end:
+
+    %operators      ALL=(oper) ALL
+    %programmers    ALL=(prog) ALL
+    %programmers    ALL=(oper) ALL
 
 To allow _operators_ to use _rotation_shutdown_, _refresh_secondary_,
 _shutdown_, and _reboot_, add (respectively):
