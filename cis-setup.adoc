@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.0.1 - November 2023
+Version 1.0.1a - November 2023
 
 == Introduction
 
@@ -220,7 +220,7 @@ for them to take effect.
 . In principle, you can remove the `Debian` label from the _grub_ boot
 menus by editing _/etc/default/grub_ and inserting a line:
 
- GRUB_DISTRIBTOR=FSL11
+ GRUB_DISTRIBUTOR=FSL11
 
 +
 
@@ -239,7 +239,7 @@ line.
 
 . In principle, you can remove the `Linux` label from the lines
 displaying kernel image files, by editing _/etc/grub.d/10_linux_ and
-globally replacing `{nbsp}Linux{nbsp}` (not the single leading and
+globally replacing `{nbsp}Linux{nbsp}` (note the single leading and
 single trailing spaces) with `{nbsp}FSL11{nbsp}` (not the single
 leading and single trailing spaces).
 
