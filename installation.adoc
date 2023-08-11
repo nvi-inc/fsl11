@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.0.5 - May 2023
+Version 1.0.6 - August 2023
 
 :sectnums:
 :experimental:
@@ -931,12 +931,12 @@ where `_tag_` is the latest available release, _10.2.0_ or later.
 ====
 
 At the time of this writing, _10.2.0_ has not been officially
-released. The `_tag_` for the latest alpha version is currently
-_10.2.0-alpha3_. That, or a later tagged alpha version or beta
-pre-release, should suffice for an initial installation. However they
-should not be used for operations. You should update to _10.2.0_ as
-soon as it is available. If _10.2.0_ has not been officially released,
-you should ignore the *IMPORTANT* block immediately below.
+released. The `_tag_` for the latest beta version is currently
+_10.2.0-beta2_. That or a later tagged beta pre-release, should
+suffice for an initial installation. However they should not be used
+for operations. You should update to _10.2.0_ as soon as it is
+available. If _10.2.0_ has not been officially released, you should
+ignore the *IMPORTANT* block immediately below.
 
 You can find the most recent beta release of _10.2_ at:
 
