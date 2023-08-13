@@ -29,6 +29,10 @@ BACKUPS=/root/remediate2_backups
 if [ ! -d "$BACKUPS" ]; then
    mkdir "$BACKUPS"
 fi
+# Add ID_LIKE
+touch /etc/os-release
+cp -n /etc/os-release "$BACKUPS"
+echo ID_LIKE=debian >>/etc/os-release
 # 20012
 touch /etc/securetty
 cp -n /etc/securetty "$BACKUPS"
