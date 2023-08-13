@@ -80,7 +80,7 @@ EOT
 #20165
 touch /etc/pam.d/common-auth
 cp -n /etc/pam.d/common-auth "$BACKUPS"
-sed -i 's/^\(auth\s\+\[success=1 default=ignore\]\s\+pam_unix\.so\)\s\+nullok.*/# 20126\n#&\n\1/' /etc/pam.d/common-auth
+sed -i 's/^\(auth\s\+\[success=1 default=ignore\]\s\+pam_unix\.so\)\s\+nullok.*/# 20126\n#\1 BADWORD\n\1/' /etc/pam.d/common-auth
 #
 touch /etc/ssh/sshd_config
 cp -n /etc/ssh/sshd_config "$BACKUPS"
