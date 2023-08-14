@@ -613,26 +613,27 @@ used for operations and programming respectively. However, some
 organizations may have security and auditing restrictions that mean
 operators must login using their own account (possibly named with
 their Agency User ID, or AUID). As the FS currently operates, users
-will then need to switch to the _oper_ or _prog_ account after login.
-Likewise, if a user is allowed to elevate to _root_, they will need to
-do so after logging into their own account. This subsection covers how
-to enable this capability. The next subsection,
-<<Adding AUID accounts>>, covers how to add an AUID account. The
-method described here, and in the next subsection, uses _dhorsley_ as
-an example AUID account name.
+will then need to switch, i.e., _promote_, to the _oper_ or _prog_
+account after login. Likewise, if a user is allowed to promote to
+_root_, they will need to do so after logging into their own account.
+This subsection covers how to enable this capability. The next
+subsection, <<Adding AUID accounts>>, covers how to add an AUID
+account. The method described here, and in the next subsection, uses
+_dhorsley_ as an example AUID account name.
 
 For _oper_ and _prog_, we suggest creating two groups that can _sudo_
-to the accounts. There are two options:
+to the accounts. For promotion password polices, there are two
+recommended options:
 
-. If you did _not_ use the remediate2_ script, run _visudo_ then add
-at end:
+. No password required for promotion. If you did _not_ use the
+_remediate2_ script, run _visudo_ then add at end:
 
     %operators      ALL=(oper) NOPASSWD: ALL
     %programmers    ALL=(prog) NOPASSWD: ALL
     %programmers    ALL=(oper) NOPASSWD: ALL
 
-. If you _did_ use the remediate2_ script, run _visudo_ then add at
-end:
+. User's login password required for promotion. If you _did_ use the
+_remediate2_ script, run _visudo_ then add at end:
 
     %operators      ALL=(oper) ALL
     %programmers    ALL=(prog) ALL
