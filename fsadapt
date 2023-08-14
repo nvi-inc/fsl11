@@ -579,7 +579,7 @@ fi
 ;;
     goinst)
 # Install/Upgrade Go programming language (if needed)
-LATEST_VERSION=$(curl --fail -s 'https://go.dev/VERSION?m=text' | cut -c3-)
+LATEST_VERSION=$(curl --fail -s 'https://go.dev/VERSION?m=text' | head -1 |  cut -c3-)
 GOARCH=$(dpkg --print-architecture |  sed -e 's/^i//')
 curl --fail -o /tmp/go.tar.gz "https://dl.google.com/go/go$LATEST_VERSION.linux-$GOARCH.tar.gz"
 [ -d /usr/local/go ] && rm -r /usr/local/go
