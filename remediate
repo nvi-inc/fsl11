@@ -750,7 +750,8 @@ chmod u-x,go-rwx /etc/group-
 # Added to CISfix service (at the end of this script) because it doesn't work
 # after boot for some reason
 #
-chown root:root /var/cache/private/fwupdmgr
+#doesn't exist
+#chown root:root /var/cache/private/fwupdmgr
 #
 # 6.2.8 Ensure users' home directories permissions are 750 or more restrictive
 #
@@ -798,7 +799,8 @@ chmod u-x,go-rwx /etc/shadow-
 chmod u-x,go-rwx /etc/group-
 # CIS 6.1.11
 # CIS 6.1.12
-chown root:root /var/cache/private/fwupdmgr
+#doesn't exist ?
+#chown root:root /var/cache/private/fwupdmgr
 exit 0
 EOT
 chmod u+x /usr/local/sbin/CISfix
