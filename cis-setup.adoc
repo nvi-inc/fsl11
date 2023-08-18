@@ -978,7 +978,7 @@ Add an uncommented line (or change an existing line) for
 
 ... Restart _sshd_. Execute:
 
-  systemclt restart sshd
+  systemctl restart sshd
 
 .. Create _spare_ account. Execute:
 
