@@ -963,23 +963,6 @@ on the __refresh_spare_usr2__ script.
 
 . On the _operational_ system:
 
-.. _Temporarily_ set _sshd_ to allow _root_ login:
-
-... Edit _/etc/ssh/sshd_config_
-
-+
-
-+
-
-+
-
-Add an uncommented line (or change an existing line) for
-`PermitRootLogin` to set it to `yes`
-
-... Restart _sshd_. Execute:
-
-  systemctl restart sshd
-
 .. Create _spare_ account. Execute:
 
 +
