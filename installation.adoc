@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.0.7 - September 2023
+Version 1.0.8 - September 2023
 
 :sectnums:
 :experimental:
@@ -30,6 +30,20 @@ Version 1.0.7 - September 2023
 
 :toc:
 <<<
+:sectnums!:
+== Document revision history
+
+* 1.0.8 -- Add revision history
+* 1.0.7 -- Add reference for transferring FS install to FSL11
+* 1.0.6 -- Update latest FS tag to 10.2.0-beta2
+* 1.0.5 -- Update end-of-support for current sources.list
+* 1.0.4 -- Refine pgperl wording
+* 1.0.3 -- Improve pgperl with pgplot warning
+* 1.0.2 -- Add pgplot version of pgperl; use 10.2.0-alpha3
+* 1.0.1 -- Use 10.2.0-alpha2
+* 1.0.0 -- Initial release
+
+:sectnums:
 == Introduction
 
 These instructions provide a complete method for system installation
