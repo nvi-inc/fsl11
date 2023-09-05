@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.0.6 - August 2023
+Version 1.0.7 - September 2023
 
 :sectnums:
 :experimental:
@@ -1102,14 +1102,31 @@ disk.
 
 == Post install
 
-The FS on your newly installed system should now be ready to be
-customized for your site's requirements by tailoring the control files
-in _/usr2/control_ and adding suitable station specific software to
-_/usr2/st_. See the files in the _/usr2/fs/st.default/st-0.0.0_
-directory for starter versions of the latter.
-
-Please refer to the appendix <<Additional Setup Items>> for OS
+TIP: Please refer to the appendix <<Additional Setup Items>> for OS
 customizations that you may find useful.
+
+The section provides information on customizing your new system from
+scratch for a new FS installation or transferring an existing FS
+installation to this machine.
+
+=== New FS installation
+
+Your newly installed system should now be ready to be customized for
+your site's requirements for a new FS installation. You will need to
+tailor the control files in _/usr2/control_ and add suitable station
+specific software to _/usr2/st_, particularly _antcn_. See the files
+in the _/usr2/fs/st.default/st-0.0.0_ directory for starter versions
+of the latter.
+
+=== Transferring an FS existing installation
+
+If you have an existing FS installation you want to transfer to this
+machine, you will need to transfer your files and update their
+contents for use with FS _10.2_ or later. For transferring and
+updating to FS _10.2_, please see the appendix "`Transferring an
+existing FS installation to FSL11`" in the "`FS 10.2 Update Notes`"
+document at:
+https://nvi-inc.github.io/fs/releases/10/2/10.2#_transferring_an_existing_fs_installation_to_FSL11.
 
 [appendix]
 :sectnumlevels: 4
