@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.0.0 - April 2023
+Version 1.0.1 - November 2023
 
 == Introduction
 
@@ -806,7 +806,7 @@ To set the correct default desktop (it is remembered per user):
  [User]
  Language=
  XSession=default
- Icon=/usr2/dehorsleyley/.face
+ Icon=/usr2/dehorsley/.face
  SystemAccount=false
  EOF
 
