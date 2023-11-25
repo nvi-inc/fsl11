@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.0.9 - September 2023
+Version 1.0.10 - November 2023
 
 :sectnums:
 :experimental:
@@ -33,6 +33,7 @@ Version 1.0.9 - September 2023
 :sectnums!:
 == Document revision history
 
+* 1.0.10 -- Fix referring to where RAID tools are used; other minor wording improvements
 * 1.0.9 -- Fix link for transferring FS install to FSL11
 * 1.0.8 -- Add revision history
 * 1.0.7 -- Add reference for transferring FS install to FSL11
@@ -903,12 +904,13 @@ entering the passwords twice as prompted.
 
 === Install tools for RAID (optional)
 
-You can install some useful tools for working with the RAID, if you're actually using it, with:
+You can install some useful tools for working with the RAID, if you're
+actually using it, with:
 
    ~/fsl11/RAID/install_tools
 
-The rest of this document assumes the first three of these tools have
-been installed. The six tools are:
+The <<Fourth stage installation>> section, below, assumes the first
+four of these tools have been installed. The six tools are:
 
 * _mdstat_ -- for all users -- check on the RAID status
 
@@ -1011,7 +1013,7 @@ Remove any DVD from the machine and restart the machine using
 _reboot_ as _root_ or kbd:[Ctrl+Alt+Del] whilst watching that
 everything starts up smoothly.
 
-== Fourth stage Installation
+== Fourth stage installation
 
 === Setup additional disks
 
@@ -1120,9 +1122,9 @@ disk.
 TIP: Please refer to the appendix <<Additional Setup Items>> for OS
 customizations that you may find useful.
 
-The section provides information on customizing your new system from
-scratch for a new FS installation or transferring an existing FS
-installation to this machine.
+The current section provides information on customizing your new
+system from scratch for a new FS installation or transferring an
+existing FS installation to this machine.
 
 === New FS installation
 
