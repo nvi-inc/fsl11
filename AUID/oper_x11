@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2020, 2023 NVI, Inc.
+# Copyright (c) 2023 NVI, Inc.
 #
 # This file is part of FSL11 Linux distribution.
 # (see http://github.com/nvi-inc/fsl11).
@@ -20,28 +20,18 @@
 #
 
 set -e
-if ! [ $(id -u) = 0 ]; then
-   echo "This script must be run as root."
-   exit 1
+
+if [ $USER = "prog" ]; then
+  echo "ERROR: Cannot promote to oper from $USER account. Promote from $SUDO_USER instead."
+  exit 1
+elif [ $USER = "oper" ]; then
+  echo "ERROR: Already in $USER account."
+  exit 1
 fi
-# install promotion scripts
-echo "Setting up promotion scripts"
-cd /usr/local/bin
-cp -a ~/fsl11/AUID/*_account .
-chown root:root *_account
-chmod a+rx *_account
-cp -a ~/fsl11/AUID/*_x11 .
-chown root:root *_x11
-chmod a+rx *_x11
-# Updating ~oper/.profile
-echo "Updating ~oper/.profile"
-touch ~oper/.profile
-cat ~/fsl11/AUID/profile_oper >> ~oper/.profile
-# Updating ~prog/.profile
-echo "Updating ~prog/.profile"
-touch ~prog/.profile
-cat ~/fsl11/AUID/profile_prog >> ~prog/.profile
-# Updating ~root/.profile
-echo "Updating ~root/.profile"
-touch ~root/.profile
-cat ~/fsl11/AUID/profile_root >> ~root/.profile
+
+if tty|grep -q ^/dev/tty ;then
+    export AUID_PROMOTE_ACCOUNT=oper
+    startx >/dev/null 2>&1
+else
+    echo "Only text console users are allowed to run the X server, use 'oper_account'."
+fi
