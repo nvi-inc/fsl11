@@ -15,3 +15,10 @@ if ! [ -z ${DISPLAY+x} ]; then
         setsid fvwm --replace >/dev/null 2>&1 &
     fi
 fi
+#
+# include AUID user's .profile_SUDO_USER
+if [ -n "$SUDO_USER" ]; then
+    if [ -f "$HOME/.profile_$SUDO_USER" ]; then
+        . "$HOME/.profile_$SUDO_USER"
+    fi
+fi
