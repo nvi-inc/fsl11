@@ -1,4 +1,5 @@
 #
-if ! [ -z "$XCOOKIE" ]; then
+# authorise XCOOKIE for remote users
+if ! [ -z ${XCOOKIE+x} ]; then
    xauth add $XCOOKIE
 fi
