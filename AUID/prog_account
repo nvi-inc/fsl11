@@ -21,25 +21,24 @@
 
 set -e
 
-if [[ "$USER" =~ ^(oper)$ ]]; then
+if [ "$USER" = "oper" ]; then
   echo "ERROR: Cannot promote to prog from $USER account. Promote from $SUDO_USER instead."
   exit 1
-else
-  if [[ "$USER" =~ ^prog$ ]]; then
-    echo "ERROR: Already in $USER account."
-    exit 1
-  fi
+elif [ "$USER" = "prog" ]; then
+  echo "ERROR: Already in $USER account."
+  exit 1
 fi
 
-if echo $DISPLAY |grep -q localhost; then
-  sudo -u prog XCOOKIE="$(xauth list $DISPLAY)" -i "$@"
+if [ -z ${DISPLAY+x} ]; then
+#   no DISPLAY set
+    sudo -u prog -i "$@"
+elif echo $DISPLAY |grep -q localhost; then
+#   remote user
+    sudo -u prog XCOOKIE="$(xauth list $DISPLAY)" -i "$@"
 else
-  if ! [ -z $DISPLAY ]; then
+#   on console X server
     if ! xhost|grep -q 'SI:localuser:prog'; then
-      xhost +SI:localuser:prog >/dev/null
+        xhost +SI:localuser:prog >/dev/null
     fi
     sudo -u prog -i "$@"
-  else 
-    sudo -u prog -i "$@"
-  fi
 fi
