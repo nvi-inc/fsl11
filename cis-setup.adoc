@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.0.1b - August 2023
+Version 1.0.1c - December 2023
 
 == Introduction
 
@@ -770,7 +770,6 @@ method uses _dhorsley_ as an example AUID account name.
 . Add any needed user accounts as appropriate:
 
     adduser dhorsley --home /usr2/dhorsley
-    chmod 0750 /usr2/dhorsley
 
 +
 IMPORTANT: If you are configuring a spare computer, you will need to
@@ -785,10 +784,9 @@ of _/usr2_ to work properly.
 For normal operations, AUID users' home directories should be on
 _/usr2_. However, for some maintenance accounts, it may make sense to
 have the home directory some where else, typically on _/home_. In that
-case, use these commands instead:
+case, use this command instead:
 
     adduser dhorsley
-    chmod 0750 /home/dhorsley
 
 The step for setting the contents of the home directory below will
 need to be adjusted accordingly, see <<note,NOTE>>.
