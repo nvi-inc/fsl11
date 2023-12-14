@@ -22,19 +22,20 @@
 set -e
 
 if [[ "$USER" =~ ^(oper|prog)$ ]]; then
-  echo "ERROR: Cannot promote to root from $USER account. Promote from $SUDO_USER instead."
-  exit 1
+    echo "ERROR: Cannot promote to root from $USER account. Promote from $SUDO_USER instead."
+    exit 1
 fi
 
-if echo $DISPLAY |grep -q localhost; then
-  sudo -u root XCOOKIE="$(xauth list $DISPLAY)" -i "$@"
+if [ -z ${DISPLAY+x} ]; then
+#   no DISPLAY set
+    sudo -u root -i "$@"
+elif echo $DISPLAY |grep -q localhost; then
+#   remote user
+    sudo -u root XCOOKIE="$(xauth list $DISPLAY)" -i "$@"
 else
-  if ! [ -z $DISPLAY ]; then
+#   on console X server
     if ! xhost|grep -q 'SI:localuser:root'; then
-      xhost +SI:localuser:root >/dev/null
+        xhost +SI:localuser:root >/dev/null
     fi
     sudo -u root -i "$@"
-  else 
-    sudo -u root -i "$@"
-  fi
 fi

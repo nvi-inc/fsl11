@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2020, 2023 NVI, Inc.
+# Copyright (c) 2023 NVI, Inc.
 #
 # This file is part of FSL11 Linux distribution.
 # (see http://github.com/nvi-inc/fsl11).
@@ -21,24 +21,17 @@
 
 set -e
 
-if [ "$USER" = "oper" ]; then
-  echo "ERROR: Cannot promote to prog from $USER account. Promote from $SUDO_USER instead."
+if [ $USER = "prog" ]; then
+  echo "ERROR: Cannot promote to oper from $USER account. Promote from $SUDO_USER instead."
   exit 1
-elif [ "$USER" = "prog" ]; then
+elif [ $USER = "oper" ]; then
   echo "ERROR: Already in $USER account."
   exit 1
 fi
 
-if [ -z ${DISPLAY+x} ]; then
-#   no DISPLAY set
-    sudo -u prog -i "$@"
-elif echo $DISPLAY |grep -q localhost; then
-#   remote user
-    sudo -u prog XCOOKIE="$(xauth list $DISPLAY)" -i "$@"
+if tty|grep -q ^/dev/tty ;then
+    export AUID_PROMOTE_ACCOUNT=oper
+    startx >/dev/null 2>&1
 else
-#   on console X server
-    if ! xhost|grep -q 'SI:localuser:prog'; then
-        xhost +SI:localuser:prog >/dev/null
-    fi
-    sudo -u prog -i "$@"
+    echo "Only text console users are allowed to run the X server, use 'oper_account'."
 fi

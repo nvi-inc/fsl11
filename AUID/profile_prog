@@ -1,19 +1,24 @@
 #
-if ! [ -z "$XCOOKIE" ]; then
+# authorise XCOOKIE for remote users
+if ! [ -z ${XCOOKIE+x} ]; then
    xauth add $XCOOKIE
 fi
-# set .Xresources for AUID accounts
-if echo $DISPLAY |grep -q localhost; then
-# ssh from remote host with X display
-  xrdb -merge ~/.Xresources
-else
-  if ! [ -z $DISPLAY ]; then
-    if xhost|grep -q 'SI:localuser:prog'; then
-#     local X display
-      xrdb -merge ~/.Xresources
+# set .Xresources/window-manager coming from AUID accounts
+if ! [ -z ${DISPLAY+x} ]; then
+#   NOT no DISPLAY defined, do something (otherwise do nothing)
+    if echo $DISPLAY |grep -q localhost; then
+#       ssh from remote host with X display
+        xrdb -merge ~/.Xresources
+    else
+#       login shell (because this is .profile) on the local X console
+        xrdb -merge ~/.Xresources
+        setsid fvwm --replace >/dev/null 2>&1 &
     fi
-  else
-#   text terminal, do nothing
-    :
-  fi
+fi
+#
+# include AUID user's .profile_SUDO_USER
+if [ -n "$SUDO_USER" ]; then
+    if [ -f "$HOME/.profile_$SUDO_USER" ]; then
+        . "$HOME/.profile_$SUDO_USER"
+    fi
 fi

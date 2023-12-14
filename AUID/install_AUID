@@ -30,6 +30,9 @@ cd /usr/local/bin
 cp -a ~/fsl11/AUID/*_account .
 chown root:root *_account
 chmod a+rx *_account
+cp -a ~/fsl11/AUID/*_x11 .
+chown root:root *_x11
+chmod a+rx *_x11
 # Updating ~oper/.profile
 echo "Updating ~oper/.profile"
 touch ~oper/.profile
