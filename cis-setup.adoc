@@ -31,7 +31,7 @@ Version 1.0.2 - December 2023
 :sectnums!:
 == Document revision history
 
-* 1.0.2 -- Add no GUI login
+* 1.0.2 -- Add no GUI login and other new remediations
 * 1.0.1 -- Fix typo in desktop setup
 * 1.0.0 -- Initial release
 
@@ -127,24 +127,25 @@ point have been completed. The
 <<Additional CIS policies>> subsection below describes some other
 policies that can be considered.
 
-==== Additional scripted remediations
+==== Additional remediations
 
-The subsection applies a second round of scripted remediations that go
-beyond the CIS benchmark. Before applying these remediations, an
-account must be created that will have the ability to promote to
-_root_. Please see the
+The subsection applies a second round of scripted remediations and an
+unscripted remediation that both go beyond the CIS benchmark. Before
+applying the scripted remediations, an account must be created that
+will have the ability to promote to _root_. Please see the
 <<Enabling user promotion to oper/prog and root>> and
 <<Adding AUID accounts>> sections of the
 <<Additional set-up for FS operations>> appendix for the details of
 configuring such an account.
 
-IMPORTANT: These remediations including disabling direct _root_ login.
-If there is no account that is able to promote to _root_ before they
-are applied, it will become impossible to get _root_ access.
-
 ===== Run the script
 
-To apply these remediations, execute the commands:
+To apply the scripted remediations, execute the commands:
+
+IMPORTANT: These scripted remediations including disabling direct
+_root_ login. If there is no account that is able to promote to
+_root_ before they are applied, it will become impossible to get
+_root_ access.
 
 ....
 cd /root/fsl11
@@ -158,7 +159,32 @@ IMPORTANT: This script should not be run more than once on a system.
 This script will place a backup of all the original files modified by
 the script in the directory _/root/remediate2_backups_.
 
-===== Reboot
+===== Unscripted remediation
+
+This remediation is to specify a FQDN for a server in the
+_/etc/ntp.conf_ file. The server must be within the same second-level
+domain as the system being hardened. If you using the recommended FS
+NTP configuration, you can add lines for the `_FQDN_` after the lines
+for the `_alias_` of the server. There must be _exactly_ one space (no
+tabs) between `server` and the `_FQDN_`. The result would be something
+like:
+
+[subs="+quotes"]
+----
+# if you update this one, also update the FQDN version below
+server      _alias_ iburst minpoll 4
+restrict    _alias_ kod notrap nomodify nopeer noquery
+#
+# if you update this one, also update the aliased version above
+server _FQDN_ iburst minpoll 4
+restrict _FQDN_ kod notrap nomodify nopeer noquery
+----
+
+The lines for the _alias_ may still work to locate the server if there
+is a DNS problem.  The comments may help get the correct result if
+this server changes.
+
+===== Second remediation reboot
 
 The system should be rebooted to make sure all the remediations have
 been applied. Some aren't enforced until a reboot.
