@@ -86,11 +86,17 @@ sed -i 's/^\(auth\s\+\[success=1 default=ignore\]\s\+pam_unix\.so\)\s\+nullok.*/
 #
 touch /etc/ssh/sshd_config
 cp -n /etc/ssh/sshd_config "$BACKUPS"
+# 40035
+sed -i 's/^\(Banner.*\)/#\1\n# 40035\nBanner \/etc\/issue/' /etc/ssh/sshd_config
+# 40076
+sed -i 's/^\(Subsystem.*\)/# 40076\n#\1\n\1 -f AUTHPRIV -l INFO/' /etc/ssh/sshd_config
 cat >>/etc/ssh/sshd_config <<EOT
 # 40038
 Ciphers aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com
 # 40045
 HostKeyAlgorithms ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,ssh-rsa-cert-v01@openssh.com,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-rsa,rsa-sha2-512,rsa-sha2-256
+# 40055
+LogLevel VERBOSE
 # 40069
 PubkeyAcceptedKeyTypes ssh-ed25519,ssh-ed25519-cert-v01@openssh.com,ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,ssh-rsa-cert-v01@openssh.com,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-rsa,rsa-sha2-512,rsa-sha2-256
 # 40715
