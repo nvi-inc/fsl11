@@ -26,11 +26,12 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.0.2 - December 2023
+Version 1.0.3 - December 2023
 
 :sectnums!:
 == Document revision history
 
+* 1.0.3 -- Optionally disable oper/prog shell time-out
 * 1.0.2 -- Add no GUI login and other new remediations
 * 1.0.1 -- Fix typo in desktop setup
 * 1.0.0 -- Initial release
@@ -708,6 +709,11 @@ possible to support _tcsh_. That would require adding equivalent
 promotion machinery that is used in the current _~/.profile_ files for
 these accounts be added into the corresponding _~/.login_ files.
 Please contact Ed for more information.
+
+Optionally, to disable shell inactivity time-outs for _oper_ and/or
+_prog_, edit their respective _.bashrc_ files and uncomment the line:
+
+  unset TMOUT
 
 If the accounts haven't been disabled for login already, do so:
 
