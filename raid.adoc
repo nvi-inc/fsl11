@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 1.0.0 - April 2023
+Version 1.0.1 - December 2023
 
 :sectnums:
 :experimental:
@@ -28,6 +28,16 @@ Version 1.0.0 - April 2023
 
 :toc:
 <<<
+:sectnums!:
+== Document revision history
+
+* 1.0.1 -- Bring _refresh_spare_usr2_ up to date for CIS hardened
+systems
+
+* 1.0.0 -- Initial release
+
+:sectnums:
+
 == Introduction
 
 These notes are intended to cover, albeit tersely, the major issues
@@ -946,10 +956,11 @@ accounts that have home directories on _/usr2_, as well as other OS
 set-up information the FS may depend on such as _/etc/hosts_ and
 _/etc/ntp.conf_.
 
-TIP: If you don't want to or are unable to use the _forced command_
-approach below for the _root_ account, you may find the approach of
-using _sudo_ in a regular account a usable alternative. For details on
-that approach, please see the
+NOTE: For a CIS hardened system or if otherwise you don't want to or
+are unable to use the _forced command_ approach below for the _root_
+account on the _operational_ system, you may find the approach of
+using _sudo_ with a regular account (_spare_) a usable alternative.
+For details on that approach, please see the
 <<cis-setup.adoc#_installing_refresh_spare_usr2_with_cis_hardening,Installing
 refresh_spare_usr2 with CIS hardening>> subsection of the
 <<cis-setup.adoc#,CIS hardening for FSL11>> document.
@@ -1079,7 +1090,7 @@ operation.
 `yes` with `forced-commands-only` on the uncommented `PermitRootLogin`
 line.
 
-... Restart `_sshd_. Execute:
+... Restart _sshd_. Execute:
 
   systemctl restart sshd
 
@@ -1106,14 +1117,17 @@ on a local virtual console text terminal.
 Logging in as a non-_root_ user will also work. Any available means
 can be used: a text console, _ssh_ from another system (preferably not
 the _operational_ system), or the graphics X11 display. You must then
-promote to _root_ using _su_ (for CIS hardened systems:
-_root_account_, or execute the script with _sudo_).
+promote to _root_ using _su_.
+
+NOTE: On CIS hardened system, you can't login as _root_. Instead, You
+must login to an AUID account and promote to _root_ using
+_root_account_.
 
 CAUTION: If you use the `-I` option (which would not normally be
 used), you must change your working directory to be somewhere off of
-_/usr2_, e.g., _/tmp_, before using _su_ (or _root_account_ or
-_sudo_). We have made an effort to make this reliable, but there still
-may be a chance that the script will fail with the error
+_/usr2_, e.g., _/tmp_, before using _su_ (or _root_account_). We have
+made an effort to make this reliable, but there still may be a chance
+that the script will fail with the error
 `umount:{nbsp}/usr2:{nbsp}target{nbsp}is{nbsp}busy.`. If this happens,
 you can try to recover by simply rerunning the script. This should
 work because although the error happens in the _critical phase_ (see
@@ -1128,17 +1142,12 @@ to achieve success.
 
 +
 
-[NOTE]
-====
-
-On a CIS hardened system (see <<cis-setup.adoc#,CIS hardening for
-FSL11>>), you may be able to use:
-
-  sudo refresh_spare_usr2
-
-from an AUID account
-
-====
+NOTE: For CIS hardened systems, you will need to first temporarily add
+`NOPASSWD:` to the entry for _spare_ in the _sudoers_ file on the
+_operational_ system, as described in the
+<<cis-setup.adoc#_installing_refresh_spare_usr2_with_cis_hardening,Installing
+refresh_spare_usr2 with CIS hardening>> subsection of the
+<<cis-setup.adoc#,CIS hardening for FSL11>> document.
 
 +
 

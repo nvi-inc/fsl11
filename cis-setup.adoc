@@ -26,10 +26,13 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.0.3 - December 2023
+Version 1.0.4 - December 2023
 
 :sectnums!:
 == Document revision history
+
+* 1.0.4 -- Remove _shutdown_, _reboot_, and _refresh_spare_usr2_ from
+_sudoers_; cleanup _refresh_spare_usr2_ only for _root_
 
 * 1.0.3 -- Optionally disable oper/prog shell time-out
 * 1.0.2 -- Add no GUI login and other new remediations
@@ -669,21 +672,33 @@ to the accounts. Run _visudo_, then add at end:
     %programmers    ALL=(prog) ALL
     %programmers    ALL=(oper) ALL
 
-To allow _operators_ to use _rotation_shutdown_, _refresh_secondary_,
-_shutdown_, and _reboot_, add (respectively):
+To allow _operators_ to use _rotation_shutdown_ and
+ _refresh_secondary_ add (respectively):
 
    %operators      ALL=(ALL) /usr/local/sbin/rotation_shutdown
    %operators      ALL=(ALL) /usr/local/sbin/refresh_secondary
-   %operators      ALL=(ALL) /sbin/shutdown
-   %operators      ALL=(ALL) /sbin/reboot
 
 To use these commands the _operators_ will need to enter
 (respectively) from their AUID accounts:
 
    sudo rotation_shutdown
    sudo refresh_secondary
-   sudo shutdown
-   sudo reboot
+
+[TIP]
+====
+
+If you run the script
+
+  AUID/install_RAID
+
+it will install scripts _rotation_shutdown_ and _refresh_secondary_
+that incorporate the _sudo_ command, so that an AUID user (only) can
+just use (respectively):
+
+ rotation_shutdown
+ refresh_secondary
+
+====
 
 The AUID account's password will be required. Trailing options can be
 used with the commands, as appropriate.
@@ -705,13 +720,13 @@ login shells:
 
 IMPORTANT: When promoting to _oper_ and _prog_ (and _root_), the only
 supported login shell for the target accounts is _bash_. It would be
-possible to support _tcsh_. That would require adding equivalent
-promotion machinery that is used in the current _~/.profile_ files for
-these accounts be added into the corresponding _~/.login_ files.
-Please contact Ed for more information.
+possible to support _tcsh_. That would require adding promotion
+machinery to the _~/.login_ files that is equivalent to what is in the
+current _~/.profile_ files. Please contact Ed for more information.
 
-Optionally, to disable shell inactivity time-outs for _oper_ and/or
-_prog_, edit their respective _.bashrc_ files and uncomment the line:
+Optionally, to disable shell inactivity time-outs for _oper_, _prog_,
+and/or AUID accounts, edit their respective _.bashrc_ files and
+uncomment the line:
 
   unset TMOUT
 
@@ -1089,8 +1104,8 @@ the host key will have been accomplished.
 
 This section is useful if you have a _spare_ computer and want it to
 have a backup of your _operational_ computer _/usr2_ partition. Using
-this method will allow operators to run _refresh_spare_user2_ with
-_sudo_. All steps must be performed as _root_ on the specified system.
+this method will allow _root_ to run _refresh_spare_usr2_. All steps
+for installation must be performed as _root_ on the specified system.
 You should read all of each step or sub-step before following it.
 
 TIP: Read the
@@ -1204,23 +1219,6 @@ ssh-copy-id spare@_operational_
 where `_operational_` is the alias, name, or IP of your _operational_
 system.
 
-
-.. Enable running the script with _sudo_. Use _visudo_ to add:
-
-+
-
-....
-%operators         ALL=(ALL) /usr/local/sbin/refresh_spare_usr2
-....
-
-+
-
-+
-
-NOTE: It could be setup for a specific user (but not _oper_ or _prog_
-in a CIS hardened system) by replacing `%operators` with the user
-account name.
-
 . On the _operational_ system:
 
 .. Set the _spare_ account to only allow a _forced command_ with _ssh_
@@ -1245,8 +1243,9 @@ provide the FQDN, IP address, and/or alias of the _spare_ system in a
 comma separated list in place of  `__node__` to get reliable
 operation.
 
-.. Enable the _spare_ account to run _rrsync_ with _sudo_ without a
-password and with passing environment variables. Use _visudo_ to add:
+.. Setup the _spare_ account to run _rrsync_ with _sudo_ with a
+password (which will make it fail, see the *IMPORTANT* block below)
+and with passing environment variables. Use _visudo_ to add:
 
 +
 
@@ -1259,8 +1258,8 @@ spare          ALL=(ALL) SETENV: /usr/bin/rrsync
 [IMPORTANT]
 ====
 
-Before  _refresh_spare_usr2_ is run, this line will need to be changed
-to:
+Before _refresh_spare_usr2_ is run, this line will need to be changed
+(temporarily) to:
 
 ....
 spare          ALL=(ALL) NOPASSWD:SETENV: /usr/bin/rrsync
