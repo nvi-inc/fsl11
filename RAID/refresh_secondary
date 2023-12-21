@@ -24,7 +24,7 @@
 # partition back into the array as a spare to be rebuilt.
 
 usage() {
-	echo "Usage: $0 [-A][-h][-p]"
+	echo "Usage: $(basename $0) [-A][-h][-p]"
 	echo -e "  where\t-A\tAllow \"Secondary\" disk to be loaded at start"
 	echo -e "  \t-h\tdisplay this help and exit"
 	echo -e "  \t-p\tdisplay progress meter while recovering"
