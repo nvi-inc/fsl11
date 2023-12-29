@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.0.10 - November 2023
+Version 1.0.11 - December 2023
 
 :sectnums:
 :experimental:
@@ -33,6 +33,7 @@ Version 1.0.10 - November 2023
 :sectnums!:
 == Document revision history
 
+* 1.0.11 -- Use 10.2.0 for FS tag
 * 1.0.10 -- Fix referring to where RAID tools are used; other minor wording improvements
 * 1.0.9 -- Fix link for transferring FS install to FSL11
 * 1.0.8 -- Add revision history
@@ -943,28 +944,6 @@ TIP: More information about RAID operation can be found in the
 ....
 
 where `_tag_` is the latest available release, _10.2.0_ or later.
-
-[TIP]
-====
-
-At the time of this writing, _10.2.0_ has not been officially
-released. The `_tag_` for the latest beta version is currently
-_10.2.0-beta2_. That or a later tagged beta pre-release, should
-suffice for an initial installation. However they should not be used
-for operations. You should update to _10.2.0_ as soon as it is
-available. If _10.2.0_ has not been officially released, you should
-ignore the *IMPORTANT* block immediately below.
-
-You can find the most recent beta release of _10.2_ at:
-
-https://github.com/nvi-inc/fs/releases
-
-If none are available, you can find the most recent tagged alpha
-version of _10.2_ at:
-
-https://github.com/nvi-inc/fs/tags
-
-====
 
 [IMPORTANT]
 ====
