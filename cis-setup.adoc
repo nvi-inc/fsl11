@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020-2023 NVI, Inc.
+// Copyright (c) 2020-2024 NVI, Inc.
 //
 // This file is part of the FSL11 Linux distribution.
 // (see http://github.com/nvi-inc/fsl11).
@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.0.4 - December 2023
+Version 1.0.5 - January 2024
 
 :sectnums!:
 == Document revision history
@@ -672,17 +672,23 @@ to the accounts. Run _visudo_, then add at end:
     %programmers    ALL=(prog) ALL
     %programmers    ALL=(oper) ALL
 
-To allow _operators_ to use _rotation_shutdown_ and
- _refresh_secondary_ add (respectively):
+To allow _operators_ to use _rotation_shutdown_ (with any options) and
+_refresh_secondary_ (but only with no options or with the `-h` or `-p`
+options individually), add (respectively):
 
    %operators      ALL=(ALL) /usr/local/sbin/rotation_shutdown
-   %operators      ALL=(ALL) /usr/local/sbin/refresh_secondary
+   %operators      ALL=(ALL) /usr/local/sbin/refresh_secondary ""
+   %operators      ALL=(ALL) /usr/local/sbin/refresh_secondary -h
+   %operators      ALL=(ALL) /usr/local/sbin/refresh_secondary -p
 
 To use these commands the _operators_ will need to enter
-(respectively) from their AUID accounts:
+(respectively) from their AUID accounts (but not as _oper_ or _prog_):
 
    sudo rotation_shutdown
    sudo refresh_secondary
+
+NOTE: The AUID account's password will be required unless it was
+entered for _sudo_ in the previous 15 minutes.
 
 [TIP]
 ====
@@ -692,20 +698,20 @@ If you run the script
   AUID/install_RAID
 
 it will install scripts _rotation_shutdown_ and _refresh_secondary_
-that incorporate the _sudo_ command, so that an AUID user (only) can
-just use (respectively):
+that incorporate the _sudo_ command, so that users in their AUID
+accounts can just use (respectively):
 
  rotation_shutdown
  refresh_secondary
 
 ====
 
-The AUID account's password will be required. Trailing options can be
-used with the commands, as appropriate.
-
-If the  user can elevate to _root_, also add:
+If the user is allowed to elevate to _root_, also add:
 
     dhorsley       ALL=(root) ALL
+
+NOTE: A user who can elevate to _root_ will be able to run
+_refresh_secondary_ with any options if they use _sudo_ explicitly.
 
 If they don't already exist, create the needed groups:
 

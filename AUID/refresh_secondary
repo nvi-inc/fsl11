@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2023 NVI, Inc.
+# Copyright (c) 2023, 2024 NVI, Inc.
 #
 # This file is part of FSL11 Linux distribution.
 # (see http://github.com/nvi-inc/fsl11).
@@ -23,6 +23,9 @@ set -e
 
 if [[ "$USER" =~ ^(oper|prog)$ ]]; then
 	echo "ERROR: Cannot use $(basename $0) from $USER account. Try from $SUDO_USER."
+    exit 1
+elif [[ -n "$@" && "$USER" != "root" && "$@" != "-h" && "$@" != "-p" ]]; then
+	echo "ERROR: Only root can use options other than -h or -p."
     exit 1
 fi
 
