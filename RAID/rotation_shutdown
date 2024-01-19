@@ -87,21 +87,7 @@ if test -f /usr2/fs/bin/lognm ; then
 #	echo "The FS does not appear to be installed. Shutting down is not prevented."
 fi
 
-echo -e "\nRAID not degraded and not recovering. SAFE to rotate disks."
-echo -n "Are you sure you wish to shutdown (y=yes, n=no)? "
-badans=true
-while [ "$badans" = "true" ]; do
-	read ans
-	case "$ans" in
-	y|yes)	badans=false
-		;;
-	n|no)	echo -e "Aborting."
-		exit 0
-		;;
-	*)	echo -e "Please answer with y=yes or n=no : \c"
-	esac
-done
-echo -e "Shutting down ..."
+echo -e "\nRAID not degraded and not recovering. SAFE to rotate disks. Shutting down ..."
 sleep 2;
 sync;sync
 sleep 1;
