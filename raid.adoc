@@ -32,7 +32,7 @@ Version 1.0.1 - December 2023
 == Document revision history
 
 * 1.0.1 -- Bring _refresh_spare_usr2_ up to date for CIS hardened
-system; add _rotation_shutdown_ confirmation prompt
+systems
 
 * 1.0.0 -- Initial release
 
@@ -181,8 +181,7 @@ prevent shutting down: (i) if the FS is running, you should terminate
 it before trying again; (ii) if the RAID is `recovering`, you will
 need to wait until the recovery is finished before shutting down, you
 can check the progress with the _mdstat_ command; and (iii) if the
-RAID is `degraded`, seek expert advice. If it is safe to shutdown, you
-will be asked to confirm before that proceeds.
+RAID is `degraded`, seek expert advice.
 
 . Take the disk from _primary_ slot, put it on the _shelf_
 +
@@ -234,7 +233,7 @@ the _primary_ and _secondary_ controllers.
 . If a rotation hasn't just been completed, perform one (as an extra
 backup) according to <<Disk rotation>> above.
 
-. Run _rotation_shutdown_
+. Shut the system down with the _rotation_shutdown_ command.
 
 +
 
@@ -258,7 +257,6 @@ you to reboot in order to evaluate the success thereof.
 
 ====
 
-. Answer `*y*` to shut down.
 . Key-off the _primary_ slot
 . Reboot (_primary_ keyed-off, _secondary_ keyed-on)
 . Install and test the update
@@ -338,8 +336,7 @@ procedure can be completed when time allows.
 
 . Wait until the RAID is not recovering, check with _mdstat_
 
-. Run _rotation_shutdown_
-. Answer `*y*` to shut down
+. Shut the system down with the _rotation_shutdown_ command.
 
 . Take the disk from _primary_ slot, put it back on the _shelf_
 . Move the disk from the _secondary_ slot to the _primary_ slot, keyed-on
@@ -481,8 +478,7 @@ RAID must not be `recovering` and not be `degraded`. Otherwise, an
 appropriate error message is printed. If the RAID is `recovering`, you
 will need to wait until the recovery is finished before shutting down;
 you can check the progress with the _mdstat_ command. If it is
-`degraded`, seek expert advice. If it is safe to shutdown, you will be
-asked to confirm before that proceeds.
+`degraded`, seek expert advice.
 
 The script will also not shutdown the system if the FS is in use. To
 override this, the `-F` option can be used, but is not recommended. It
