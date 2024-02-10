@@ -1007,13 +1007,10 @@ a simple alias for routine use.
 
 .. Install _refresh_spare_usr2_. Execute:
 
-  cd /usr/local/sbin
-  cp -a /root/fsl11/RAID/refresh_spare_usr2 refresh_spare_usr2
-  chown root.root refresh_spare_usr2
-  chmod a+r,u+wx,go-wx refresh_spare_usr2
+  ~/fsl11/RAID/install_backup
 
 .. Customize _refresh_spare_usr2_, following the directions in the
-comments in the script:
+comments in the script (repeated here):
 
 ... Comment-out the lines (add leading ``#``s):
 
@@ -1043,12 +1040,12 @@ system.
 
 +
 
-CAUTION: If _root_ already has a key, you only use the second command
+TIP: If _root_ already has a key, you only use the second command
 below, to copy it to the _spare_ system.
 
 +
 
-TIP: It is recommended to _not_ set a passphrase.
+CAUTION: You should _not_ set a passphrase.
 
 +
 
@@ -1105,9 +1102,20 @@ line.
 
 ==== Using refresh_spare_usr2
 
-. As part of a monthly backup, you would usually start a disk rotation
+NOTE: For CIS hardened systems, you should use the instructions in the
+<<cis-setup.adoc#_using_refresh_spare_usr2_with_cis_hardening,Using
+refresh_spare_usr2 with CIS hardening>> section in the
+<<cis-setup.adoc#_additional_items_for_fs_operations,Additional items
+for FS operations>> appendix of the <<cis-setup.adoc#,CIS hardening
+for FSL11>> document.
+
+As part of a monthly backup, you would usually start a disk rotation
 on both the _operational_ and _spare_ systems first. Once both systems
-are recovering, you should log out of both systems.
+are recovering, you should log out of both systems. You can also use
+_refresh_spare_usr2_ at other times to "`freshen`" _/usr2_ on the
+_spare_ system.
+
+. Start with no one logged into either system.
 
 +
 
@@ -1115,28 +1123,27 @@ IMPORTANT: Before proceeding, make sure that no one is logged into
 either system and that no processes are running on _/usr2_ on either
 system, particularly the FS.
 
-. Login on the _spare_ system. The best choice for this is as _root_
-on a local virtual console text terminal.
+. Login on the _spare_ system.
+
++
+
+The best choice for this is as _root_ on a local virtual console text
+terminal.
 
 +
 
 [TIP]
 ====
-
 Logging in as a non-_root_ user will also work. Any available means
 can be used: a text console, _ssh_ from another system (preferably not
 the _operational_ system), or the graphics X11 display. You must then
 promote to _root_ using _su_.
 
-NOTE: On CIS hardened system, you can't login as _root_. Instead, You
-must login to an AUID account and promote to _root_ using
-_root_account_.
-
-CAUTION: If you use the `-I` option (which would not normally be
-used), you must change your working directory to be somewhere off of
-_/usr2_, e.g., _/tmp_, before using _su_ (or _root_account_). We have
-made an effort to make this reliable, but there still may be a chance
-that the script will fail with the error
+CAUTION: If you use the `-I` option (which would not normally be used)
+of _refresh_spare_usr2_, you must change your working directory to be
+somewhere off of _/usr2_, e.g., _/tmp_, before using _su_ to promote
+to _root_. We have made an effort to make this reliable, but there
+still may be a chance that the script will fail with the error
 `umount:{nbsp}/usr2:{nbsp}target{nbsp}is{nbsp}busy.`. If this happens,
 you can try to recover by simply rerunning the script. This should
 work because although the error happens in the _critical phase_ (see
@@ -1145,29 +1152,19 @@ unmounted when it occurs. It might take more than one try of rerunning
 to achieve success.
 
 ====
-. Execute the script:
 
-  refresh_spare_usr2
+. Execute the script on the _spare_ system:
 
-+
-
-NOTE: For CIS hardened systems, you will need to first temporarily add
-`NOPASSWD:` to the entry for _spare_ in the _sudoers_ file on the
-_operational_ system, as described in the
-<<cis-setup.adoc#_installing_refresh_spare_usr2_with_cis_hardening,Installing
-refresh_spare_usr2 with CIS hardening>> subsection of the
-<<cis-setup.adoc#,CIS hardening for FSL11>> document.
+ refresh_spare_usr2
 
 +
 
 Answer the question `*y*` if it is safe to proceed.
 
-+
+. Log out of the _spare_ system.
 
-. Log out of the system.
-
-. Wait until the script has finished before logging in again and
-resuming other activities on the systems.
+. <<wait,Wait>>[[wait]]: Wait until the script has finished before
+logging in again and resuming other activities on the systems.
 
 +
 
@@ -1252,13 +1249,12 @@ Installation Guide>> document.
 The configuration of the system outside of the _/usr2_ partition
 between _operational_ and _spare_ computers should be maintained in
 parallel so that the same capabilities are available on both. In
-particular, any packages installed on one should also be installed
-on the other.  In addition, it is important that the user and group
-IDs of all users on the operational and spare computers be same. It
-should not be necessary to maintain parallelism with OS updates, but that
-is recommended as well. It is recommended to maintain maintenance parallelism
-with other independent __operational__/__spare__ systems at a site as well (this may
-    enable additional recovery options in extreme cases).
+particular, any packages installed on one should also be installed on
+the other. It should not be necessary to maintain parallelism with OS
+updates, but that is recommended as well. It is recommended to
+maintain parallelism with other independent __operational__/__spare__
+systems at a site as well for simplicity. This may enable additional
+recovery options in extreme cases.
 
 ==  Recovery scenarios
 
