@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 1.0.2 - January 2024
+Version 1.0.3 - February 2024
 
 :sectnums:
 :experimental:
@@ -935,6 +935,13 @@ the `*refresh_spare_usr2{nbsp}-h*` output.
 
 IMPORTANT: This script should be installed on the _spare_ system _only_.
 
+CAUTION: For this script to work most usefully, the _operational_ and
+_spare_ systems should have the same set-up including particularly
+having the same user accounts and groups (but the UIDs and GIDs don't
+need to be the same) for owners of files on _/usr2_, as well as other
+OS set-up information the FS may depend on such as _/etc/hosts_ and
+_/etc/ntp.conf_.
+
 [TIP]
 ====
 
@@ -943,7 +950,7 @@ systems. Once the RAIDs on both systems are _recovering_ you can
 log-out of both systems and then login into the _spare_ system again
 to start _refresh_spare_usr2_.
 
-While a _refresh_spare_usr2_  with two nearly synchronized _/usr2_
+While _refresh_spare_usr2_ with two nearly synchronized _/usr2_
 partitions is fairly fast, the recovery of the RAIDs may increase the
 amount of time required by about a factor of three.
 
@@ -958,21 +965,12 @@ shelf disk a deeper back-up than the _spare_ system RAID disks.
 
 ==== Installing refresh_spare_usr2
 
-WARNING: For this script to work most usefully, the _operational_ and
-_spare_ systems should have the same set-up including particularly the
-same user accounts with the same UIDs and GIDs in parallel for all
-accounts that have home directories on _/usr2_, as well as other OS
-set-up information the FS may depend on such as _/etc/hosts_ and
-_/etc/ntp.conf_.
-
-NOTE: For a CIS hardened system or if otherwise you don't want to or
-are unable to use the _forced command_ approach below for the _root_
-account on the _operational_ system, you may find the approach of
-using _sudo_ with a regular account (_spare_) a usable alternative.
-For details on that approach, please see the
+NOTE: For CIS hardened systems, please see the
 <<cis-setup.adoc#_installing_refresh_spare_usr2_with_cis_hardening,Installing
-refresh_spare_usr2 with CIS hardening>> subsection of the
-<<cis-setup.adoc#,CIS hardening for FSL11>> document.
+refresh_spare_usr2 with CIS hardening>> section of the
+<<cis-setup.adoc#_additional_items_for_fs_operations,Additional items
+for FS operations>> appendix of the <<cis-setup.adoc#,CIS hardening
+for FSL11>> document.
 
 All the steps below must be performed as _root_ on the specified
 system. You should read all of each step and sub-step before following
@@ -1059,6 +1057,8 @@ TIP: It is recommended to _not_ set a passphrase.
 ssh-keygen
 ssh-copy-id root@_operational_
 ----
+
++
 
 +
 

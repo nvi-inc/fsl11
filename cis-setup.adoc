@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.0.5 - January 2024
+Version 1.0.6 - February 2024
 
 :sectnums!:
 == Document revision history
@@ -897,10 +897,12 @@ method uses _dhorsley_ as an example AUID account name.
     adduser dhorsley --home /usr2/dhorsley
 
 +
-IMPORTANT: If you are configuring a spare computer, you will need to
-make sure the `UID` and `GID` for each user with a home directory on
-_/usr2_ is the same on both computers for the system-to-system backup
-of _/usr2_ to work properly.
+
+IMPORTANT: If you are configuring a _spare_ system, you will need to
+make sure the same accounts and groups for the owners of files on
+_/usr2_ exist on both systems (but the UIDs and GIDs don't need to be
+the same) for the system-to-system backup of _/usr2_ to work properly.
+
 +
 
 [NOTE]
@@ -915,9 +917,6 @@ case, use this command instead:
 
 The step for setting the contents of the home directory below will
 need to be adjusted accordingly, see <<note,NOTE>>.
-
-The `UID` and `GID` of the account should still be kept in agreement
-between the two computers.
 
 ====
 
@@ -1028,17 +1027,20 @@ desktop is:
 
 === Setting hostname alias
 
-These steps set a more user friendly alias for the computers of the
-form _fs1-<xx>_ and _fs2-<xx>_ where _<xx>_ is the station's two
-letter code.  This provides a compact alias for local usage, even for
-sites with more than one system, and makes the system identifiable for
+These steps set a more user friendly alias for the systems of the form
+_fs1-<xx>_ and _fs2-<xx>_ where _<xx>_ is the station's two letter
+code. This provides a compact alias for local usage, even for sites
+with more than one system, and makes the system identifiable for
 remote users in a systematic way. Except as noted below, these steps
-should be executed for both the _operational_ and _spare_ computers.
+should be executed for both the _operational_ and _spare_ systems.
 
 
 . Edit _/etc/hosts_ and add the new aliases to the appropriate lines.
+
 +
-If you have two computers, add the aliases for both to the file on each computer.
+
+If you have two systems, add the aliases for both to the file on each
+system.
 
 . Create a file _/etc/hostname_alias_ that contains the new alias.
 .. Execute
@@ -1084,37 +1086,39 @@ in the FSL11 Installation document may also be helpful.
         hostalias=$(hostname)
     fi
 
-.. In the two statements setting `PS1` in the `if` block, change the use of `\h` to `$hostalias`.
+.. In the two statements setting `PS1` in the `if` block, change the
+use of `\h` to `$hostalias`.
 
-.. In the statement setting `PS1` in the `case` block that sets the _xterm_ window title, change the use of `\h` to `$hostalias`.
+.. In the statement setting `PS1` in the `case` block that sets the
+_xterm_ window title, change the use of `\h` to `$hostalias`.
 
-. For a _spare_ computer only, if you have one:
+. For a _spare_ system only, if you have one:
 
 .. Update _/usr/local/sbin/refresh_spare_usr2_ to use the new alias of
-the _operational_ computer in the _ssh_ line.
+the _operational_ system in the _ssh_ line.
 
-.. You will need to update the new alias for the _operational_
-computer to be recognized as a known host to the _root_ account on the
-_spare_ computer. You can do that, as _root_, by using _ssh_ to
+.. You will need to update the new alias for the _operational_ system
+to be recognized as a known host to the _root_ account on the _spare_
+system. You can do that, as _root_, by using _ssh_ to
 `spare@_operational_` where `_operational_` is the new alias for the
-_operational_ computer. The command will give you guidance for which
+_operational_ system. The command will give you guidance for which
 lines need to be deleted in _/root/.ssh/known_hosts_. After deleting
 those lines, reconnect using the same _ssh_ command and answer `*yes*`
-to confirm connecting. The login will rejected because of the
-forced-command setup on the _operational_ computer. The error message
+to confirm connecting. The login will be rejected because of the
+forced-command setup on the _operational_ system. The error message
 will probably not seem to make sense, but will end with a line like:
 `Connection to _operational_ closed.`. Still, the task of recording
 the host key will have been accomplished.
 
 === Installing refresh_spare_usr2 with CIS hardening
 
-This section is useful if you have a _spare_ computer and want it to
-have a backup of your _operational_ computer _/usr2_ partition. Using
-this method will allow _root_ to run _refresh_spare_usr2_. All steps
-for installation must be performed as _root_ on the specified system.
-You should read all of each step or sub-step before following it.
+This section is useful if you use CIS hardening and have a _spare_
+system and want it to have a backup of your _operational_ system
+_/usr2_ partition to it. All steps for installation must be performed
+as _root_ on the specified system. You should read all of each step or
+sub-step before following it.
 
-TIP: Read the
+TIP: Read the introduction of the
 <<raid.adoc#_refresh_spare_usr2,refresh_spare_usr2>> section of the
 <<raid.adoc#,RAID Notes for FSL11>> document for important information
 on the __refresh_spare_usr2__ script.
@@ -1126,29 +1130,19 @@ on the __refresh_spare_usr2__ script.
 +
 
 ----
-addgroup spare --gid 2000
-adduser spare --uid 2000 --gid 2000
+adduser spare
 ----
+
++
+
+Answer all the questions with kbd:[Enter].
 
 +
 
 NOTE: The user's home directory is on _/home_ (by default), not
 _/usr2_.
 
-+
-
-+
-
-NOTE: Since the _spare_ account is unique to the _operational_ system,
-the UID and GID values of `2000` are chosen to make it easier to keep
-the values in sync for other users on both systems. In other words, it
-is not necessary to worry about jumping over a low value on the
-_spare_ system when values are assigned sequentially, as is the
-default. If you think you might have more than 1000 users or groups,
-you might want to increase the UID and GID values for the _spare_
-account and group.
-
-. On the _spare_ system.
+. On the _spare_ system:
 
 .. Make sure the _operational_ system is represented in the
 _/etc/hosts_ file.
