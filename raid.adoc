@@ -161,55 +161,74 @@ the disks in the computers.
 This section describes the disk rotation procedure. It is used to make
 periodic updates of the shelf disk.
 
-NOTE: Your BIOS must be set to allow hot swapping of disks,
-particularly for the _secondary_ controller (it should also be set for
-the _primary_ controller).
+NOTE: For systems with AUID accounts (i.e., CIS hardened systems),
+both of the commands in this section can typically be run from any
+AUID account. Usually, the user will be prompted for their AUID
+account password.
 
-TIP: If you do not have access to the _root_ account, you may have
-_sudo_ access to privileged commands. If so, you may be able to run
-_rotation_shutdown_ and _refresh_secondary_ commands with _sudo_,
-e.g., `*sudo{nbsp}rotation_shutdown*`. This also applies to other
-privileged commands used in this document.
+. From the _root_ (or an AUID) account, shut the system down with:
 
-. Shut the system down with the _rotation_shutdown_ command.
+ rotation_shutdown
 
 +
 
 This command will check the status of the RAID and proceed to shutting
 down _only_ if the RAID is synced. There are three errors that can
-prevent shutting down: (i) if the FS is running, you should terminate
-it before trying again; (ii) if the RAID is `recovering`, you will
-need to wait until the recovery is finished before shutting down, you
-can check the progress with the _mdstat_ command; and (iii) if the
-RAID is `degraded`, seek expert advice.
+prevent shutting down:
 
-. Take the disk from _primary_ slot, put it on the _shelf_
++
+[disc]
+
+* If the FS is running: you should terminate it before trying again.
+
+* If the RAID is `recovering`: you will need to wait until the
+recovery is finished before shutting down. You can check the progress
+with the _mdstat_ command (or use `*rotation_shutdown{nbsp}-p*` for a
+progress meter).
+
+* If the RAID is `degraded`: seek expert advice.
+
+. Take the disk from the _primary_ slot, put it on the _shelf_.
 +
 
 We recommend that you label the disk immediately, including the date
 (and possibly the time). In addition to getting the disk labeled
-before it is put away, it will reduce the chances that it is confused
-with the _old_ _shelf_ disk.
+before it is put away, this will reduce the chances that it will be
+confused with the _old_ _shelf_ disk.
 
-. Move the disk from the _secondary_ slot to the _primary_ slot, keyed-on
-. Move the _old_ _shelf_ disk to the _secondary_ slot, keyed-off
-. Boot (_primary_ keyed-on, _secondary_ keyed-off)
-. Run _refresh_secondary_
-. Key-on the _secondary_ slot when prompted
+. Move the disk from the _secondary_ slot to the _primary_ slot and
+turn the slot on.
 
-. If the script rejects the disk (and stops with an error), seek
+. Boot.
+
+. Login as _root_ (or with an AUID account) and run:
+
+ refresh_secondary
+
+. When the script says it is waiting for the secondary disk to be
+loaded:
+
++
+[disc]
+
+* Move the _old_ _shelf_ disk to the _secondary_ slot and turn the
+slot on.
+
+. If the script rejects the disk (it will stop with an error): seek
 expert advice.
 
 +
 
 Be sure to note any messages so they can be reported.
 
-. If the disk is accepted, let the refresh run to completion.
+. If the disk is accepted: let the refresh run to completion.
 
 +
 
-You can check its progress with _mdstat_. The system can be used for
-operations while the refresh is in progress, but may be a little slow.
+You can check its progress with _mdstat_ (or use
+`*rotation_shutdown{nbsp}-p*` for a progress meter). The system can be
+used for operations while the refresh is in progress, but may be a
+little slow.
 
 == Recoverable testing
 
