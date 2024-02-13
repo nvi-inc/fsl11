@@ -26,11 +26,18 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.0.6 - February 2024
+Version 1.1.0 - February 2024
 
 :sectnums!:
 == Document revision history
 
+* 1.1.0 -- Add installing AUID use of _refresh_spare_usr2_; add new
+section on AUID use of _refresh_spare_usr2_ section; restructure
+installing _sudo_ access for rotation scripts and _root_ account;
+remove UID/GID parallelism; correct use of _computer_ when _system_ is
+correct
+
+* 1.0.5 -- Limit AUID options for _refresh_secondary_
 * 1.0.4 -- Remove _shutdown_, _reboot_, and _refresh_spare_usr2_ from
 _sudoers_; cleanup _refresh_spare_usr2_ only for _root_
 

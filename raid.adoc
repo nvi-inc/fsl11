@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 1.0.3 - February 2024
+Version 1.1.0 - February 2024
 
 :sectnums:
 :experimental:
@@ -31,6 +31,10 @@ Version 1.0.3 - February 2024
 :sectnums!:
 == Document revision history
 
+* 1.1.0 -- Update _refresh_spare_usr2_ and disk rotation for CIS
+hardening; improve rotation steps
+
+* 1.0.2 -- Require a minimum age for disk being refreshed
 * 1.0.1 -- Bring _refresh_spare_usr2_ up to date for CIS hardened
 systems
 
