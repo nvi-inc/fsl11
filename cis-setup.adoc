@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.0.5 - January 2024
+Version 1.0.6 - February 2024
 
 :sectnums!:
 == Document revision history
@@ -605,9 +605,11 @@ Fixing that was added to the `CISfix` _systemd_ service at boot.
 
 [appendix]
 
-== Additional set-up for FS operations
+== Additional items for FS operations
 
-After the CIS hardening is completed, some additional set-up is needed.
+After the CIS hardening is completed, some additional set-up is
+needed. In addition, one item below gives the procedure for running
+_refresh_spare_user_ with CIS hardening.
 
 === Fix-ups
 
@@ -662,8 +664,7 @@ account after login. Likewise, if a user is allowed to promote to
 _root_, they will need to do so after logging into their own account.
 This subsection covers how to enable this capability. The next
 subsection, <<Adding AUID accounts>>, covers how to add an AUID
-account. The method described here, and in the next subsection, uses
-_dhorsley_ as an example AUID account name.
+account.
 
 For _oper_ and _prog_, we suggest creating two groups that can _sudo_
 to the accounts. Run _visudo_, then add at end:
@@ -671,47 +672,6 @@ to the accounts. Run _visudo_, then add at end:
     %operators      ALL=(oper) ALL
     %programmers    ALL=(prog) ALL
     %programmers    ALL=(oper) ALL
-
-To allow _operators_ to use _rotation_shutdown_ (with any options) and
-_refresh_secondary_ (but only with no options or with the `-h` or `-p`
-options individually), add (respectively):
-
-   %operators      ALL=(ALL) /usr/local/sbin/rotation_shutdown
-   %operators      ALL=(ALL) /usr/local/sbin/refresh_secondary ""
-   %operators      ALL=(ALL) /usr/local/sbin/refresh_secondary -h
-   %operators      ALL=(ALL) /usr/local/sbin/refresh_secondary -p
-
-To use these commands the _operators_ will need to enter
-(respectively) from their AUID accounts (but not as _oper_ or _prog_):
-
-   sudo rotation_shutdown
-   sudo refresh_secondary
-
-NOTE: The AUID account's password will be required unless it was
-entered for _sudo_ in the previous 15 minutes.
-
-[TIP]
-====
-
-If you run the script
-
-  AUID/install_RAID
-
-it will install scripts _rotation_shutdown_ and _refresh_secondary_
-that incorporate the _sudo_ command, so that users in their AUID
-accounts can just use (respectively):
-
- rotation_shutdown
- refresh_secondary
-
-====
-
-If the user is allowed to elevate to _root_, also add:
-
-    dhorsley       ALL=(root) ALL
-
-NOTE: A user who can elevate to _root_ will be able to run
-_refresh_secondary_ with any options if they use _sudo_ explicitly.
 
 If they don't already exist, create the needed groups:
 
@@ -767,9 +727,12 @@ The _sudo_ command will prompt for the AUID account's password.
 Within a session, _sudo_ will not prompt again for 15 minutes after
 its last successful use.
 
-To ensure X authorization works do the following (this example is for
-user _oper_ (and works analogously for _prog_ and _root_, but see the
-note at the end of step (1) about _root_'s configuration):
+The following example steps are used to ensure that X11 authorization
+works. This example is for user _oper_ and works analogously for
+_prog_ and _root_ (but see the paragraph at the end of step (1) for
+more information about _root_'s configuration). After the steps are
+presented, there is information on a script that implements these
+changes for all three accounts in one step.
 
 1. Add this to the following file:
 +
@@ -873,8 +836,9 @@ fi
 +
     chmod a+rx /usr/local/bin/oper_x11
 
-The five numbered steps above can be executed for _oper_ and  _prog_,
-the first three for _root_ with:
+To execute the five numbered steps above for _oper_ and _prog_ and the
+first three for _root_ (for the latter only those three are needed),
+enter:
 
 ....
 ~/fsl11/AUID/install_AUID
@@ -889,18 +853,24 @@ session and promote.
 
 This subsection describes how to add AUID accounts to be used with the
 ability to promote to _oper_, _prog_, and _root_ as described in the
-previous subsection. As in the previous subsection, the following
-method uses _dhorsley_ as an example AUID account name.
+previous subsection. The method described here uses _dhorsley_ as an
+example AUID account name.
 
-. Add any needed user accounts as appropriate:
+. Add the user account:
 
     adduser dhorsley --home /usr2/dhorsley
 
 +
-IMPORTANT: If you are configuring a spare computer, you will need to
-make sure the `UID` and `GID` for each user with a home directory on
-_/usr2_ is the same on both computers for the system-to-system backup
-of _/usr2_ to work properly.
+
+Answer all the questions with kbd:[Enter].
+
++
+
+IMPORTANT: If you are configuring a _spare_ system, you will need to
+make sure the same accounts and groups for the owners of files on
+_/usr2_ exist on both systems (but the UIDs and GIDs don't need to be
+the same) for the system-to-system backup of _/usr2_ to work properly.
+
 +
 
 [NOTE]
@@ -914,27 +884,11 @@ case, use this command instead:
     adduser dhorsley
 
 The step for setting the contents of the home directory below will
-need to be adjusted accordingly, see <<note,NOTE>>.
-
-The `UID` and `GID` of the account should still be kept in agreement
-between the two computers.
+need to be adjusted accordingly; see the <<note,NOTE>> farther below.
 
 ====
 
-+
-
-[NOTE]
-====
-
-Currently only _bash_ is supported as a login shell for an AUID
-account. _tcsh_ could be used if you insert as the first non-comment
-line in the AUID _~/.xsession_ file, the line:
-
-  source .login
-
-====
-
-. Add each user to these groups as appropriate, e.g.:
+. Add the user to these groups as appropriate, e.g.:
 
 +
 
@@ -954,6 +908,10 @@ and/or:
 . If the user should be able to manage printers, use:
 
     adduser dhorsley lpadmin
+
+. If the user is allowed to elevate to _root_, use _visudo_ to add:
+
+    dhorsley       ALL=(root) ALL
 
 . If the account will be used by an operator and/or programmer with
 the GUI, the X11 environment needs to be set-up. The following command
@@ -1026,19 +984,67 @@ desktop is:
 .. Complete logging in with the password.
 .. Logout with `exit`.
 
+
+=== Enable operators group accounts to rotate disks
+
+. Allow _operators_ to use the _sudo_ scripts _rotation_shutdown_
+(with any options) and _refresh_secondary_ (but only with no options
+or with the `-h` or `-p` options individually), by adding
+(respectively) with _visudo_:
+
+   %operators      ALL=(ALL) /usr/local/sbin/rotation_shutdown
+   %operators      ALL=(ALL) /usr/local/sbin/refresh_secondary ""
+   %operators      ALL=(ALL) /usr/local/sbin/refresh_secondary -h
+   %operators      ALL=(ALL) /usr/local/sbin/refresh_secondary -p
+
++
+
+NOTE: A user who can elevate to _root_ will be able to run
+_refresh_secondary_ with any options if they use _sudo_ explicitly.
+
+. Install _AUID_ scripts to allow `operators` group accounts to run
+the _sudo_ scripts without explicitly entering _sudo_:
+
+  AUID/install_RAID
+
++
+
+[NOTE]
+====
+
+The scheme here uses scripts that are run with _sudo_ (the so-called
+_sudo scripts_) for steps that require elevated privileges. These are
+installed in _/usr/local/sbin_. For ease of use with the `operators`
+group (typically AUID) accounts, additional scripts (the so-called
+_AUID scripts_) with the same names that run the _sudo_ scripts are
+installed in _/usr/local/bin_. The AUID scripts verify that the _oper_
+and _prog_ accounts are not in use before running the _sudo_ versions
+with _sudo_. This cuts down on error messages from _sudo_ and saves
+AUID users from needing to enter _sudo_.
+
+This works for _root_ (and _sudo_) users because _/usr/local/sbin_
+appears before _/usr/local/bin_ in users' `PATH` variables. It works
+for non-_root_ (and non-_sudo_) users because the versions in
+_/usr/local/sbin_ are only executable by _root_.
+
+====
+
 === Setting hostname alias
 
-These steps set a more user friendly alias for the computers of the
-form _fs1-<xx>_ and _fs2-<xx>_ where _<xx>_ is the station's two
-letter code.  This provides a compact alias for local usage, even for
-sites with more than one system, and makes the system identifiable for
+These steps set a more user friendly alias for the systems of the form
+_fs1-<xx>_ and _fs2-<xx>_ where _<xx>_ is the station's two letter
+code. This provides a compact alias for local usage, even for sites
+with more than one system, and makes the system identifiable for
 remote users in a systematic way. Except as noted below, these steps
-should be executed for both the _operational_ and _spare_ computers.
+should be executed for both the _operational_ and _spare_ systems.
 
 
 . Edit _/etc/hosts_ and add the new aliases to the appropriate lines.
+
 +
-If you have two computers, add the aliases for both to the file on each computer.
+
+If you have two systems, add the aliases for both to the file on each
+system.
 
 . Create a file _/etc/hostname_alias_ that contains the new alias.
 .. Execute
@@ -1084,40 +1090,47 @@ in the FSL11 Installation document may also be helpful.
         hostalias=$(hostname)
     fi
 
-.. In the two statements setting `PS1` in the `if` block, change the use of `\h` to `$hostalias`.
+.. In the two statements setting `PS1` in the `if` block, change the
+use of `\h` to `$hostalias`.
 
-.. In the statement setting `PS1` in the `case` block that sets the _xterm_ window title, change the use of `\h` to `$hostalias`.
+.. In the statement setting `PS1` in the `case` block that sets the
+_xterm_ window title, change the use of `\h` to `$hostalias`.
 
-. For a _spare_ computer only, if you have one:
+. For a _spare_ system only, if you have one:
 
 .. Update _/usr/local/sbin/refresh_spare_usr2_ to use the new alias of
-the _operational_ computer in the _ssh_ line.
+the _operational_ system in the _ssh_ line.
 
-.. You will need to update the new alias for the _operational_
-computer to be recognized as a known host to the _root_ account on the
-_spare_ computer. You can do that, as _root_, by using _ssh_ to
+.. You will need to update the new alias for the _operational_ system
+to be recognized as a known host to the _root_ account on the _spare_
+system. You can do that, as _root_, by using _ssh_ to
 `spare@_operational_` where `_operational_` is the new alias for the
-_operational_ computer. The command will give you guidance for which
+_operational_ system. The command will give you guidance for which
 lines need to be deleted in _/root/.ssh/known_hosts_. After deleting
 those lines, reconnect using the same _ssh_ command and answer `*yes*`
-to confirm connecting. The login will rejected because of the
-forced-command setup on the _operational_ computer. The error message
+to confirm connecting. The login will be rejected because of the
+forced-command setup on the _operational_ system. The error message
 will probably not seem to make sense, but will end with a line like:
 `Connection to _operational_ closed.`. Still, the task of recording
 the host key will have been accomplished.
 
 === Installing refresh_spare_usr2 with CIS hardening
 
-This section is useful if you have a _spare_ computer and want it to
-have a backup of your _operational_ computer _/usr2_ partition. Using
-this method will allow _root_ to run _refresh_spare_usr2_. All steps
+This section is useful if you use CIS hardening and have a _spare_
+system on which you want a copy of your _operational_ system's _/usr2_
+partition in order to have a backup system for operations. All steps
 for installation must be performed as _root_ on the specified system.
-You should read all of each step or sub-step before following it.
+You should read all of each step, and sub-step, before using it.
 
-TIP: Read the
+TIP: Read the introduction of the
 <<raid.adoc#_refresh_spare_usr2,refresh_spare_usr2>> section of the
 <<raid.adoc#,RAID Notes for FSL11>> document for important information
 on the __refresh_spare_usr2__ script.
+
+NOTE: Please see the *NOTE* in the
+<<Enable operators group accounts to rotate disks>> step in this
+appendix for an explanation of how the so-called _sudo_ and AUID
+scripts, also used here, interact.
 
 . On the _operational_ system:
 
@@ -1126,29 +1139,19 @@ on the __refresh_spare_usr2__ script.
 +
 
 ----
-addgroup spare --gid 2000
-adduser spare --uid 2000 --gid 2000
+adduser spare
 ----
+
++
+
+Answer all the questions with kbd:[Enter].
 
 +
 
 NOTE: The user's home directory is on _/home_ (by default), not
 _/usr2_.
 
-+
-
-+
-
-NOTE: Since the _spare_ account is unique to the _operational_ system,
-the UID and GID values of `2000` are chosen to make it easier to keep
-the values in sync for other users on both systems. In other words, it
-is not necessary to worry about jumping over a low value on the
-_spare_ system when values are assigned sequentially, as is the
-default. If you think you might have more than 1000 users or groups,
-you might want to increase the UID and GID values for the _spare_
-account and group.
-
-. On the _spare_ system.
+. On the _spare_ system:
 
 .. Make sure the _operational_ system is represented in the
 _/etc/hosts_ file.
@@ -1158,17 +1161,17 @@ _/etc/hosts_ file.
 If it is not already there, add it. It is recommended that it be given
 a simple alias for routine use.
 
-.. Install _refresh_spare_usr2_. Execute:
+.. Install the _sudo_ script:
 
-  cd /usr/local/sbin
-  cp -a /root/fsl11/RAID/refresh_spare_usr2 refresh_spare_usr2
-  chown root.root refresh_spare_usr2
-  chmod a+r,u+wx,go-wx refresh_spare_usr2
+... Move the _sudo_ script _refresh_spare_usr2_ into position.
+Execute:
 
-.. Customize _refresh_spare_usr2_, following the directions in the
-comments in the script:
+  ~/fsl11/RAID/install_backup
 
-... Comment-out the lines (add leading ``#``s):
+... Customize _/usr/local/sbin/refresh_spare_usr2_, following the
+directions in the comments in the script (repeated here):
+
+.... Comment-out the lines (add leading ``#``s):
 
 +
 
@@ -1177,7 +1180,7 @@ echo "This script must be customized before use.  See script for details."
 exit 1
 ....
 
-... Change the `operational` in the line:
+.... Change the `operational` in the line:
 
 +
 
@@ -1190,8 +1193,10 @@ remote_node=operational
 to the alias (preferred), FQDN, or IP address of your _operational_
 system.
 
-... Uncomment the line for CIS hardened systems. The commented out
+.... Uncomment the line for CIS hardened systems. The commented out
 form is:
+
++
 
 +
 
@@ -1201,16 +1206,28 @@ form is:
 #remote_user=spare
 ....
 
+... Enable running the _sudo_ script with either with no options or
+just `-h`. Use _visudo_ to add:
+
++
+
++
+
+....
+%operators         ALL=(ALL) /usr/local/sbin/refresh_spare_usr2 ""
+%operators         ALL=(ALL) /usr/local/sbin/refresh_spare_usr2 -h
+....
+
 .. Create and copy a key for _root_. Execute:
 
 +
 
-CAUTION: If _root_ already has a key, you only use the second command
+TIP: If _root_ already has a key, you only use the second command
 below, to copy it to the _spare_ account.
 
 +
 
-TIP: It is recommended to _not_ set a passphrase.
+CAUTION: Your should _not_ set a passphrase.
 
 +
 
@@ -1222,8 +1239,17 @@ ssh-copy-id spare@_operational_
 
 +
 
++
+
 where `_operational_` is the alias, name, or IP of your _operational_
 system.
+
+.. Install AUID script:
+
+... Copy the AUID script _refresh_spare_usr2_ that runs the _sudo_
+script _refresh_spare_usr2_. Execute:
+
+  ~/fsl11/AUID/install_backup
 
 . On the _operational_ system:
 
@@ -1250,8 +1276,12 @@ comma separated list in place of  `__node__` to get reliable
 operation.
 
 .. Setup the _spare_ account to run _rrsync_ with _sudo_ with a
-password (which will make it fail, see the *IMPORTANT* block below)
-and with passing environment variables. Use _visudo_ to add:
+password (which will make _refresh_spare_usr2_ fail unless it is used
+with the procedure in the
+<<Using refresh_spare_usr2 with CIS hardening>> section below) and
+with passing environment variables. Use _visudo_ to add:
+
++
 
 +
 
@@ -1259,29 +1289,25 @@ and with passing environment variables. Use _visudo_ to add:
 spare          ALL=(ALL) SETENV: /usr/bin/rrsync
 ....
 
-+
+.. Setup _sudo_ on the _operational_ machine to allow `operators` to
+run the _enable_spare_ and _disable_spare scripts with:
 
-[IMPORTANT]
-====
+   %operators      ALL=(ALL) /usr/local/sbin/enable_spare
+   %operators      ALL=(ALL) /usr/local/sbin/disable_spare
 
-Before _refresh_spare_usr2_ is run, this line will need to be changed
-(temporarily) to:
+.. Install the _sudo_ scripts _enable_spare_ and _disable_spare_.
+Execute:
 
-....
-spare          ALL=(ALL) NOPASSWD:SETENV: /usr/bin/rrsync
-....
+ ~/fsl11/RAID/install_spare
 
-After the _refersh_spare_usr2_ is running this line needs to be
-changed back to preserve security. The `NOPASSWD:` should only be
-present for a short as time as possible. It is only needed for the
-start of the connection from the _spare_ computer.
+.. Install the AUID scripts that run the _sudo_ scripts _enable_spare_
+and _disable_spare_. Execute:
 
-====
+ ~/fsl11/AUID/install_spare
 
 .. Lock-out the _spare_ account from normal login (but it must have a
 shell). This will disable password login, but not _ssh_ login with
 keys, for this account. Execute:
-
 
 +
 
@@ -1299,3 +1325,88 @@ account. Execute:
 ----
 chage -I -1 -M 99999 spare
 ----
+
+=== Using refresh_spare_usr2 with CIS hardening
+
+As part of a monthly backup, you would usually start a disk rotation
+on both the _operational_ and _spare_ systems first. Once both systems
+are recovering, you would run _refresh_spare_usr2_ to update the
+_spare_ system's _/usr2_ partition. You can also use
+_refresh_spare_usr2_ at other times to "`freshen`" _/usr2_ on the
+_spare_ system.
+
+You may be prompted for your AUID account password in some cases when
+running the scripts.
+
+TIP: This procedure requires logging into both the _operational_ and
+_spare_ systems. They don't have to both be logged into at the same
+time. However, it may be convenient do so. If the consoles are being
+used (as they might be if this being run right after disk rotations)
+and the two systems share a KVM switch, you can switch back-and-forth
+using the switch. If you have logged in remotely with _ssh_, you can
+open two different connections, one for each machine.
+
+. Start with no one logged into either system.
+
++
+
+IMPORTANT: Before proceeding, make sure that no one is logged into
+either system and that no processes are running on _/usr2_ on either
+system, particularly the FS.
+
++
+
+TIP: If the only sessions logged on the systems are the ones you just
+used to start disk refreshes, and there is no other activity on
+_/usr2_, you can use those sessions in the directions below.
+
+. Enable the _spare_ account on the _operational_ system.
+
+.. Switch to your already open AUID session on the _operational_
+system if you have one, otherwise login.
+
+.. On the _operational_ system, run
+
+ enable_spare
+
+. Run the backup script on the _spare_ system:
+
+.. Switch to your already open AUID session on the _spare_ system if
+you have one, otherwise login.
+
+.. On the _spare_ system, run:
+
+  refresh_spare_usr2
+
++
+
++
+
+Answer the question `*y*` if it is safe to proceed.
+
+.. Log out of the _spare_ system.
+
+
+. Disable the _spare_ account on the _operational_ system.
+
++
+
+.. Switch to your already open AUID session on the _operational_
+system if you have one, otherwise login.
+
+.. On the _operational_ system, run:
+
+ disable_spare
+
+.. Log out of the _operational_ system.
+
+. Wait until the script has finished before logging in again and
+resuming other activities on the systems.
+
++
+
+This step (and procedure) continues at the <<raid.adoc#wait, Wait>>
+step in the <<raid.adoc#_using_refresh_spare_usr2,Using
+refresh_spare_usr2>> subsection of the
+<<raid.adoc#_refresh_spare_usr2,refresh_spare_usr2>> subsection of the
+<<raid.adoc#,RAID Notes for FSL11>> document.
