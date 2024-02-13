@@ -664,8 +664,7 @@ account after login. Likewise, if a user is allowed to promote to
 _root_, they will need to do so after logging into their own account.
 This subsection covers how to enable this capability. The next
 subsection, <<Adding AUID accounts>>, covers how to add an AUID
-account. The method described here, and in the next subsection, uses
-_dhorsley_ as an example AUID account name.
+account.
 
 For _oper_ and _prog_, we suggest creating two groups that can _sudo_
 to the accounts. Run _visudo_, then add at end:
@@ -673,47 +672,6 @@ to the accounts. Run _visudo_, then add at end:
     %operators      ALL=(oper) ALL
     %programmers    ALL=(prog) ALL
     %programmers    ALL=(oper) ALL
-
-To allow _operators_ to use _rotation_shutdown_ (with any options) and
-_refresh_secondary_ (but only with no options or with the `-h` or `-p`
-options individually), add (respectively):
-
-   %operators      ALL=(ALL) /usr/local/sbin/rotation_shutdown
-   %operators      ALL=(ALL) /usr/local/sbin/refresh_secondary ""
-   %operators      ALL=(ALL) /usr/local/sbin/refresh_secondary -h
-   %operators      ALL=(ALL) /usr/local/sbin/refresh_secondary -p
-
-To use these commands the _operators_ will need to enter
-(respectively) from their AUID accounts (but not as _oper_ or _prog_):
-
-   sudo rotation_shutdown
-   sudo refresh_secondary
-
-NOTE: The AUID account's password will be required unless it was
-entered for _sudo_ in the previous 15 minutes.
-
-[TIP]
-====
-
-If you run the script
-
-  AUID/install_RAID
-
-it will install scripts _rotation_shutdown_ and _refresh_secondary_
-that incorporate the _sudo_ command, so that users in their AUID
-accounts can just use (respectively):
-
- rotation_shutdown
- refresh_secondary
-
-====
-
-If the user is allowed to elevate to _root_, also add:
-
-    dhorsley       ALL=(root) ALL
-
-NOTE: A user who can elevate to _root_ will be able to run
-_refresh_secondary_ with any options if they use _sudo_ explicitly.
 
 If they don't already exist, create the needed groups:
 
@@ -769,9 +727,12 @@ The _sudo_ command will prompt for the AUID account's password.
 Within a session, _sudo_ will not prompt again for 15 minutes after
 its last successful use.
 
-To ensure X authorization works do the following (this example is for
-user _oper_ (and works analogously for _prog_ and _root_, but see the
-note at the end of step (1) about _root_'s configuration):
+The following example steps are used to ensure that X11 authorization
+works. This example is for user _oper_ and works analogously for
+_prog_ and _root_ (but see the paragraph at the end of step (1) for
+more information about _root_'s configuration). After the steps are
+presented, there is information on a script that implements these
+changes for all three accounts in one step.
 
 1. Add this to the following file:
 +
@@ -875,8 +836,9 @@ fi
 +
     chmod a+rx /usr/local/bin/oper_x11
 
-The five numbered steps above can be executed for _oper_ and  _prog_,
-the first three for _root_ with:
+To execute the five numbered steps above for _oper_ and _prog_ and the
+first three for _root_ (for the latter only those three are needed),
+enter:
 
 ....
 ~/fsl11/AUID/install_AUID
@@ -891,12 +853,16 @@ session and promote.
 
 This subsection describes how to add AUID accounts to be used with the
 ability to promote to _oper_, _prog_, and _root_ as described in the
-previous subsection. As in the previous subsection, the following
-method uses _dhorsley_ as an example AUID account name.
+previous subsection. The method described here uses _dhorsley_ as an
+example AUID account name.
 
-. Add any needed user accounts as appropriate:
+. Add the user account:
 
     adduser dhorsley --home /usr2/dhorsley
+
++
+
+Answer all the questions with kbd:[Enter].
 
 +
 
@@ -918,24 +884,11 @@ case, use this command instead:
     adduser dhorsley
 
 The step for setting the contents of the home directory below will
-need to be adjusted accordingly, see <<note,NOTE>>.
+need to be adjusted accordingly; see the <<note,NOTE>> farther below.
 
 ====
 
-+
-
-[NOTE]
-====
-
-Currently only _bash_ is supported as a login shell for an AUID
-account. _tcsh_ could be used if you insert as the first non-comment
-line in the AUID _~/.xsession_ file, the line:
-
-  source .login
-
-====
-
-. Add each user to these groups as appropriate, e.g.:
+. Add the user to these groups as appropriate, e.g.:
 
 +
 
@@ -955,6 +908,10 @@ and/or:
 . If the user should be able to manage printers, use:
 
     adduser dhorsley lpadmin
+
+. If the user is allowed to elevate to _root_, use _visudo_ to add:
+
+    dhorsley       ALL=(root) ALL
 
 . If the account will be used by an operator and/or programmer with
 the GUI, the X11 environment needs to be set-up. The following command
@@ -1026,6 +983,51 @@ desktop is:
 .. Select `System X11 Default`.
 .. Complete logging in with the password.
 .. Logout with `exit`.
+
+
+=== Enable operators group accounts to rotate disks
+
+. Allow _operators_ to use the _sudo_ scripts _rotation_shutdown_
+(with any options) and _refresh_secondary_ (but only with no options
+or with the `-h` or `-p` options individually), by adding
+(respectively) with _visudo_:
+
+   %operators      ALL=(ALL) /usr/local/sbin/rotation_shutdown
+   %operators      ALL=(ALL) /usr/local/sbin/refresh_secondary ""
+   %operators      ALL=(ALL) /usr/local/sbin/refresh_secondary -h
+   %operators      ALL=(ALL) /usr/local/sbin/refresh_secondary -p
+
++
+
+NOTE: A user who can elevate to _root_ will be able to run
+_refresh_secondary_ with any options if they use _sudo_ explicitly.
+
+. Install _AUID_ scripts to allow `operators` group accounts to run
+the _sudo_ scripts without explicitly entering _sudo_:
+
+  AUID/install_RAID
+
++
+
+[NOTE]
+====
+
+The scheme here uses scripts that are run with _sudo_ (the so-called
+_sudo scripts_) for steps that require elevated privileges. These are
+installed in _/usr/local/sbin_. For ease of use with the `operators`
+group (typically AUID) accounts, additional scripts (the so-called
+_AUID scripts_) with the same names that run the _sudo_ scripts are
+installed in _/usr/local/bin_. The AUID scripts verify that the _oper_
+and _prog_ accounts are not in use before running the _sudo_ versions
+with _sudo_. This cuts down on error messages from _sudo_ and saves
+AUID users from needing to enter _sudo_.
+
+This works for _root_ (and _sudo_) users because _/usr/local/sbin_
+appears before _/usr/local/bin_ in users' `PATH` variables. It works
+for non-_root_ (and non-_sudo_) users because the versions in
+_/usr/local/sbin_ are only executable by _root_.
+
+====
 
 === Setting hostname alias
 
@@ -1125,25 +1127,10 @@ TIP: Read the introduction of the
 <<raid.adoc#,RAID Notes for FSL11>> document for important information
 on the __refresh_spare_usr2__ script.
 
-[NOTE]
-====
-
-The scheme here uses scripts that are run with _sudo_ (the so-called
-_sudo scripts_) for steps that require elevated privileges. These are
-installed in _/usr/local/sbin_. For ease of use with the `operators`
-group (typically AUID) accounts, additional scripts (the so-called
-_AUID scripts_) with the same names that run the _sudo_ scripts are
-installed in _/usr/local/bin_. The AUID scripts verify that the _oper_
-and _prog_ accounts are not in use before running the _sudo_ versions
-with _sudo_. This cuts down on error messages from _sudo_ and saves
-AUID user from needing to enter _sudo_.
-
-This works for _root_ users because _/usr/local/sbin_ appears before
-_/usr/local/bin_ in users' `PATH` variables. It works for non-_root_
-users because the versions in _/usr/local/sbin_ are only executable by
-_root_.
-
-====
+NOTE: Please see the *NOTE* in the
+<<Enable operators group accounts to rotate disks>> step in this
+appendix for an explanation of how the so-called _sudo_ and AUID
+scripts, also used here, interact.
 
 . On the _operational_ system:
 
