@@ -18,12 +18,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-
 set -e
 
-if [[ "$USER" =~ ^(oper|prog)$ ]]; then
-	echo "ERROR: Cannot use $(basename $0) from $USER account. Try from $SUDO_USER."
-    exit 1
-fi
-
-sudo /usr/local/sbin/enable_spare "$@"
+cd /usr/local/sbin
+cp -a /root/fsl11/RAID/backup_usr2 backup_usr2
+chown root.root backup_usr2
+chmod a+r,u+wx,go-wx backup_usr2

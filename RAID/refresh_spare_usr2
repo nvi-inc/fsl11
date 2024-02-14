@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2020-2021, 2023 NVI, Inc.
+# Copyright (c) 2020-2021, 2023-2024 NVI, Inc.
 #
 # This file is part of FSL11 Linux distribution.
 # (see http://github.com/nvi-inc/fsl11).
@@ -231,8 +231,8 @@ if [[ -z "$subscript" ]]; then
 
         cat << EOF
 
-    IMPORTANT: It is best if no other sessions are logged in on this system and
-               no sessions should be logged in on the Operational system.
+    IMPORTANT: It is best if no other sessions are logged in on both the
+               Operational and Spare systems.
 
 EOF
 
@@ -245,8 +245,8 @@ EOF
             y|yes) echo -e "\nO.K. Continuing with refresh ... "
                    badans=false
                    ;;
-            n|no)  echo -e "\nO.K. Exiting."
-                   exit
+            n|no)  echo -e "\nO.K. Aborting."
+                   exit 1
                    ;;
             *)     echo -e "\nPlease answer with y=yes or n=no : \c"
           esac
@@ -270,10 +270,9 @@ exit 1
 #        D. Save the result.
 #   3. Follow the other directions in the 'Installing refresh_spare_usr2'
 #      subsection of the 'RAID Notes for FSL11' document.
-#      The CIS hardening approach may be a useful alternative, or necessary if
-#      you have a CIS hardened system.  For more information, see the
-#      'Installing refresh_spare_usr2 with CIS hardening' subsection of the
-#      'CIS Hardening for FSL11' document.
+#      For CIS hardened systems, follow the other directions in the 'Installing
+#      backup_usr2 for CIS hardening' section of the 'Additional items for FS
+#      operations' appendix of the 'CIS Hardening for FSL11' document.
 #   4. Test it the first time just after the Spare system's disk has been
 #      rotated.
 

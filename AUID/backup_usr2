@@ -18,14 +18,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+
 set -e
 
-cd /usr/local/sbin
-#
-cp -a /root/fsl11/RAID/enable_spare enable_spare
-chown root.root enable_spare
-chmod a+r,u+wx,go-wx enable_spare
-#
-cp -a /root/fsl11/RAID/disable_spare disable_spare
-chown root.root disable_spare
-chmod a+r,u+wx,go-wx disable_spare
+if [[ "$USER" =~ ^(oper|prog)$ ]]; then
+	echo "ERROR: Cannot use $(basename $0) from $USER account. Try from $SUDO_USER."
+    exit 1
+fi
+
+sudo /usr/local/sbin/backup_usr2 "$@"
