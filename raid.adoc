@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 1.1.0 - February 2024
+Version 1.1.1 - February 2024
 
 :sectnums:
 :experimental:
@@ -30,6 +30,8 @@ Version 1.1.0 - February 2024
 <<<
 :sectnums!:
 == Document revision history
+
+* 1.1.1 -- Adjustments for CIS hardening using _backup_usr2_
 
 * 1.1.0 -- Update _refresh_spare_usr2_ and disk rotation for CIS
 hardening; improve rotation steps
@@ -989,8 +991,8 @@ shelf disk a deeper back-up than the _spare_ system RAID disks.
 ==== Installing refresh_spare_usr2
 
 NOTE: For CIS hardened systems, please see the
-<<cis-setup.adoc#_installing_refresh_spare_usr2_with_cis_hardening,Installing
-refresh_spare_usr2 with CIS hardening>> section of the
+<<cis-setup.adoc#_installing_backup_usr2_with_cis_hardening,Installing
+backup_usr2 with CIS hardening>> section of the
 <<cis-setup.adoc#_additional_items_for_fs_operations,Additional items
 for FS operations>> appendix of the <<cis-setup.adoc#,CIS hardening
 for FSL11>> document.
@@ -1030,7 +1032,7 @@ a simple alias for routine use.
 
 .. Install _refresh_spare_usr2_. Execute:
 
-  ~/fsl11/RAID/install_backup
+  ~/fsl11/RAID/install_refresh_spare_usr2
 
 .. Customize _refresh_spare_usr2_, following the directions in the
 comments in the script (repeated here):
@@ -1126,8 +1128,8 @@ line.
 ==== Using refresh_spare_usr2
 
 NOTE: For CIS hardened systems, you should use the instructions in the
-<<cis-setup.adoc#_using_refresh_spare_usr2_with_cis_hardening,Using
-refresh_spare_usr2 with CIS hardening>> section in the
+<<cis-setup.adoc#_using_backup_usr2_with_cis_hardening,Using
+backup_usr2 with CIS hardening>> section in the
 <<cis-setup.adoc#_additional_items_for_fs_operations,Additional items
 for FS operations>> appendix of the <<cis-setup.adoc#,CIS hardening
 for FSL11>> document.
@@ -1186,8 +1188,9 @@ Answer the question `*y*` if it is safe to proceed.
 
 . Log out of the _spare_ system.
 
-. <<wait,Wait>>[[wait]]: Wait until the script has finished before
-logging in again and resuming other activities on the systems.
+. <<wait,Wait>>[[wait]]: Wait until the _refresh_spare_usr2_ script
+has finished before logging in again and resuming other activities on
+the systems.
 
 +
 
@@ -1198,11 +1201,11 @@ indication that it finished successfully.
 
 +
 
-Alternatively, you can examine the logs (before starting the script)
-in _/root/refresh_spare_usr2_logs_ to see how long previous script
-uses took. When at least that much time has elapsed, you can login
-and can check the log for the current script use to verify that it has
-finished.
+Alternatively you can examine the logs (before starting the script) in
+_/root/refresh_spare_usr2_logs_ on the _spare_ system to see how long
+the script typically takes. When at least that much time has elapsed,
+you can login to the _spare_ system and can check the new log to
+verify that it has finished.
 
 +
 
@@ -1240,11 +1243,11 @@ the script after logging out.
 
 ====
 
-. If the script finished with no problems, you can reboot the _spare_
-system as soon as is convenient. You may reboot even if the RAID is
-recovering, but you can wait until the recovery is complete. The only
-requirement is to reboot before the FS is run again on the _spare_
-system.
+. If the _refresh_spare_usr2_ script finished with no problems, you
+can reboot the _spare_ system as soon as is convenient. You may reboot
+even if the RAID is recovering, but you can wait until the recovery is
+complete. The only requirement is to reboot before the FS is run again
+on the _spare_ system.
 
 == Multiple computer set-up
 

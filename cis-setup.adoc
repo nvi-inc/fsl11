@@ -26,16 +26,20 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.1.0 - February 2024
+Version 1.1.1 - February 2024
 
 :sectnums!:
 == Document revision history
 
+* 1.1.1 -- Use _backup_user2_ to run _refresh_spare_usr2_ for CIS
+hardening, removing _enable_spare_ and _disable_spare_; add copying
+key for backup_usr2
+
 * 1.1.0 -- Add installing AUID use of _refresh_spare_usr2_; add new
-section on AUID use of _refresh_spare_usr2_ section; restructure
-installing _sudo_ access for rotation scripts and _root_ account;
-remove UID/GID parallelism; correct use of _computer_ when _system_ is
-correct
+section on AUID use of _refresh_spare_usr2_ section using
+_enable_spare_ and _disable_spare_; restructure installing _sudo_
+access for rotation scripts and _root_ account; remove UID/GID
+parallelism; correct use of _computer_ when _system_ is correct
 
 * 1.0.5 -- Limit AUID options for _refresh_secondary_
 * 1.0.4 -- Remove _shutdown_, _reboot_, and _refresh_spare_usr2_ from
@@ -146,7 +150,7 @@ applying the scripted remediations, an account must be created that
 will have the ability to promote to _root_. Please see the
 <<Enabling user promotion to oper/prog and root>> and
 <<Adding AUID accounts>> sections of the
-<<Additional set-up for FS operations>> appendix for the details of
+<<Additional items for FS operations>> appendix for the details of
 configuring such an account.
 
 ===== Run the script
@@ -991,6 +995,57 @@ desktop is:
 .. Complete logging in with the password.
 .. Logout with `exit`.
 
+. You may wish to proceed to the next section
+<<Copy ssh key for running backup_usr2>> if that is appropriate for
+this user.
+
+=== Copy ssh key for running backup_usr2
+
+For each AUID account that will use _backup_usr2_, copy the _ssh_ key
+from _root_ on the _operational_ system to the AUID account on the
+_operational_ system. The AUID account must have been created on both
+systems before using this method.
+
+As _root_ on the _operational_ system:
+
+. Create a key:
+
++
+
+If the _root_ account already has a key, you should skip this step.
+
++
+
+CAUTION: Your should _not_ set a passphrase.
+
++
+
+[subs="+quotes"]
+----
+ssh-keygen
+----
+
+. Copy the key to to the _authorized_keys_ for each AUID user that
+will use _backup_usr2_.
+
++
+
+[subs="+quotes"]
+----
+cat /root/.ssh/id_rsa.pub >>~_AUID_/.ssh/authorized_keys
+----
+
++
+
+where `_AUID_` is the AUID account that will use _backup_usr2_.
+
++
+
+NOTE: The key now stored in the AUID account on the _operational_
+system will be copied to that account on the _spare_ system the next
+time _backup_usr2_ is run. Until then, this user would need to enter
+their password to connect to the _spare_ system when running
+_backup_usr2_.
 
 === Enable operators group accounts to rotate disks
 
@@ -1121,13 +1176,15 @@ will probably not seem to make sense, but will end with a line like:
 `Connection to _operational_ closed.`. Still, the task of recording
 the host key will have been accomplished.
 
-=== Installing refresh_spare_usr2 with CIS hardening
+=== Installing backup_usr2 with CIS hardening
 
-This section is useful if you use CIS hardening and have a _spare_
-system on which you want a copy of your _operational_ system's _/usr2_
-partition in order to have a backup system for operations. All steps
-for installation must be performed as _root_ on the specified system.
-You should read all of each step, and sub-step, before using it.
+Foe CIS hardened systems, the _backup_usr2_ script is used on the
+_operational_ system to backup its _/usr2_ partition to the _spare_
+system. To do this, it invokes _refresh_spare_usr2_ on the _spare_
+system. This is useful if to want the _spare_ system to be a
+reasonably up-to-date backup system for operations. All steps for
+installation must be performed as _root_ on the specified system. You
+should read all of the procedure before using it.
 
 TIP: Read the introduction of the
 <<raid.adoc#_refresh_spare_usr2,refresh_spare_usr2>> section of the
@@ -1155,6 +1212,8 @@ Answer all the questions with kbd:[Enter].
 
 +
 
++
+
 NOTE: The user's home directory is on _/home_ (by default), not
 _/usr2_.
 
@@ -1168,12 +1227,11 @@ _/etc/hosts_ file.
 If it is not already there, add it. It is recommended that it be given
 a simple alias for routine use.
 
-.. Install the _sudo_ script:
+.. Install the _sudo_ script _refresh_spare_usr2_:
 
-... Move the _sudo_ script _refresh_spare_usr2_ into position.
-Execute:
+... Move the script into position:
 
-  ~/fsl11/RAID/install_backup
+  ~/fsl11/RAID/install_refresh_spare_usr2
 
 ... Customize _/usr/local/sbin/refresh_spare_usr2_, following the
 directions in the comments in the script (repeated here):
@@ -1225,22 +1283,24 @@ just `-h`. Use _visudo_ to add:
 %operators         ALL=(ALL) /usr/local/sbin/refresh_spare_usr2 -h
 ....
 
-.. Create and copy a key for _root_. Execute:
+.. Create a key for _root_:
 
 +
 
-TIP: If _root_ already has a key, you only use the second command
-below, to copy it to the _spare_ account.
+If _root_ already has a key, you should skip this sub-step.
 
 +
 
 CAUTION: Your should _not_ set a passphrase.
 
+ ssh-keygen
+
+.. Copy the key:
+
 +
 
 [subs="+quotes"]
 ----
-ssh-keygen
 ssh-copy-id spare@_operational_
 ----
 
@@ -1250,13 +1310,6 @@ ssh-copy-id spare@_operational_
 
 where `_operational_` is the alias, name, or IP of your _operational_
 system.
-
-.. Install AUID script:
-
-... Copy the AUID script _refresh_spare_usr2_ that runs the _sudo_
-script _refresh_spare_usr2_. Execute:
-
-  ~/fsl11/AUID/install_backup
 
 . On the _operational_ system:
 
@@ -1284,9 +1337,9 @@ operation.
 
 .. Setup the _spare_ account to run _rrsync_ with _sudo_ with a
 password (which will make _refresh_spare_usr2_ fail unless it is used
-with the procedure in the
-<<Using refresh_spare_usr2 with CIS hardening>> section below) and
-with passing environment variables. Use _visudo_ to add:
+with the procedure in the <<Using backup_usr2 with CIS hardening>>
+section below) and with passing environment variables. Use _visudo_ to
+add:
 
 +
 
@@ -1297,20 +1350,47 @@ spare          ALL=(ALL) SETENV: /usr/bin/rrsync
 ....
 
 .. Setup _sudo_ on the _operational_ machine to allow `operators` to
-run the _enable_spare_ and _disable_spare scripts with:
+run the _backup_usr2_ script with:
 
-   %operators      ALL=(ALL) /usr/local/sbin/enable_spare
-   %operators      ALL=(ALL) /usr/local/sbin/disable_spare
+   %operators      ALL=(ALL) /usr/local/sbin/backup_usr2
 
-.. Install the _sudo_ scripts _enable_spare_ and _disable_spare_.
-Execute:
+.. Install the _sudo_ script _backup_usr2_:
 
- ~/fsl11/RAID/install_spare
+... Move the script into position:
 
-.. Install the AUID scripts that run the _sudo_ scripts _enable_spare_
-and _disable_spare_. Execute:
+ ~/fsl11/RAID/install_backup_usr2
 
- ~/fsl11/AUID/install_spare
+... Customize _/usr/local/sbin/backup_usr2_ following the directions
+in the comments in the script (repeated here):
+
+.... Comment-out the lines (add leading ``#``s):
+
++
+
+....
+echo "This script must be customized before use.  See script for details."
+exit 1
+....
+
+.... Change the `spare` in the line:
+
++
+
+....
+remote_node=spare
+....
+
++
+
++
+
++
+
+to the alias (preferred), FQDN, or IP address of your _spare_ system.
+
+.. Install the AUID script that runs the _sudo_ script:
+
+ ~/fsl11/AUID/install_backup_usr2
 
 .. Lock-out the _spare_ account from normal login (but it must have a
 shell). This will disable password login, but not _ssh_ login with
@@ -1333,57 +1413,83 @@ account. Execute:
 chage -I -1 -M 99999 spare
 ----
 
-=== Using refresh_spare_usr2 with CIS hardening
+=== Using backup_usr2 with CIS hardening
 
-As part of a monthly backup, you would usually start a disk rotation
-on both the _operational_ and _spare_ systems first. Once both systems
-are recovering, you would run _refresh_spare_usr2_ to update the
-_spare_ system's _/usr2_ partition. You can also use
-_refresh_spare_usr2_ at other times to "`freshen`" _/usr2_ on the
+To use _backup_usr2_ as part of a monthly backup, you first should
+perform a disk rotation on both systems.  The disk rotation procedure
+is described in the <<raid.adoc#_disk_rotation,Disk rotation>> section
+of the <<raid.adoc#,RAID Notes for FSL11>> document. You should start
+a disk rotation on the __spare__ system (e.g., __fs2__) first. Once
+this is successfully refreshing, log out of the __spare__ system. Then
+start a disk rotation running on the __operational__ system (e.g.,
+__fs1__).  Once that is successfully refreshing, don't log out.
+Proceed directly to the instructions below.
+
+You can also use the procedure below to "`freshen`" the _/usr2_ on the
+_spare_ system at other times.
+
+NOTE: For CIS hardened systems, the _backup_usr2_ script is used on
+the _operational_ system to backup its _/usr2_ partition to the
+_spare_ system. To do this, it invokes _refresh_spare_usr2_ on the
 _spare_ system.
-
-You may be prompted for your AUID account password in some cases when
-running the scripts.
-
-TIP: This procedure requires logging into both the _operational_ and
-_spare_ systems. They don't have to both be logged into at the same
-time. However, it may be convenient do so. If the consoles are being
-used (as they might be if this being run right after disk rotations)
-and the two systems share a KVM switch, you can switch back-and-forth
-using the switch. If you have logged in remotely with _ssh_, you can
-open two different connections, one for each machine.
 
 . Start with no one logged into either system.
 
 +
 
-IMPORTANT: Before proceeding, make sure that no one is logged into
-either system and that no processes are running on _/usr2_ on either
-system, particularly the FS.
+[IMPORTANT]
+====
+
+Before proceeding, make sure that no one is logged into either system
+and that no processes are running on _/usr2_ on either system,
+particularly the FS.
+
+TIP: If the only session logged on the systems is the AUID session you
+used to start the disk refresh on the _operational_ system, and there
+is no other activity on _/usr2_, you can use that session in the
+directions below without logging out first.
+
+====
+
+. On the _operational_ system:
+
+.. Login to your AUID account if you aren't already logged in.
+
+.. Run:
+
+ backup_usr2
 
 +
 
-TIP: If the only sessions logged on the systems are the ones you just
-used to start disk refreshes, and there is no other activity on
-_/usr2_, you can use those sessions in the directions below.
+NOTE: You may be prompted for your AUID password on the _operational_
+system in order to run the script if it has been more than 15 minutes
+since you used _sudo_ in that session, e.g., to start a refresh.
 
-. Enable the _spare_ account on the _operational_ system.
++
+[NOTE]
+====
 
-.. Switch to your already open AUID session on the _operational_
-system if you have one, otherwise login.
+You may be prompted for your AUID password for the _spare_ system in
+order to connect to that system.
 
-.. On the _operational_ system, run
+TIP: You can eliminate this password prompt by copying the _ssh_ key
+from the _root_ account on the _operational_ system to your AUID
+account on the _spare_ system (and to the _operational_ system). See
+the section <<Copy ssh key for running backup_usr2>> above for
+instructions.
 
- enable_spare
+====
 
-. Run the backup script on the _spare_ system:
++
 
-.. Switch to your already open AUID session on the _spare_ system if
-you have one, otherwise login.
+The _refresh_spare_usr2_ script will be run on the _spare_ system
+automatically.
 
-.. On the _spare_ system, run:
++
 
-  refresh_spare_usr2
+NOTE: You will be prompted for your AUID password for the _spare_
+system in order to run _refresh_spare_usr2_ on that system with
+_sudo_. It is not possible to eliminate this prompt.
 
 +
 
@@ -1391,24 +1497,11 @@ you have one, otherwise login.
 
 Answer the question `*y*` if it is safe to proceed.
 
-.. Log out of the _spare_ system.
+. Log out of the _operational_ system.
 
-
-. Disable the _spare_ account on the _operational_ system.
-
-+
-
-.. Switch to your already open AUID session on the _operational_
-system if you have one, otherwise login.
-
-.. On the _operational_ system, run:
-
- disable_spare
-
-.. Log out of the _operational_ system.
-
-. Wait until the script has finished before logging in again and
-resuming other activities on the systems.
+. Wait until the _refresh_spare_usr2_ script on the _spare_ system
+has finished before logging in again and resuming other activities on
+the systems.
 
 +
 
