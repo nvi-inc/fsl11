@@ -26,10 +26,13 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.1.1 - February 2024
+Version 1.1.2 - February 2024
 
 :sectnums!:
 == Document revision history
+
+* 1.1.2 -- Correct responses to _adduser_; create _~AUID/.ssh_ in case
+it doesn't already exist
 
 * 1.1.1 -- Use _backup_user2_ to run _refresh_spare_usr2_ for CIS
 hardening, removing _enable_spare_ and _disable_spare_; add copying
@@ -873,7 +876,8 @@ example AUID account name.
 
 +
 
-Answer all the questions with kbd:[Enter].
+Enter a suitable password when prompted and confirm it. Answer all
+other questions with kbd:[Enter].
 
 +
 
@@ -1030,8 +1034,14 @@ will use _backup_usr2_.
 
 +
 
+NOTE: The first command below will generate an error `File exists` if
+the directory already exists. That is benign and can be ignored.
+
++
+
 [subs="+quotes"]
 ----
+mkdir ~_AUID_/.ssh
 cat /root/.ssh/id_rsa.pub >>~_AUID_/.ssh/authorized_keys
 ----
 
@@ -1208,7 +1218,8 @@ adduser spare
 
 +
 
-Answer all the questions with kbd:[Enter].
+Enter a suitable password when prompted and confirm it. Answer all
+other questions with kbd:[Enter].
 
 +
 
