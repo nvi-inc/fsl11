@@ -1107,6 +1107,7 @@ libplist3:amd64					install
 libplymouth5:amd64				install
 libpng16-16:amd64				install
 libpocketsphinx3:amd64				install
+libpod-parser-perl				install
 libpolkit-agent-1-0:amd64			install
 libpolkit-gobject-1-0:amd64			install
 libpoppler-cpp0v5:amd64				install
@@ -1628,6 +1629,7 @@ rcs						install
 readline-common					install
 realmd						install
 recode						install
+rename						install
 reportbug					install
 rhythmbox					install
 rhythmbox-data					install

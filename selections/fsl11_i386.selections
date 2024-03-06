@@ -1103,6 +1103,7 @@ libplist3:i386					install
 libplymouth5:i386				install
 libpng16-16:i386				install
 libpocketsphinx3:i386				install
+libpod-parser-perl				install
 libpolkit-agent-1-0:i386			install
 libpolkit-gobject-1-0:i386			install
 libpoppler-cpp0v5:i386				install
@@ -1622,6 +1623,7 @@ rcs						install
 readline-common					install
 realmd						install
 recode						install
+rename						install
 reportbug					install
 rhythmbox					install
 rhythmbox-data					install
