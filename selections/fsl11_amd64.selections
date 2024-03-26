@@ -193,6 +193,7 @@ gcc-10-base:amd64				install
 gcc-9-base:amd64				install
 gcr						install
 gdb						install
+gdbserver					install
 gdisk						install
 gdm3						install
 gedit						install

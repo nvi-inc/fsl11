@@ -192,6 +192,7 @@ gcc-10-base:i386				install
 gcc-9-base:i386					install
 gcr						install
 gdb						install
+gdbserver					install
 gdisk						install
 gdm3						install
 gedit						install
