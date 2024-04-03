@@ -726,6 +726,7 @@ sed -i '0,/^ *$/s/^ *$/\n# CIS 5.4.5\nset autologout = 15\n#\n/' /etc/csh.login
 groupadd sugroup
 touch /etc/pam.d/su
 cat >>/etc/pam.d/su <<EOT
+# CIS 5.6
 auth required pam_wheel.so use_uid group=sugroup
 EOT
 #
