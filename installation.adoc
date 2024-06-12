@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.1.0 - February 2024
+Version 1.1.1 - June 2024
 
 :sectnums:
 :experimental:
@@ -33,6 +33,7 @@ Version 1.1.0 - February 2024
 :sectnums!:
 == Document revision history
 
+* 1.1.1 -- Include admonition about additional network interfaces
 * 1.1.0 -- Minor release
 * 1.0.11 -- Use `10.2.0` for FS tag
 * 1.0.10 -- Fix referring to where RAID tools are used; other minor wording improvements
@@ -333,6 +334,14 @@ and press kbd:[Enter].
 . Type in the required nameserver IP addresses, space separated, in
 the form `_xxx.xxx.xxx.xxx_` (where each `_xxx_` is any integer from 0 - 255
 inclusive) and press kbd:[Enter].
+
+IMPORTANT: Before connecting an Ethernet cable to an additional
+(non-`primary`) interface, you must use the
+<<Stabilize network configuration>> subsection of
+<<Additional Setup Items>> appendix. For example, in addition to the
+`primary` interface, you may connect a cable to the second interface
+for IPMI. In this situation, the second interface may be incorrectly
+utilized in Linux if it is not disabled.
 
 === Set a hostname
 Backspace over the default hostname _debian_ and type in the name
