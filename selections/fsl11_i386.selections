@@ -1731,7 +1731,9 @@ util-linux-locales				install
 va-driver-all:i386				install
 vdpau-driver-all:i386				install
 vim						install
+vim-addon-manager`				install
 vim-common					install
+vim-fugitive					install
 vim-runtime					install
 vim-tiny					install
 w3m						install
