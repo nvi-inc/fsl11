@@ -33,7 +33,7 @@ Version 1.1.2 - July 2024
 :sectnums!:
 == Document revision history
 
-* 1.1.2 -- Include link to Debian archive
+* 1.1.2 -- Include link to Debian CD archive
 * 1.1.1 -- Include admonition about additional network interfaces
 * 1.1.0 -- Minor release (_refresh_spare_usr2_ updated for CIS hardening elsewhere)
 * 1.0.11 -- Use `10.2.0` for FS tag
