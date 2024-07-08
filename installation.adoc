@@ -138,9 +138,9 @@ recommended mainly for sites with little to poor Internet connectivity (even
 then, use of a single DVD may suffice) and the equivalent use of a "`Debian
 GNU/Linux _11.<x>_ Bullseye - Official _i386_/_amd64_ netinst CD`" would suffice for
 installation at most sites with good connectivity. Official images for the installer
-can be found at: https://cdimage.debian.org/cdimage/release/ (or when no
-longer the current release at:
-https://cdimage.debian.org/cdimage/archive/). Alternatively,
+can be found at: https://cdimage.debian.org/cdimage/release/ 
+(or at: https://cdimage.debian.org/cdimage/archive/
+when no longer the current release). Alternatively,
 should your hardware require non-free firmware, unofficial images for the
 installer that also include all available non-free firmware can be found at:
 https://cdimage.debian.org/cdimage/unofficial/non-free/cd-including-firmware/
