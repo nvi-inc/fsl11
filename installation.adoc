@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.1.1 - June 2024
+Version 1.1.2 - July 2024
 
 :sectnums:
 :experimental:
@@ -33,8 +33,9 @@ Version 1.1.1 - June 2024
 :sectnums!:
 == Document revision history
 
+* 1.1.2 -- Include link to Debian archive
 * 1.1.1 -- Include admonition about additional network interfaces
-* 1.1.0 -- Minor release
+* 1.1.0 -- Minor release (_refresh_spare_usr2_ updated for CIS hardening elsewhere)
 * 1.0.11 -- Use `10.2.0` for FS tag
 * 1.0.10 -- Fix referring to where RAID tools are used; other minor wording improvements
 * 1.0.9 -- Fix link for transferring FS install to FSL11
@@ -137,7 +138,9 @@ recommended mainly for sites with little to poor Internet connectivity (even
 then, use of a single DVD may suffice) and the equivalent use of a "`Debian
 GNU/Linux _11.<x>_ Bullseye - Official _i386_/_amd64_ netinst CD`" would suffice for
 installation at most sites with good connectivity. Official images for the installer
-can be found at: https://cdimage.debian.org/cdimage/release/ or alternatively,
+can be found at: https://cdimage.debian.org/cdimage/release/ (or when no
+longer the current release at:
+https://cdimage.debian.org/cdimage/archive/). Alternatively,
 should your hardware require non-free firmware, unofficial images for the
 installer that also include all available non-free firmware can be found at:
 https://cdimage.debian.org/cdimage/unofficial/non-free/cd-including-firmware/
