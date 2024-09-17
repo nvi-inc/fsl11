@@ -131,12 +131,14 @@ AMD and Intel manufactured x86-64 processors. This includes CPU lines such as
 Ryzen, Epyc, Core, and Xeon. The naming scheme dates back to when Intel had a
 competing and incompatible 64-bit architecture _ia64_.
 
-You can install from a DVD drive, USB device, or over the network. Any revision of
-_11.<x>_ installer should work fine.
+You can install from a DVD drive, USB device, or over the network. Any
+revision of the _11.<x>_ installer should work fine. (Generally, pick
+the latest, i.e., largest _<x>_. If there are non-zero patch versions,
+_<y>_, for a given _<x>_, e.g., _11.<x>.<y>_, pick the largest _<y>_.)
 Note also that installing from DVDs as described here is
 recommended mainly for sites with little to poor Internet connectivity (even
 then, use of a single DVD may suffice) and the equivalent use of a "`Debian
-GNU/Linux _11.<x>_ Bullseye - Official _i386_/_amd64_ netinst CD`" would suffice for
+GNU/Linux _11.<x>.<y>_ Bullseye - Official _i386_/_amd64_ NETINST`" CD would suffice for
 installation at most sites with good connectivity. Official images for the installer
 can be found at: https://cdimage.debian.org/cdimage/release/ 
 (or at: https://cdimage.debian.org/cdimage/archive/
@@ -581,7 +583,7 @@ For each additional DVD you wish to scan, insert it in the drive, select
 will need to use `*eject /dev/cdrom*` from another virtual console to do this)
 
 Select `No` and press  kbd:[Enter]  to continue once you are done.
-If prompted, insert the "`Debian GNU/Linux _11.<x>_ Bullseye - Official _i386_/_amd64_
+If prompted, insert the "`Debian GNU/Linux _11.<x>.<y>_ Bullseye - Official _i386_/_amd64_
 Binary-1 DVD`" back into the DVD-ROM drive and press  kbd:[Enter].
 
 WARNING: If you do scan additional DVDs, the following useful dialogue
