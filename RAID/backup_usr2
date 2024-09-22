@@ -87,7 +87,7 @@ cat <<EOT
     password before that to connect to the 'spare' system.
 
 EOT
-ssh -t "$SUDO_USER@$remote_node" sudo refresh_spare_usr2
+ssh -o LogLevel=ERROR -t "$SUDO_USER@$remote_node" sudo refresh_spare_usr2
 
 # let remote job start running before exiting, which will disable spare account
 count=10
