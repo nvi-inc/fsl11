@@ -101,7 +101,13 @@ while [ $count -gt 0 ] && ! ps aux|grep '^root .*sudo --preserve-env rrsync -ro 
 done
   echo -ne "\r                                                         "
 if ! ps aux|grep '^root .*sudo --preserve-env rrsync -ro /usr2'|grep -qv grep; then
-  echo -ne "\r  ERROR: File transfer failed to start.\n"
+  echo -ne "\r  ERROR: File transfer failed to start (or finished very quickly).\n"
+  echo ""
+  echo "  NB: You may get this error message even though the transfer was successful, if"
+  echo "  there were very few files to transfer and/or they were small. You can check"
+  echo "  the e-mail report from 'refresh_spare_usr2' or the log file (listed above),"
+  echo "  both on the 'spare' machine, to see if the transfer was successful."
+  echo ""
   exit 1
 else
   echo -ne "\r  SUCCESS: File transfer started.\n\n"
