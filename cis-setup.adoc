@@ -733,9 +733,9 @@ Disable password aging and account inactivity expiration for those
 accounts. Execute:
 
 ----
-chage -I -1 -M 99999 oper
-chage -I -1 -M 99999 prog
-chage -I -1 -M 99999 desktop
+chage -I -1 -M -1 oper
+chage -I -1 -M -1 prog
+chage -I -1 -M -1 desktop
 ----
 To prevent connecting with _ssh_ using a key, create (or add _oper_
 and _prog_ to an existing) `DenyUsers` line in _/etc/ssh/sshd_config_:
@@ -1448,7 +1448,7 @@ _spare_ account. Execute:
 +
 
 ----
-chage -I -1 -M 99999 spare
+chage -I -1 -M -1 spare
 ----
 
 === Using backup_usr2 with CIS hardening
