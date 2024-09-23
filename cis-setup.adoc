@@ -1086,7 +1086,7 @@ _refresh_secondary_ with any options if they use _sudo_ explicitly.
 . Install _AUID_ scripts to allow `operators` group accounts to run
 the _sudo_ scripts without explicitly entering _sudo_:
 
-  AUID/install_RAID
+  ~/fsl11/AUID/install_RAID
 
 +
 
