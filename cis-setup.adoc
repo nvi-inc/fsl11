@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.1.4 - April 2024
+Version 1.1.5 - September 2024
 
 :sectnums!:
 == Document revision history
@@ -640,6 +640,16 @@ this issue, you can exeucte:
 
     cd /root/fsl11/
     ./root_tmp
+
++
+[NOTE]
+====
+The error message:
+
+ Failed to disable unit: Unit file root_tmp.service does not exist.
+
+is benign.
+====
 
 +
 
