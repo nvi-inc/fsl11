@@ -269,8 +269,28 @@ NOTE: If kbd:[e] doesn't work, UEFI is not available.  It may be possible to ena
 +
    locale=en_US.UTF8 netcfg/disable_dhcp=true time/zone=UTC
 +
-NOTE: Whilst typing a `/` (slash) it may automatically be changed (escaped) to
-      `\/` (i.e. preceded by a backslash). This is normal behaviour and harmless.
+
+[NOTE]
+====
+
+Whilst typing a `/` (slash) it may automatically be changed (escaped)
+to `\/` (i.e. preceded by a backslash). This is normal behaviour and
+harmless.
+
+You may omit the `netcfg/disable_dhcp=true` if you want to use DHCP to
+configure the network settings of this machine, though this is not
+advised.
+
+You can additionally use `partman-partitioning/default_label=gpt` if
+you wish to force the use of a GPT partition table on a disk that is
+smaller than 2 GB, but beware - some older BIOS versions cannot handle
+GPT formatted disks.
+
+If you do not set a locale or set `locale=C`, you will be prompted to
+select your language and your country. However some applications may
+have problems if a UTF8 locale is not used.
+
+====
 
 . Press:
 +
@@ -278,16 +298,7 @@ NOTE: Whilst typing a `/` (slash) it may automatically be changed (escaped) to
 +
     * BIOS: kbd:[Enter]
 
-NOTE: You may omit the `netcfg/disable_dhcp=true` if you want to use DHCP to
-configure the network settings of this machine, though this is not advised.
-
-NOTE: You can additionally use `partman-partitioning/default_label=gpt` if you wish
-to force the use of a GPT partition table on a disk that is smaller than 2 GB,
-but beware - some older BIOS versions cannot handle GPT formatted disks.
-
-NOTE: If you do not set a locale or set `locale=C`, you will be
-prompted to select your language and your country. However some
-applications may have problems if a UTF8 locale is not used.
++
 
 The installer will now boot.
 
