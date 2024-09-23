@@ -1059,63 +1059,12 @@ desktop is:
 .. Complete logging in with the password.
 .. Logout with `exit`.
 
-. You may wish to proceed to the next section
-<<Copy ssh key for running backup_usr2>> if that is appropriate for
-this user.
-
-=== Copy ssh key for running backup_usr2
-
-For each AUID account that will use _backup_usr2_, copy the _ssh_ key
-from _root_ on the _operational_ system to the AUID account on the
-_operational_ system. The AUID account must have been created on both
-systems before using this method.
-
-As _root_ on the _operational_ system:
-
-. Create a key:
-
-+
-
-If the _root_ account already has a key, you should skip this step.
-
-+
-
-CAUTION: Your should _not_ set a passphrase.
-
-+
-
-[subs="+quotes"]
-----
-ssh-keygen
-----
-
-. Copy the key to to the _authorized_keys_ for each AUID user that
-will use _backup_usr2_.
-
-+
-
-NOTE: The first command below will generate an error `File exists` if
-the directory already exists. That is benign and can be ignored.
-
-+
-
-[subs="+quotes"]
-----
-mkdir ~_AUID_/.ssh
-cat /root/.ssh/id_rsa.pub >>~_AUID_/.ssh/authorized_keys
-----
-
-+
-
-where `_AUID_` is the AUID account that will use _backup_usr2_.
-
-+
-
-NOTE: The key now stored in the AUID account on the _operational_
-system will be copied to that account on the _spare_ system the next
-time _backup_usr2_ is run. Until then, this user would need to enter
-their password to connect to the _spare_ system when running
-_backup_usr2_.
+. If you have _operational_ and _spare_ systems and have already
+installed the _backup_usr2_ script on the _operational_ system, you
+may want to follow the steps in the sub-step <<root_key,Copy root ssh
+key for running backup_usr2>> (in the
+<<Installing backup_usr2 with CIS hardening>> section below) for this
+user.
 
 === Enable operators group accounts to rotate disks
 
@@ -1484,6 +1433,64 @@ _spare_ account. Execute:
 chage -I -1 -M -1 spare
 ----
 
+.. [[root_key]]<<root_key,Copy root ssh key for running backup_usr2>>:
+
++
+
+For each AUID account on the _operational_ system that will use
+_backup_usr2_, copy the _ssh_ key from _root_ on the _operational_
+system to the AUID account on the _operational_ system. The AUID
+account must have been created on both systems before using this
+method.
+
+.... Create a key:
+
++
+
+If the _root_ account already has a key, you should skip this step.
+
++
+
+CAUTION: Your should _not_ set a passphrase.
+
++
+
+[subs="+quotes"]
+----
+ssh-keygen
+----
+
+.... Copy the key to to the _authorized_keys_ for each AUID user that
+will use _backup_usr2_.
+
++
+
+NOTE: The first command below will generate an error `File exists` if
+the directory already exists. That is benign and can be ignored.
+
++
+
+[subs="+quotes"]
+----
+mkdir ~_AUID_/.ssh
+cat /root/.ssh/id_rsa.pub >>~_AUID_/.ssh/authorized_keys
+chown -R _AUID_._AUID_ ~_AUID_/.ssh
+----
+
++
+
+where `_AUID_` is the AUID account that will use _backup_usr2_.
+
++
+
++
+
+NOTE: The key now stored in the AUID account on the _operational_
+system will be copied to that account on the _spare_ system the next
+time _backup_usr2_ is run. Until then, this user would need to enter
+their password to connect to the _spare_ system when running
+_backup_usr2_.
+
 === Using backup_usr2 with CIS hardening
 
 To use _backup_usr2_ as part of a monthly backup, you first should
@@ -1546,7 +1553,8 @@ order to connect to that system.
 TIP: You can eliminate this password prompt by copying the _ssh_ key
 from the _root_ account on the _operational_ system to your AUID
 account on the _spare_ system (and to the _operational_ system). See
-the section <<Copy ssh key for running backup_usr2>> above for
+the sub-step <<root_key,Copy root ssh key for running backup_usr2>> in
+the <<Installing backup_usr2 with CIS hardening>> section above for
 instructions.
 
 ====
