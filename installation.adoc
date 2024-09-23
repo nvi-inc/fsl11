@@ -769,6 +769,10 @@ to use a proxy _proxy.some.where_ at port `8080` for example.
 
 === Edit /etc/apt/sources.list
 
+NOTE: If _Bullseye_ is no longer the current release, you will also
+need to modify _sources.list_ as described in the
+<<End of security updates>> in <<Managing Security Updates>> appendix.
+
 Using your favourite text editor, eg _vi_, and comment out all `cdrom`
 entries (unless you don't have a decent Internet connection and need
 to use DVDs, whereupon the dialogue presented below may differ) and
