@@ -880,9 +880,42 @@ enter:
 ....
 
 The _oper_account_, _prog_account_, and _root_account_ scripts can be
-used to promote any AUID session to those accounts. The _oper_x11_ and
+used to promote any AUID session to those accounts. If the
+<<Additional remediations>> have been applied, the _oper_x11_ and
 _prog_x11_ scripts can be used on a text console to start an X11
-session and promote.
+session _and_ promote.
+
+[NOTE]
+====
+
+If the <<Additional remediations>> have been applied, the process to
+run X11 applications (e.g., _nm-connection-editor_) as _root_ depends
+on how you logged in.
+
+* If you logged in remotely with _ssh_ using an AUID account, use the
+_root_account_ script to run the application, e.g.:
+
+ root_account nm-connection-editor
+
++
+
+Or, just promote to _root_ with the _root_account_ script, then run
+the application.
+
++
+
+This assumes you have an _Xserver_ running on the computer you
+connected from.  Simply using _sudo_ to run the application from an
+AUID account will not work because the _.Xauthority_ file is not
+properly set for _root_ until the _root_account_ script has been used
+in the AUID session.
+
+* If you logged in on a local text console with an AUID account, first
+start the GUI with _startx_, then run the application with, e.g.,
+`*root_account{nbsp}nm-connection-editor*` (using
+`*sudo{nbsp}nm-connection-editor*` instead will work in this case).
+
+====
 
 === Adding AUID accounts
 
