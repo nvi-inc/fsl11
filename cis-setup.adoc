@@ -716,9 +716,9 @@ possible to support _tcsh_. That would require adding promotion
 machinery to the _~/.login_ files that is equivalent to what is in the
 current _~/.profile_ files. Please contact Ed for more information.
 
-Optionally, to disable shell inactivity time-outs for _oper_, _prog_,
-and/or AUID accounts, edit their respective _.bashrc_ files and
-uncomment the line:
+Optionally, to disable shell inactivity time-outs for the _oper_ and
+_prog_ accounts, edit their respective _.bashrc_ files and uncomment
+the line:
 
   unset TMOUT
 
@@ -991,6 +991,12 @@ that since these accounts aren't on _/usr2_ that they aren't used for
 operations.
 
 ====
+
+. Optionally, to disable shell inactivity time-outs for the AUID
+account, edit their _.bashrc_ file and uncomment the line:
+
+  unset TMOUT
+
 
 . Set default desktop
 
