@@ -259,6 +259,9 @@ At the `Installer boot menu`:
   interface differs -- but this may not work on some video hardware)
 
 +
+
+[disc]
+
 * UEFI: press kbd:[e], then kbd:[{downarrow}] three times (`vmlinuz`), then kbd:[End]
 // The above does not work for asciidoctor-pdf for PDF, use this instead:
 //    * UEFI: press kbd:[e], then the `downarrow` three times (`vmlinuz`), then kbd:[End]
@@ -269,6 +272,7 @@ apparent because the `Installer` banner includes `BIOS mode`.  It may
 be possible to enable UEFI in the motherboard _setup_ menu.
 
 +
+
 * BIOS: press kbd:[Tab] 
 . To the end of the displayed command, add the additional options:
 +
@@ -299,7 +303,8 @@ have problems if a UTF8 locale is not used.
 
 . Press:
 +
-    * UEFI: kbd:[F10] 
+[disc]
+    * UEFI: kbd:[F10]
 +
     * BIOS: kbd:[Enter]
 
@@ -464,10 +469,12 @@ GiB) at this stage in the installer with:
 . Select `Create a new partition`
 
 .  Then for
+[disc]
 ** UEFI:  Enter `*1GB*` in the size, then select `Beginning` of the disk.
 ** BIOS: Enter `*1MB*` in the size, choose `Primary` (rather than `Logical`) if asked for the partition type, then select `Beginning` of the disk.
 
 . Then for
+[disc]
 ** UEFI: Select `Use as` then select `EFI System Partition`
 ** BIOS: Select `Use as` then select `Reserved BIOS boot area`, or alternatively `do not use the partition` if the former option is not available.
 
