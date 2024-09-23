@@ -257,12 +257,17 @@ At the `Installer boot menu`:
 
 . _Highlight_ `Install` (or `Graphical install` -- only the installer
   interface differs -- but this may not work on some video hardware)
+
 +
 * UEFI: press kbd:[e], then kbd:[{downarrow}] three times (`vmlinuz`), then kbd:[End]
 // The above does not work for asciidoctor-pdf for PDF, use this instead:
 //    * UEFI: press kbd:[e], then the `downarrow` three times (`vmlinuz`), then kbd:[End]
 +
-NOTE: If kbd:[e] doesn't work, UEFI is not available.  It may be possible to enable it in the BIOS.
+
+NOTE: If kbd:[e] doesn't work, UEFI is not available. This may also be
+apparent because the `Installer` banner includes `BIOS mode`.  It may
+be possible to enable UEFI in the motherboard _setup_ menu.
+
 +
 * BIOS: press kbd:[Tab] 
 . To the end of the displayed command, add the additional options:
