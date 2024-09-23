@@ -33,6 +33,12 @@ Version 1.1.3 - September 2024
 :sectnums!:
 == Document revision history
 
+* 1.1.3 -- Cleanup: Add NIC selection in rescue mode, recommend latest
+installer, consolidate boot menu NOTEs, clarify when UEFI doesn't
+work, change bullets to solid, advise changing _source.lst_ for install
+if no longer current release, update download package/MB count,
+wording fixes
+
 * 1.1.2 -- Include link to Debian CD archive
 * 1.1.1 -- Include admonition about additional network interfaces
 * 1.1.0 -- Minor release (_refresh_spare_usr2_ updated for CIS hardening elsewhere)
@@ -1106,10 +1112,10 @@ TIP: If your system is already running with no second disk
 The script will wait for the new disk to be turned on. Insert a new
 disk in the _secondary_ slot. The secondary slot is the one connected
 to second lowest numbered SATA controller, usually `1`. Turn the key
-to turn the disk on. There will be a prompt asking if wish to proceed.
-If it is a new disk or you are sure it safe to erase this disk, answer
-`*y*`. If you are unsure about this or otherwise need to abort, answer
-`*n*`.
+to turn the disk on. There will be a prompt asking if you wish to
+proceed. If it is a new disk or you are sure it is safe to erase this
+disk, answer `*y*`. If you are unsure about this or otherwise need to
+abort, answer `*n*`.
 
 . Refresh the now blank _secondary_ disk
 
@@ -1589,7 +1595,8 @@ or (to see the senders and subjects):
 +
      test ! -f /var/mail/oper || from
 +
-to end of _oper_'s _.profile_ file (if using _bash_ as the login
+
+to the end of _oper_'s _.profile_ file (if using _bash_ as the login
 shell) or _.login_ file (_tcsh_).
 
 . Lastly, check the default mailbox directory _/var/mail/_ for
