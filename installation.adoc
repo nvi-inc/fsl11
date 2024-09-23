@@ -848,7 +848,7 @@ or, for _i386_
 
 then press kbd:[Enter] to confirm any updating of installed packages
 (where you have an Internet connection) and the installation of
-currently ~191 new packages (downloading ~185 MB from the Internet
+currently ~214 new packages (downloading ~196 MB from the Internet
 and/or DVDs) for _amd64_ with UEFI -- probably different for _i386_
 and/or BIOS -- unless you did not select the Desktop or added other
 tasks earlier.
