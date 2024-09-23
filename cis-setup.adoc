@@ -1177,23 +1177,40 @@ use of `\h` to `$hostalias`.
 .. In the statement setting `PS1` in the `case` block that sets the
 _xterm_ window title, change the use of `\h` to `$hostalias`.
 
-. For a _spare_ system only, if you have one:
+. If you updated the _operational_ system alias and have a matching
+_spare_ system, then on the latter:
 
 .. Update _/usr/local/sbin/refresh_spare_usr2_ to use the new alias of
-the _operational_ system in the _ssh_ line.
+the _operational_ system for the `remote_node` variable.
 
 .. You will need to update the new alias for the _operational_ system
 to be recognized as a known host to the _root_ account on the _spare_
 system. You can do that, as _root_, by using _ssh_ to
 `spare@_operational_` where `_operational_` is the new alias for the
-_operational_ system. The command will give you guidance for which
-lines need to be deleted in _/root/.ssh/known_hosts_. After deleting
-those lines, reconnect using the same _ssh_ command and answer `*yes*`
-to confirm connecting. The login will be rejected because of the
-forced-command setup on the _operational_ system. The error message
-will probably not seem to make sense, but will end with a line like:
-`Connection to _operational_ closed.`. Still, the task of recording
-the host key will have been accomplished.
+_operational_ system. The command will ask you to confirm the
+fingerprint for the new hostname. After accepting it, the _sudo_
+command on the _operational_ system will be rejected because of the
+forced-command setup. The interaction will may not seem to make sense
+but, after the password for the _sudo_ command has been rejected three
+times, will end with a line like: `Connection to _operational_
+closed.`.  Still, the task of recording the host key will have been
+accomplished.
+
+. If you updated the _spare_ system alias and have a matching
+_operational_ system, then on the latter:
+
+.. Update _/usr/local/sbin/backup_usr2_ to use the new alias of
+the _spare_ system for the `remote_node` variable.
+
+.. You will need to update the new alias for the _spare_ system to be
+recognized as a known host to the AUID accounts that can use
+_backup_usr2_ on the _operational_ system. You can do that, as _root_,
+by switching the AUID account (`*su{nbsp}&#8209;{nbsp}__AUID__*`,
+where `*_AUID_*` is the account name), then using `*ssh _spare_*`,
+where `*spare*` is the new alias of the spare system.  The command
+will ask you to confirm the fingerprint for the new hostname. After
+accepting it, you will be logged in to the _spare_ system, you can
+then `*exit*` from that session.
 
 === Installing backup_usr2 with CIS hardening
 
