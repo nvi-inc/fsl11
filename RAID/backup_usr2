@@ -79,28 +79,37 @@ fi
 
 #start backup
 echo ""
-echo "Executing: ssh -t $SUDO_USER@$remote_node sudo refresh_spare_usr2"
+echo "  Executing: ssh -t $SUDO_USER@$remote_node sudo refresh_spare_usr2"
 cat <<EOT
 
-    You will be prompted for your AUID account password on the 'spare' system
-    to run 'refresh_spare_usr2' with 'sudo'. You may be prompted for the same
-    password before that to connect to the 'spare' system.
+  You will be prompted for your AUID account password on the 'spare' system
+  to run 'refresh_spare_usr2' with 'sudo'. You may be prompted for the same
+  password before that to connect to the 'spare' system.
 
 EOT
-ssh -t "$SUDO_USER@$remote_node" sudo refresh_spare_usr2
+ssh -o LogLevel=ERROR -t "$SUDO_USER@$remote_node" sudo refresh_spare_usr2
 
 # let remote job start running before exiting, which will disable spare account
 count=10
 while [ $count -gt 0 ] && ! ps aux|grep '^root .*sudo --preserve-env rrsync -ro /usr2'|grep -qv grep; do
-  echo -ne "\rWaiting up to $count seconds for file transfer to start. "
+  if [ $count -eq 10 ]; then
+    echo ""
+  fi
+  echo -ne "\r  Waiting up to $count seconds for file transfer to start. "
   count=$(( $count - 1 ))
   sleep 1
 done
   echo -ne "\r                                                         "
 if ! ps aux|grep '^root .*sudo --preserve-env rrsync -ro /usr2'|grep -qv grep; then
-  echo -ne "\rERROR: File transfer failed to start.\n"
+  echo -ne "\r  ERROR: File transfer failed to start (or finished very quickly).\n"
+  echo ""
+  echo "  NB: You may get this error message even though the transfer was successful, if"
+  echo "  there were very few files to transfer and/or they were small. You can check"
+  echo "  the e-mail report from 'refresh_spare_usr2' or the log file (listed above),"
+  echo "  both on the 'spare' machine, to see if the transfer was successful."
+  echo ""
   exit 1
 else
-  echo -ne "\rSuccess: File transfer started.\n"
+  echo -ne "\r  SUCCESS: File transfer started.\n\n"
 fi
 exit 0
