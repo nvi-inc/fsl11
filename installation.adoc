@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.1.2 - July 2024
+Version 1.1.3 - September 2024
 
 :sectnums:
 :experimental:
@@ -32,6 +32,12 @@ Version 1.1.2 - July 2024
 <<<
 :sectnums!:
 == Document revision history
+
+* 1.1.3 -- Cleanup: Add NIC selection in rescue mode, recommend latest
+installer, consolidate boot menu NOTEs, clarify when UEFI doesn't
+work, change bullets to solid, advise changing _source.lst_ for install
+if no longer current release, update download package/MB count,
+wording fixes
 
 * 1.1.2 -- Include link to Debian CD archive
 * 1.1.1 -- Include admonition about additional network interfaces
@@ -131,12 +137,14 @@ AMD and Intel manufactured x86-64 processors. This includes CPU lines such as
 Ryzen, Epyc, Core, and Xeon. The naming scheme dates back to when Intel had a
 competing and incompatible 64-bit architecture _ia64_.
 
-You can install from a DVD drive, USB device, or over the network. Any revision of
-_11.<x>_ installer should work fine.
+You can install from a DVD drive, USB device, or over the network. Any
+revision of the _11.<x>_ installer should work fine. (Generally, pick
+the latest, i.e., largest _<x>_. If there are non-zero patch versions,
+_<y>_, for a given _<x>_, e.g., _11.<x>.<y>_, pick the largest _<y>_.)
 Note also that installing from DVDs as described here is
 recommended mainly for sites with little to poor Internet connectivity (even
 then, use of a single DVD may suffice) and the equivalent use of a "`Debian
-GNU/Linux _11.<x>_ Bullseye - Official _i386_/_amd64_ netinst CD`" would suffice for
+GNU/Linux _11.<x>.<y>_ Bullseye - Official _i386_/_amd64_ NETINST`" CD would suffice for
 installation at most sites with good connectivity. Official images for the installer
 can be found at: https://cdimage.debian.org/cdimage/release/ 
 (or at: https://cdimage.debian.org/cdimage/archive/
@@ -255,37 +263,58 @@ At the `Installer boot menu`:
 
 . _Highlight_ `Install` (or `Graphical install` -- only the installer
   interface differs -- but this may not work on some video hardware)
+
 +
+
+[disc]
+
 * UEFI: press kbd:[e], then kbd:[{downarrow}] three times (`vmlinuz`), then kbd:[End]
 // The above does not work for asciidoctor-pdf for PDF, use this instead:
 //    * UEFI: press kbd:[e], then the `downarrow` three times (`vmlinuz`), then kbd:[End]
 +
-NOTE: If kbd:[e] doesn't work, UEFI is not available.  It may be possible to enable it in the BIOS.
+
+NOTE: If kbd:[e] doesn't work, UEFI is not available. This may also be
+apparent because the `Installer` banner includes `BIOS mode`.  It may
+be possible to enable UEFI in the motherboard _setup_ menu.
+
 +
+
 * BIOS: press kbd:[Tab] 
 . To the end of the displayed command, add the additional options:
 +
    locale=en_US.UTF8 netcfg/disable_dhcp=true time/zone=UTC
 +
-NOTE: Whilst typing a `/` (slash) it may automatically be changed (escaped) to
-      `\/` (i.e. preceded by a backslash). This is normal behaviour and harmless.
+
+[NOTE]
+====
+
+Whilst typing a `/` (slash) it may automatically be changed (escaped)
+to `\/` (i.e. preceded by a backslash). This is normal behaviour and
+harmless.
+
+You may omit the `netcfg/disable_dhcp=true` if you want to use DHCP to
+configure the network settings of this machine, though this is not
+advised.
+
+You can additionally use `partman-partitioning/default_label=gpt` if
+you wish to force the use of a GPT partition table on a disk that is
+smaller than 2 GB, but beware - some older BIOS versions cannot handle
+GPT formatted disks.
+
+If you do not set a locale or set `locale=C`, you will be prompted to
+select your language and your country. However some applications may
+have problems if a UTF8 locale is not used.
+
+====
 
 . Press:
 +
-    * UEFI: kbd:[F10] 
+[disc]
+    * UEFI: kbd:[F10]
 +
     * BIOS: kbd:[Enter]
 
-NOTE: You may omit the `netcfg/disable_dhcp=true` if you want to use DHCP to
-configure the network settings of this machine, though this is not advised.
-
-NOTE: You can additionally use `partman-partitioning/default_label=gpt` if you wish
-to force the use of a GPT partition table on a disk that is smaller than 2 GB,
-but beware - some older BIOS versions cannot handle GPT formatted disks.
-
-NOTE: If you do not set a locale or set `locale=C`, you will be
-prompted to select your language and your country. However some
-applications may have problems if a UTF8 locale is not used.
++
 
 The installer will now boot.
 
@@ -446,10 +475,12 @@ GiB) at this stage in the installer with:
 . Select `Create a new partition`
 
 .  Then for
+[disc]
 ** UEFI:  Enter `*1GB*` in the size, then select `Beginning` of the disk.
 ** BIOS: Enter `*1MB*` in the size, choose `Primary` (rather than `Logical`) if asked for the partition type, then select `Beginning` of the disk.
 
 . Then for
+[disc]
 ** UEFI: Select `Use as` then select `EFI System Partition`
 ** BIOS: Select `Use as` then select `Reserved BIOS boot area`, or alternatively `do not use the partition` if the former option is not available.
 
@@ -581,7 +612,7 @@ For each additional DVD you wish to scan, insert it in the drive, select
 will need to use `*eject /dev/cdrom*` from another virtual console to do this)
 
 Select `No` and press  kbd:[Enter]  to continue once you are done.
-If prompted, insert the "`Debian GNU/Linux _11.<x>_ Bullseye - Official _i386_/_amd64_
+If prompted, insert the "`Debian GNU/Linux _11.<x>.<y>_ Bullseye - Official _i386_/_amd64_
 Binary-1 DVD`" back into the DVD-ROM drive and press  kbd:[Enter].
 
 WARNING: If you do scan additional DVDs, the following useful dialogue
@@ -744,6 +775,10 @@ to use a proxy _proxy.some.where_ at port `8080` for example.
 
 === Edit /etc/apt/sources.list
 
+NOTE: If _Bullseye_ is no longer the current release, you will also
+need to modify _sources.list_ as described in the
+<<End of security updates>> in <<Managing Security Updates>> appendix.
+
 Using your favourite text editor, eg _vi_, and comment out all `cdrom`
 entries (unless you don't have a decent Internet connection and need
 to use DVDs, whereupon the dialogue presented below may differ) and
@@ -819,7 +854,7 @@ or, for _i386_
 
 then press kbd:[Enter] to confirm any updating of installed packages
 (where you have an Internet connection) and the installation of
-currently ~191 new packages (downloading ~185 MB from the Internet
+currently ~214 new packages (downloading ~196 MB from the Internet
 and/or DVDs) for _amd64_ with UEFI -- probably different for _i386_
 and/or BIOS -- unless you did not select the Desktop or added other
 tasks earlier.
@@ -1077,10 +1112,10 @@ TIP: If your system is already running with no second disk
 The script will wait for the new disk to be turned on. Insert a new
 disk in the _secondary_ slot. The secondary slot is the one connected
 to second lowest numbered SATA controller, usually `1`. Turn the key
-to turn the disk on. There will be a prompt asking if wish to proceed.
-If it is a new disk or you are sure it safe to erase this disk, answer
-`*y*`. If you are unsure about this or otherwise need to abort, answer
-`*n*`.
+to turn the disk on. There will be a prompt asking if you wish to
+proceed. If it is a new disk or you are sure it is safe to erase this
+disk, answer `*y*`. If you are unsure about this or otherwise need to
+abort, answer `*n*`.
 
 . Refresh the now blank _secondary_ disk
 
@@ -1560,7 +1595,8 @@ or (to see the senders and subjects):
 +
      test ! -f /var/mail/oper || from
 +
-to end of _oper_'s _.profile_ file (if using _bash_ as the login
+
+to the end of _oper_'s _.profile_ file (if using _bash_ as the login
 shell) or _.login_ file (_tcsh_).
 
 . Lastly, check the default mailbox directory _/var/mail/_ for
@@ -2585,11 +2621,17 @@ below.
 . Network configuration
 +
 
-If no network is currently available (or you know that you do not need it
-for the rescue), simply press kbd:[Enter] when DHCP autoconfiguration starts and
-press kbd:[Enter] again for the resulting `Network autoconfiguration failed`
-message. Thereafter select `Do not configure the network at this time` and
-enter in the machine's hostname when prompted before continuing below.
+If you computer has more than one network interface, select your
+primary interface when presented with the choice.
+
++
+
+If no network is currently available (or you know that you do not need
+it for the rescue), simply press kbd:[Enter] when DHCP
+autoconfiguration starts and press kbd:[Enter] again for the resulting
+`Network autoconfiguration failed` message. Thereafter select `Do not
+configure the network at this time` and confirm the default hostname
+(`debian`) when prompted before continuing below.
 
 +
 
@@ -2597,11 +2639,10 @@ If the DHCP autoconfiguration succeeds before you can stop it, you may
 as well confirm the hostname and domainname and continue with the
 network anyway, since you never know when it might prove useful.
 (However, if you want to make sure you don't use the network, you can
- select `Go Back` and press kbd:[Enter] for the resulting `Network
- autoconfiguration failed` message.  Thereafter select `Do not
- configure the network at this time` and enter in the machine's
- hostname when prompted before continuing below.)
-
+select `Go Back` and press kbd:[Enter] for the resulting `Network
+autoconfiguration failed` message.  Thereafter select `Do not
+configure the network at this time` and confirm the default hostname,
+`debian`, when prompted before continuing below.)
 
 +
 

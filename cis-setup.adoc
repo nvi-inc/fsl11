@@ -26,10 +26,19 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.1.4 - April 2024
+Version 1.1.5 - September 2024
 
 :sectnums!:
 == Document revision history
+
+* 1.1.5 -- Cleanup: change _chage_ `-M` parameter to `-1`, explain
+_operational_ and _spare_ changes for using _hostalias_, fix path to
+_~fsl11/AUID/install_RAID_ script, move copying _root_ _ssh_ key to
+setting up _backup_usr2_, explain running _X_ applications as _root_,
+warn about benign _./root_tmp_ error message, move removing AUID
+account time-outs to AUID account setup, wording fixes
+
+* 1.1.4 -- Remove CIS password aging/expiration for desktop
 
 * 1.1.3 -- Disable _oper_ and _prog_ password expiration, they don't have passwords
 
@@ -642,6 +651,16 @@ this issue, you can exeucte:
     ./root_tmp
 
 +
+[NOTE]
+====
+The error message:
+
+ Failed to disable unit: Unit file root_tmp.service does not exist.
+
+is benign.
+====
+
++
 
 The _root_tmp_ script performs three actions:
 
@@ -706,9 +725,9 @@ possible to support _tcsh_. That would require adding promotion
 machinery to the _~/.login_ files that is equivalent to what is in the
 current _~/.profile_ files. Please contact Ed for more information.
 
-Optionally, to disable shell inactivity time-outs for _oper_, _prog_,
-and/or AUID accounts, edit their respective _.bashrc_ files and
-uncomment the line:
+Optionally, to disable shell inactivity time-outs for the _oper_ and
+_prog_ accounts, edit their respective _.bashrc_ files and uncomment
+the line:
 
   unset TMOUT
 
@@ -723,9 +742,9 @@ Disable password aging and account inactivity expiration for those
 accounts. Execute:
 
 ----
-chage -I -1 -M 99999 oper
-chage -I -1 -M 99999 prog
-chage -I -1 -M 99999 desktop
+chage -I -1 -M -1 oper
+chage -I -1 -M -1 prog
+chage -I -1 -M -1 desktop
 ----
 To prevent connecting with _ssh_ using a key, create (or add _oper_
 and _prog_ to an existing) `DenyUsers` line in _/etc/ssh/sshd_config_:
@@ -870,9 +889,42 @@ enter:
 ....
 
 The _oper_account_, _prog_account_, and _root_account_ scripts can be
-used to promote any AUID session to those accounts. The _oper_x11_ and
+used to promote any AUID session to those accounts. If the
+<<Additional remediations>> have been applied, the _oper_x11_ and
 _prog_x11_ scripts can be used on a text console to start an X11
-session and promote.
+session _and_ promote.
+
+[NOTE]
+====
+
+If the <<Additional remediations>> have been applied, the process to
+run X11 applications (e.g., _nm-connection-editor_) as _root_ depends
+on how you logged in.
+
+* If you logged in remotely with _ssh_ using an AUID account, use the
+_root_account_ script to run the application, e.g.:
+
+ root_account nm-connection-editor
+
++
+
+Or, just promote to _root_ with the _root_account_ script, then run
+the application.
+
++
+
+This assumes you have an _Xserver_ running on the computer you
+connected from.  Simply using _sudo_ to run the application from an
+AUID account will not work because the _.Xauthority_ file is not
+properly set for _root_ until the _root_account_ script has been used
+in the AUID session.
+
+* If you logged in on a local text console with an AUID account, first
+start the GUI with _startx_, then run the application with, e.g.,
+`*root_account{nbsp}nm-connection-editor*` (using
+`*sudo{nbsp}nm-connection-editor*` instead will work in this case).
+
+====
 
 === Adding AUID accounts
 
@@ -982,6 +1034,12 @@ operations.
 
 ====
 
+. Optionally, to disable shell inactivity time-outs for the AUID
+account, edit their _.bashrc_ file and uncomment the line:
+
+  unset TMOUT
+
+
 . Set default desktop
 
 +
@@ -1010,63 +1068,12 @@ desktop is:
 .. Complete logging in with the password.
 .. Logout with `exit`.
 
-. You may wish to proceed to the next section
-<<Copy ssh key for running backup_usr2>> if that is appropriate for
-this user.
-
-=== Copy ssh key for running backup_usr2
-
-For each AUID account that will use _backup_usr2_, copy the _ssh_ key
-from _root_ on the _operational_ system to the AUID account on the
-_operational_ system. The AUID account must have been created on both
-systems before using this method.
-
-As _root_ on the _operational_ system:
-
-. Create a key:
-
-+
-
-If the _root_ account already has a key, you should skip this step.
-
-+
-
-CAUTION: Your should _not_ set a passphrase.
-
-+
-
-[subs="+quotes"]
-----
-ssh-keygen
-----
-
-. Copy the key to to the _authorized_keys_ for each AUID user that
-will use _backup_usr2_.
-
-+
-
-NOTE: The first command below will generate an error `File exists` if
-the directory already exists. That is benign and can be ignored.
-
-+
-
-[subs="+quotes"]
-----
-mkdir ~_AUID_/.ssh
-cat /root/.ssh/id_rsa.pub >>~_AUID_/.ssh/authorized_keys
-----
-
-+
-
-where `_AUID_` is the AUID account that will use _backup_usr2_.
-
-+
-
-NOTE: The key now stored in the AUID account on the _operational_
-system will be copied to that account on the _spare_ system the next
-time _backup_usr2_ is run. Until then, this user would need to enter
-their password to connect to the _spare_ system when running
-_backup_usr2_.
+. If you have _operational_ and _spare_ systems and have already
+installed the _backup_usr2_ script on the _operational_ system, you
+may want to follow the steps in the sub-step <<root_key,Copy root ssh
+key for running backup_usr2>> (in the
+<<Installing backup_usr2 with CIS hardening>> section below) for this
+user.
 
 === Enable operators group accounts to rotate disks
 
@@ -1088,7 +1095,7 @@ _refresh_secondary_ with any options if they use _sudo_ explicitly.
 . Install _AUID_ scripts to allow `operators` group accounts to run
 the _sudo_ scripts without explicitly entering _sudo_:
 
-  AUID/install_RAID
+  ~/fsl11/AUID/install_RAID
 
 +
 
@@ -1179,23 +1186,40 @@ use of `\h` to `$hostalias`.
 .. In the statement setting `PS1` in the `case` block that sets the
 _xterm_ window title, change the use of `\h` to `$hostalias`.
 
-. For a _spare_ system only, if you have one:
+. If you updated the _operational_ system alias and have a matching
+_spare_ system, then on the latter:
 
 .. Update _/usr/local/sbin/refresh_spare_usr2_ to use the new alias of
-the _operational_ system in the _ssh_ line.
+the _operational_ system for the `remote_node` variable.
 
 .. You will need to update the new alias for the _operational_ system
 to be recognized as a known host to the _root_ account on the _spare_
 system. You can do that, as _root_, by using _ssh_ to
 `spare@_operational_` where `_operational_` is the new alias for the
-_operational_ system. The command will give you guidance for which
-lines need to be deleted in _/root/.ssh/known_hosts_. After deleting
-those lines, reconnect using the same _ssh_ command and answer `*yes*`
-to confirm connecting. The login will be rejected because of the
-forced-command setup on the _operational_ system. The error message
-will probably not seem to make sense, but will end with a line like:
-`Connection to _operational_ closed.`. Still, the task of recording
-the host key will have been accomplished.
+_operational_ system. The command will ask you to confirm the
+fingerprint for the new hostname. After accepting it, the _sudo_
+command on the _operational_ system will be rejected because of the
+forced-command setup. The interaction will may not seem to make sense
+but, after the password for the _sudo_ command has been rejected three
+times, will end with a line like: `Connection to _operational_
+closed.`.  Still, the task of recording the host key will have been
+accomplished.
+
+. If you updated the _spare_ system alias and have a matching
+_operational_ system, then on the latter:
+
+.. Update _/usr/local/sbin/backup_usr2_ to use the new alias of
+the _spare_ system for the `remote_node` variable.
+
+.. You will need to update the new alias for the _spare_ system to be
+recognized as a known host to the AUID accounts that can use
+_backup_usr2_ on the _operational_ system. You can do that, as _root_,
+by switching the AUID account (`*su{nbsp}&#8209;{nbsp}__AUID__*`,
+where `*_AUID_*` is the account name), then using `*ssh _spare_*`,
+where `*spare*` is the new alias of the spare system.  The command
+will ask you to confirm the fingerprint for the new hostname. After
+accepting it, you will be logged in to the _spare_ system, you can
+then `*exit*` from that session.
 
 === Installing backup_usr2 with CIS hardening
 
@@ -1293,8 +1317,8 @@ form is:
 #remote_user=spare
 ....
 
-... Enable running the _sudo_ script with either with no options or
-just `-h`. Use _visudo_ to add:
+... For _operators_, Enable running the _sudo_ script with either no
+options or just `-h`. Use _visudo_ to add:
 
 +
 
@@ -1432,8 +1456,66 @@ _spare_ account. Execute:
 +
 
 ----
-chage -I -1 -M 99999 spare
+chage -I -1 -M -1 spare
 ----
+
+.. [[root_key]]<<root_key,Copy root ssh key for running backup_usr2>>:
+
++
+
+For each AUID account on the _operational_ system that will use
+_backup_usr2_, copy the _ssh_ key from _root_ on the _operational_
+system to the AUID account on the _operational_ system. The AUID
+account must have been created on both systems before using this
+method.
+
+.... Create a key:
+
++
+
+If the _root_ account already has a key, you should skip this step.
+
++
+
+CAUTION: Your should _not_ set a passphrase.
+
++
+
+[subs="+quotes"]
+----
+ssh-keygen
+----
+
+.... Copy the key to to the _authorized_keys_ for each AUID user that
+will use _backup_usr2_.
+
++
+
+NOTE: The first command below will generate an error `File exists` if
+the directory already exists. That is benign and can be ignored.
+
++
+
+[subs="+quotes"]
+----
+mkdir ~_AUID_/.ssh
+cat /root/.ssh/id_rsa.pub >>~_AUID_/.ssh/authorized_keys
+chown -R _AUID_._AUID_ ~_AUID_/.ssh
+----
+
++
+
+where `_AUID_` is the AUID account that will use _backup_usr2_.
+
++
+
++
+
+NOTE: The key now stored in the AUID account on the _operational_
+system will be copied to that account on the _spare_ system the next
+time _backup_usr2_ is run. Until then, each user would need to enter
+their password to connect to the _spare_ system when running
+_backup_usr2_.
 
 === Using backup_usr2 with CIS hardening
 
@@ -1497,7 +1579,8 @@ order to connect to that system.
 TIP: You can eliminate this password prompt by copying the _ssh_ key
 from the _root_ account on the _operational_ system to your AUID
 account on the _spare_ system (and to the _operational_ system). See
-the section <<Copy ssh key for running backup_usr2>> above for
+the sub-step <<root_key,Copy root ssh key for running backup_usr2>> in
+the <<Installing backup_usr2 with CIS hardening>> section above for
 instructions.
 
 ====
