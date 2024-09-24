@@ -31,6 +31,15 @@ Version 1.1.5 - September 2024
 :sectnums!:
 == Document revision history
 
+* 1.1.5 -- Cleanup: change _chage_ `-M` parameter to `-1`, explain
+_operational_ and _spare_ changes for using _hostalias_, fix path to
+_~fsl11/AUID/install_RAID_ script, move copying _root_ _ssh_ key to
+setting up _backup_usr2_, explain running _X_ applications as _root_,
+warn about benign _./root_tmp_ error message, move removing AUID
+account time-outs to AUID account setup, wording fixes
+
+* 1.1.4 -- Remove CIS password aging/expiration for desktop
+
 * 1.1.3 -- Disable _oper_ and _prog_ password expiration, they don't have passwords
 
 * 1.1.2 -- Correct responses to _adduser_; create _~AUID/.ssh_ in case
@@ -1308,8 +1317,8 @@ form is:
 #remote_user=spare
 ....
 
-... Enable running the _sudo_ script with either with no options or
-just `-h`. Use _visudo_ to add:
+... For _operators_, Enable running the _sudo_ script with either no
+options or just `-h`. Use _visudo_ to add:
 
 +
 
@@ -1504,7 +1513,7 @@ where `_AUID_` is the AUID account that will use _backup_usr2_.
 
 NOTE: The key now stored in the AUID account on the _operational_
 system will be copied to that account on the _spare_ system the next
-time _backup_usr2_ is run. Until then, this user would need to enter
+time _backup_usr2_ is run. Until then, each user would need to enter
 their password to connect to the _spare_ system when running
 _backup_usr2_.
 
