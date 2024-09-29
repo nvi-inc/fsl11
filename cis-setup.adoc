@@ -26,10 +26,15 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.1.5 - September 2024
+Version 1.1.6 - September 2024
 
 :sectnums!:
 == Document revision history
+
+* 1.1.6 -- Correct host alias setup for _refresh_spare_usr2_ and
+_backup_usr2_ yet again, use _ssh-keyscan_ to set _known_hosts_, make
+the _spare_ system a _known host_ for _root_ on the _operational_ system,
+add link for updating host alias in _.bashrc_ for subsequent AUID accounts
 
 * 1.1.5 -- Cleanup: change _chage_ `-M` parameter to `-1`, explain
 _operational_ and _spare_ changes for using _hostalias_, fix path to
@@ -1068,6 +1073,10 @@ desktop is:
 .. Complete logging in with the password.
 .. Logout with `exit`.
 
+. If you have previously created a system alias, then follow the
+sub-steps in the <<bashrc_alias,Use the new alias in .bashrc>> step
+(in the <<Setting hostname alias>> section below) for this user.
+
 . If you have _operational_ and _spare_ systems and have already
 installed the _backup_usr2_ script on the _operational_ system, you
 may want to follow the steps in the sub-step <<root_key,Copy root ssh
@@ -1168,8 +1177,9 @@ in the FSL11 Installation document may also be helpful.
      update-exim4.conf
      systemctl restart exim4
 
-. Use the new alias in the user prompts and _xterm_ titles for _oper_, _prog_, and all non-system-administrator AUID accounts. In the
-`.bashrc` file for each user to be changed:
+. [[bashrc_alias]]<<bashrc_alias,Use the new alias in .bashrc>>: Set
+user prompts and _xterm_ titles for _oper_, _prog_, and all AUID
+accounts. In each `.bashrc` file to be changed:
 
 .. Before the `if` block that sets `PS1` add:
 
@@ -1186,40 +1196,57 @@ use of `\h` to `$hostalias`.
 .. In the statement setting `PS1` in the `case` block that sets the
 _xterm_ window title, change the use of `\h` to `$hostalias`.
 
-. If you updated the _operational_ system alias and have a matching
-_spare_ system, then on the latter:
+. If you have previously installed _refresh_spare_usr2_ and have now
+updated the _operational_ system alias, then on the _spare_ system:
 
 .. Update _/usr/local/sbin/refresh_spare_usr2_ to use the new alias of
 the _operational_ system for the `remote_node` variable.
 
-.. You will need to update the new alias for the _operational_ system
-to be recognized as a known host to the _root_ account on the _spare_
-system. You can do that, as _root_, by using _ssh_ to
-`spare@_operational_` where `_operational_` is the new alias for the
-_operational_ system. The command will ask you to confirm the
-fingerprint for the new hostname. After accepting it, the _sudo_
-command on the _operational_ system will be rejected because of the
-forced-command setup. The interaction will may not seem to make sense
-but, after the password for the _sudo_ command has been rejected three
-times, will end with a line like: `Connection to _operational_
-closed.`.  Still, the task of recording the host key will have been
-accomplished.
+.. You will need to make the new alias for the _operational_ system be
+recognized as a _known host_ for the _root_ account on the _spare_
+system. You can do that, as _root_, by using:
 
-. If you updated the _spare_ system alias and have a matching
-_operational_ system, then on the latter:
++
+
+[subs="+quotes"]
+----
+ssh-keyscan -H _operational_ >>~/.ssh/known_hosts
+----
+
++
+
+where `_operational_` is the value you used for the `remote_node`
+variable in the _refresh_spare_usr2_ script.
+
++
+
+. If you have previously installed _backup_usr2_ and have now updated
+the _spare_ system alias, then on the _operational_ system:
 
 .. Update _/usr/local/sbin/backup_usr2_ to use the new alias of
 the _spare_ system for the `remote_node` variable.
 
-.. You will need to update the new alias for the _spare_ system to be
-recognized as a known host to the AUID accounts that can use
-_backup_usr2_ on the _operational_ system. You can do that, as _root_,
-by switching the AUID account (`*su{nbsp}&#8209;{nbsp}__AUID__*`,
-where `*_AUID_*` is the account name), then using `*ssh _spare_*`,
-where `*spare*` is the new alias of the spare system.  The command
-will ask you to confirm the fingerprint for the new hostname. After
-accepting it, you will be logged in to the _spare_ system, you can
-then `*exit*` from that session.
+.. You will need to make the new alias for the _spare_ system be
+recognized as a _known host_ for the _root_ account on the
+_operational_ system. You can do that, as _root_, by:
+
++
+
+[subs="+quotes"]
+----
+ssh-keyscan -H _spare_ >>~/.ssh/known_hosts
+----
+
++
+
+where `_spare_` is the value you used for the `remote_node` variable
+in the _backup_usr2_ script.
+
++
+
+TIP: Not performing this step will just require answering `*yes*` to a
+prompt to accept the _spare_ machine fingerprint on the next use of
+_backup_usr2_.
 
 === Installing backup_usr2 with CIS hardening
 
@@ -1352,10 +1379,15 @@ ssh-copy-id spare@_operational_
 
 +
 
+where `_operational_` is the value you used for the `remote_node`
+variable in the _refresh_spare_usr2_ script.
+
 +
 
-where `_operational_` is the alias, name, or IP of your _operational_
-system.
+NOTE: You may need to accept the fingerprint of the _operational_
+system if this is the first time _root_ has connected to it.
+
++
 
 . On the _operational_ system:
 
@@ -1459,6 +1491,25 @@ _spare_ account. Execute:
 chage -I -1 -M -1 spare
 ----
 
+.. Make the _spare_ system a _known host_ to the _root_ account.
+
++
+
+[subs="+quotes"]
+----
+ssh-keyscan -H _spare_ >>~/.ssh/known_hosts
+----
+
++
+
+where `_spare_` is the value you used for the `remote_node` variable
+in the _backup_usr2_ script.
+
++
+
+TIP: Not performing this step will just require the prompt to be
+answered on the first use of _backup_usr2_.
+
 .. [[root_key]]<<root_key,Copy root ssh key for running backup_usr2>>:
 
 +
@@ -1513,7 +1564,7 @@ where `_AUID_` is the AUID account that will use _backup_usr2_.
 
 NOTE: The key now stored in the AUID account on the _operational_
 system will be copied to that account on the _spare_ system the next
-time _backup_usr2_ is run. Until then, each user would need to enter
+time _backup_usr2_ is run. Until then, any user would need to enter
 their password to connect to the _spare_ system when running
 _backup_usr2_.
 
