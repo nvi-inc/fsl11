@@ -37,7 +37,7 @@ echo "Updating /usr2/$ans"
 cd /usr2
 mv $ans $ans.FSL11COPY
 #
-cd /usr2/fs/st.default/auid
+cd ~/fsl11/AUID/skel
 find . -print|cpio -pmdu /usr2/$ans
 chown -R $ans.$ans /usr2/$ans
 chmod 0750 /usr2/$ans
