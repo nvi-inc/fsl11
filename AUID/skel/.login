@@ -32,6 +32,3 @@ set ignoreeof
 setenv PAGER "less -i"
 setenv EDITOR vim
 setenv LESS -XR
-#check for mail on login
-test ! -f /var/mail/oper || from 
-#

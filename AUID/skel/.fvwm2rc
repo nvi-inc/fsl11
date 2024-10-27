@@ -247,16 +247,8 @@ Style "xmag"	   Icon mag_glass.xpm
 Style "xgraph"	   Icon graphs.xpm
 Style "FvwmButtons"  Icon toolbox.xpm
 Style "login_sh"   NoButton 1, NoButton 2, NoButton 4, NoHandles
-Style "oprin"	   NoButton 1, NoButton 2, NoButton 4, NoHandles
-Style "fmset"      NoButton 1, NoButton 2, NoButton 4, NoHandles
 Style "*"          Color black/khaki
-Style "monit*" NeverFocus
-Style "monpcal" NeverFocus
 Style "xconsole" NeverFocus
-Style "monan" NeverFocus
-Style "scnch" NeverFocus
-Style "erchk" NeverFocus
-Style "Field System Prompt*" StaysOnTop
 IgnoreModifiers L2
 
 #############################################################################
