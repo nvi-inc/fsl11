@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2020, 2023 NVI, Inc.
+# Copyright (c) 2020, 2023, 2024 NVI, Inc.
 #
 # This file is part of FSL11 Linux distribution.
 # (see http://github.com/nvi-inc/fsl11).
@@ -37,10 +37,18 @@ chmod a+rx *_x11
 echo "Updating ~oper/.profile"
 touch ~oper/.profile
 cat ~/fsl11/AUID/profile_oper >> ~oper/.profile
+# Updating ~oper/.bashrc
+echo "Updating ~oper/.bashrc"
+touch ~oper/.bashrc
+cat ~/fsl11/AUID/bashrc_oper >> ~oper/.bashrc
 # Updating ~prog/.profile
 echo "Updating ~prog/.profile"
 touch ~prog/.profile
 cat ~/fsl11/AUID/profile_prog >> ~prog/.profile
+# Updating ~prog/.bashrc
+echo "Updating ~prog/.bashrc"
+touch ~prog/.bashrc
+cat ~/fsl11/AUID/bashrc_prog >> ~prog/.bashrc
 # Updating ~root/.profile
 echo "Updating ~root/.profile"
 touch ~root/.profile

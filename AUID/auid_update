@@ -48,10 +48,23 @@ echo "Applying customizations from \${BASH_SOURCE}"
 EOT
 chown oper.rtx ~oper/.profile_$ans
 #
+echo "Adding ~oper/.bashrc_$ans"
+cat >~oper/.bashrc_$ans <<EOT
+echo "Applying customizations from \${BASH_SOURCE}"
+EOT
+chown oper.rtx ~oper/.bashrc_$ans
+#
 echo "Adding ~prog/.profile_$ans"
 cat >~prog/.profile_$ans <<EOT
 echo "Applying customizations from \${BASH_SOURCE}"
 EOT
 chown prog.rtx ~prog/.profile_$ans
+#
+echo "Adding ~prog/.bashrc_$ans"
+cat >~prog/.bashrc_$ans <<EOT
+echo "Applying customizations from \${BASH_SOURCE}"
+EOT
+chown prog.rtx ~prog/.bashrc_$ans
+#
 #
 echo "Done."
