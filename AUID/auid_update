@@ -14,7 +14,7 @@ echo "On /usr2, an existing user home directory will renamed to user.FSL11COPY"
 badans=true
 while [ "$badans" = "true" ]
 do
-  echo -n "Enter exisiting user to update (return to exit): " 
+  echo -n "Enter exisiting user to update (return to exit): "
   read ans
   case "$ans" in
     prog) echo "Can't update prog "

@@ -21,8 +21,8 @@ endif
 set tty=`tty`
 stty echoe kill ^X erase '^?' intr ^C
 if($?term == 1) then
-else 
-	echo -n "Enter TERM: " 
+else
+	echo -n "Enter TERM: "
 	set term=$<
 endif
 set history = 50
