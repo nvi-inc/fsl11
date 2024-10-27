@@ -33,6 +33,9 @@ chmod a+rx *_account
 cp -a ~/fsl11/AUID/*_x11 .
 chown root:root *_x11
 chmod a+rx *_x11
+# Change ~oper permissions to allow others to read/search
+echo "Changing ~oper permissions"
+chmod o+rx ~oper
 # Updating ~oper/.profile
 echo "Updating ~oper/.profile"
 touch ~oper/.profile
@@ -41,6 +44,9 @@ cat ~/fsl11/AUID/profile_oper >> ~oper/.profile
 echo "Updating ~oper/.bashrc"
 touch ~oper/.bashrc
 cat ~/fsl11/AUID/bashrc_oper >> ~oper/.bashrc
+# Change ~prog permissions to allow others to read/search
+echo "Changing ~prog permissions"
+chmod o+rx ~prog
 # Updating ~prog/.profile
 echo "Updating ~prog/.profile"
 touch ~prog/.profile
