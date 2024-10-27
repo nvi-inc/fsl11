@@ -10,7 +10,7 @@ echo "********************************************************************"
 echo "*  This is the INSTALLATION script for a AUID account              *"
 echo "********************************************************************"
 echo "CAUTION: This script will automatically modify some of your directories."
-echo "On /usr2, an existing user home directory will renamed to user.FSCOPY"
+echo "On /usr2, an existing user home directory will renamed to user.FSL11COPY"
 badans=true
 while [ "$badans" = "true" ]
 do
@@ -23,8 +23,8 @@ do
            ;;
     *)    if  [ x$ans = x ]; then
 	    exit
-          elif  [ -e /usr2/$ans.FSCOPY -o -L /usr2/$ans.FSCOPY ]; then
-	    echo "/usr2/$ans.FSCOPY exisits, user apparently already updated"
+          elif  [ -e /usr2/$ans.FSL11COPY -o -L /usr2/$ans.FSL11COPY ]; then
+	    echo "/usr2/$ans.FSL11COPY exisits, user apparently already updated"
 	  elif ! [ -e /usr2/$ans -o -L /usr2/$ans ]; then
 	    echo "User $ans does not have a directory on /usr2"
 	  else
@@ -35,7 +35,7 @@ done
 #
 echo "Updating /usr2/$ans"
 cd /usr2
-mv $ans $ans.FSCOPY
+mv $ans $ans.FSL11COPY
 #
 cd /usr2/fs/st.default/auid
 find . -print|cpio -pmdu /usr2/$ans
