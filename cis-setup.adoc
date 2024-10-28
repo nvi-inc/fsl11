@@ -26,10 +26,17 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.1.6 - September 2024
+Version 1.1.7 - October 2024
 
 :sectnums!:
 == Document revision history
+
+* 1.1.7 -- Consolidate AUID setup into FSL11; set _~oper_ and _~prog_
+to be readable/searchable by _others_; add _.bashrc_ _sudo_
+customization scripts; make _sudo_ customization scripts owned by the
+`SUDO_USER`; don't set _sysadmin_'s prompts to use host alias; clarify
+running X11 applications as _root_; fix automatic numbering of AUID
+installation steps
 
 * 1.1.6 -- Correct host alias setup for _refresh_spare_usr2_ and
 _backup_usr2_ yet again, use _ssh-keyscan_ to set _known_hosts_, make
@@ -783,7 +790,8 @@ more information about _root_'s configuration). After the steps are
 presented, there is information on a script that implements these
 changes for all three accounts in one step.
 
-1. Add this to the following file:
+. [[profile]]<<profile,.profile>>: Add this to the following file:
+
 +
 .~oper/.profile
 [source,bash]
@@ -818,12 +826,15 @@ fi
 This will also set the Xresources to those of _oper_, replace the
 current window manager with one owned by _oper_ (protected from
 kbd:[Ctrl+C] by _setsid_) for a local console X11 session, and run a
-_bash_ script (if present) to apply customizations for the _sudo_
-user. (For _root_ only the first clause would be used since Xresources
-would not be set, the window manager would not be replaced, and there
-would not be _sudo_ user customization.)
+_bash_ script (if present) to apply customizations for the _sudo_ user
+in a login shell. Additional customization may be run (earlier) from
+the _.bashrc_ file, which is also executed for non-login shells; see
+the <<bashrc,.bashrc>> step below. (For _root_ only the first clause
+would be used since Xresources would not be set, the window manager
+would not be replaced, and there would not be _sudo_ user
+customization.)
 
-2. Create the following file
+. Create the following file:
 +
 ./usr/local/bin/oper_account
 [source,bash]
@@ -853,11 +864,11 @@ else
 fi
 ```
 
-3. Execute:
+. Execute:
 +
     chmod a+rx /usr/local/bin/oper_account
 
-4. Create the following file:
+. Create the following file:
 
 +
 ./usr/local/bin/oper_x11
@@ -881,11 +892,31 @@ else
 fi
 ```
 
-5. Execute:
+. Execute:
 +
     chmod a+rx /usr/local/bin/oper_x11
 
-To execute the five numbered steps above for _oper_ and _prog_ and the
+. [[bashrc]]<<bashrc,.bashrc>>: Add this to the following file:
+
++
+.~oper/.bashrc
+[source,bash]
+```
+#
+# include AUID user's .bashrc_SUDO_USER
+if [ -n "$SUDO_USER" ]; then
+    if [ -f "$HOME/.bashrc_$SUDO_USER" ]; then
+        . "$HOME/.bashrc_$SUDO_USER"
+    fi
+fi
+```
++
+
+This provides a way to run a _bash_ script (if present) to apply
+customizations for the _sudo_ user for non-login shells. This script
+is also run for login shells; see the <<profile,.profile>> step above.
+
+To execute the six numbered steps above for _oper_ and _prog_ and the
 first three for _root_ (for the latter only those three are needed),
 enter:
 
@@ -893,18 +924,25 @@ enter:
 ~/fsl11/AUID/install_AUID
 ....
 
+The script will also set _~oper_ and _~prog_ directories to be
+readable and searchable by _other_ users. This will allow AUID users
+to access their customization scripts (and allow all users to read the
+parts of the directories they have read access to), which will be
+owned by them,
+
 The _oper_account_, _prog_account_, and _root_account_ scripts can be
-used to promote any AUID session to those accounts. If the
-<<Additional remediations>> have been applied, the _oper_x11_ and
-_prog_x11_ scripts can be used on a text console to start an X11
-session _and_ promote.
+used to promote any AUID session that is enabled in _/etc/sudoers_ to
+those accounts. If the <<Additional remediations>> have been applied,
+the _oper_x11_ and _prog_x11_ scripts can be used on a text console to
+start an X11 session _and_ promote.
 
 [NOTE]
 ====
 
 If the <<Additional remediations>> have been applied, the process to
 run X11 applications (e.g., _nm-connection-editor_) as _root_ depends
-on how you logged in.
+on how you logged in. You must login with an AUID account that is
+enabled in _/etc/sudoers_ to promote to _root_.
 
 * If you logged in remotely with _ssh_ using an AUID account, use the
 _root_account_ script to run the application, e.g.:
@@ -925,9 +963,15 @@ properly set for _root_ until the _root_account_ script has been used
 in the AUID session.
 
 * If you logged in on a local text console with an AUID account, first
-start the GUI with _startx_, then run the application with, e.g.,
-`*root_account{nbsp}nm-connection-editor*` (using
-`*sudo{nbsp}nm-connection-editor*` instead will work in this case).
+start the GUI with _startx_, then in an _xterm_ window run the
+application with, e.g.:
+
+ root_account nm-connection-editor
+
++
+
+Or, in an _xterm_, just promote to _root_ with the _root_account_
+script, then run the application.
 
 ====
 
@@ -998,21 +1042,42 @@ and/or:
 
 . If the account will be used by an operator and/or programmer with
 the GUI, the X11 environment needs to be set-up. The following command
-will move an existing _/usr2/dhorsley_ to _/usr2/dhorsley.FSCOPY_ and
-create a new _/usr2/dhorsley_ with useful skeleton files (you will be
-prompted for the account name):
+will move an existing _/usr2/dhorsley_ to _/usr2/dhorsley.FSL11COPY_
+and create a new _/usr2/dhorsley_ with useful skeleton files (you will
+be prompted for the account name):
 
-    /usr2/fs/misc/auid_update
+ ~/fsl11/AUID/AUID_update
 
 +
 
-It will also create _~oper/.profile_dhorsley and _~prog/.profile_dhorsley_
-scripts for per AUID user customization of _oper_ and _prog_ sessions.
+It will also create _~oper/.profile_dhorsley_,
+_~oper/.bashrc_dhorsley_, _~prog/.profile_dhorsley_, and
+_~prog/.bashrc_dhorsley_ scripts for per AUID user customization of
+_oper_ and _prog_ sessions. The owner of these files is set to be the
+AUID user to prevent other users from modifying the _sudo_
+customization scripts.
+
++
+
+CAUTION: A user promoted to _oper_ or _prog_ will still be able to
+_delete_ any of the corresponding customization scripts, but they will
+be prompted to confirm when doing so. Hopefully that will reduce
+accidental deletions.
+
++
+
 The initial versions of this file just print a message as a reminder
 that they are being used:
 
 +
 .~oper/.profile_dhorsley
+[source,bash]
+```
+echo "Applying customizations from ${BASH_SOURCE}"
+```
+
++
+.~oper/.bashrc_dhorsley
 [source,bash]
 ```
 echo "Applying customizations from ${BASH_SOURCE}"
@@ -1027,8 +1092,8 @@ but is for example on _/home_, the following commands should be used
 instead:
 
     cd /home
-    mv dhorsley dhorsley.FSCOPY
-    cd /usr2/fs/st.default/auid
+    mv dhorsley dhorsley.FSL11COPY
+    cd ~/fsl11/AUID/skel
     find . -print|cpio -pmdu /home/dhorsley
     chown -R dhorsley.dhorsley /home/dhorsley
     chmod 0750 /home/dhorsley
@@ -1038,6 +1103,8 @@ that since these accounts aren't on _/usr2_ that they aren't used for
 operations.
 
 ====
+
++
 
 . Optionally, to disable shell inactivity time-outs for the AUID
 account, edit their _.bashrc_ file and uncomment the line:
@@ -1177,9 +1244,10 @@ in the FSL11 Installation document may also be helpful.
      update-exim4.conf
      systemctl restart exim4
 
-. [[bashrc_alias]]<<bashrc_alias,Use the new alias in .bashrc>>: Set
+. [[bashrc_alias]]<<bashrc_alias,Use the new alias in .bashrc>>:
+Except for the _sysadmin_'s AUID account (unless they want it) set
 user prompts and _xterm_ titles for _oper_, _prog_, and all AUID
-accounts. In each `.bashrc` file to be changed:
+accounts. In each _.bashrc_ file to be changed:
 
 .. Before the `if` block that sets `PS1` add:
 
@@ -1195,6 +1263,54 @@ use of `\h` to `$hostalias`.
 
 .. In the statement setting `PS1` in the `case` block that sets the
 _xterm_ window title, change the use of `\h` to `$hostalias`.
+
+.. Unless the _sysadmin_ wants to use the alias, copy the following
+lines from their AUID _.bashrc_ file:
+
++
+```
+# set a fancy prompt (non-color, unless we know we "want" color)
+case "$TERM" in
+    xterm-color|*-256color) color_prompt=yes;;
+esac
+
+# uncomment for a colored prompt, if the terminal has the capability; turned
+# off by default to not distract the user: the focus in a terminal window
+# should be on the output of commands, not on the prompt
+#force_color_prompt=yes
+
+if [ -n "$force_color_prompt" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+        # We have color support; assume it's compliant with Ecma-48
+        # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+        # a case would tend to support setf rather than setaf.)
+        color_prompt=yes
+    else
+        color_prompt=
+    fi
+fi
+
+if [ "$color_prompt" = yes ]; then
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+unset color_prompt force_color_prompt
+
+# If this is an xterm set the title to user@host:dir
+case "$TERM" in
+xterm*|rxvt*)
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    ;;
+*)
+    ;;
+esac
+```
+
++
+
+and add them to the end of their _~oper/.bashrc_SUDO_USER_ and
+_~prog/.bashrc_SUDO_USER_ files.
 
 . If you have previously installed _refresh_spare_usr2_ and have now
 updated the _operational_ system alias, then on the _spare_ system:
