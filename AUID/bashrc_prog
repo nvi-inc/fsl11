@@ -1,0 +1,7 @@
+#
+# include AUID user's .bashrc_SUDO_USER
+if [ -n "$SUDO_USER" ]; then
+    if [ -f "$HOME/.bashrc_$SUDO_USER" ]; then
+        . "$HOME/.bashrc_$SUDO_USER"
+    fi
+fi
