@@ -26,10 +26,12 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.1.8 - November 2024
+Version 1.1.9 - November 2024
 
 :sectnums!:
 == Document revision history
+
+* 1.1.9 -- Add reference to AUID customization document
 
 * 1.1.8 -- Remove setting ownership of AUID customization `rc` files.
 
@@ -1071,6 +1073,12 @@ echo "Applying customizations from ${BASH_SOURCE}"
 ```
 echo "Applying customizations from ${BASH_SOURCE}"
 ```
+
++
+
+For information on customizing these files and FS window placement for
+AUID users, please see the <<auid_customization.adoc#,AUID Account
+Customization>> document.
 
 +
 [NOTE]

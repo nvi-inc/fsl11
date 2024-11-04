@@ -1,0 +1,882 @@
+//
+// Copyright (c) 2024 NVI, Inc.
+//
+// This file is part of the VLBI set_telegraf utility
+// (see https://github.com/nvi-inc/set_telegraf).
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <http://www.gnu.org/licenses/>.
+//
+
+:doctype: book
+
+= AUID Account Customization
+C. Frock, E. Himwich
+Version 1.1.0 - November 2024
+
+:sectnums:
+:experimental:
+:toc:
+
+== Introduction
+
+This document covers customization for AUID (login) user accounts. As
+written, it describes customization of the _oper_ account for AUID
+users on CIS hardened FSL11 systems (see the <<cis-setup.adoc#,CIS
+hardening for FSL11>> document), but it can adapted for use in other
+situations. Possible adaptations including:
+
+* Using this approach with the _prog_ account in addition to _oper_.
+The adaption should essentially be trivial.
+
+* Using different _.Xresources_ files for different remote connections
+for one AUID user. To fully automate this you may want to set an
+environment variable when connecting and use that to select the
+_.Xresources_ (and other) file(s) used.
+
+* Using this approach with non-CIS hardening systems by adding
+non-_oper_ (and non-_prog_) login accounts that can promote to being
+_oper_ with _oper_account_ (and _prog_ with _prog_account_) as for
+AUID accounts with CIS hardening (see the
+<<cis-setup.adoc#_enabling_user_promotion_to_operprog_and_root,Enabling
+user promotion to oper/prog and root>> section of the
+<<cis-setup.adoc#,CIS hardening for FSL11>> document for the details).
+
+* On non-CIS hardened systems without creating new accounts, providing
+special aliases (in _~/.bash_alias_) to allow users to load different
+_.Xresource_ files with one type-in. The _rlxr_ alias can be used as a
+starting point for new aliases. There could also be aliases for
+running different versions of the _.profile_ (starting alias _rl_) and
+_.bashrc_ (starting alias _rc_) scripts.
+
+For remote connections, detailed instructions are provided for the
+connection client currently used on PCs by stations with AUID
+accounts. The instructions could be adapted to other clients.
+
+Two main areas are covered in this document:
+
+* <<rc file customization>> -- Customizations in AUID specific
+versions of _oper_'s  _.profile_ and _.bashrc_ files
+
+* <<X11 resources customization>> -- Customizations of _xterm_ window
+placements and sizes
+
+There are three appendices related to connections from a PC:
+
+* <<Create Client Session on a PC>> -- This is useful for connecting
+to the FS computer from a PC.
+
+* <<Enable SSH Key Login from a PC>> -- This can be used to streamline
+logging into the FS computer from a PC.
+
+* <<Launching the FS from a PC>> -- This covers how to start the FS
+when connecting from a PC.
+
+== rc file customization
+
+With the standard AUID configuration (see
+<<cis-setup.adoc#\_adding_auid_accounts,Adding AUID accounts>> in the
+<<cis-setup.adoc#,CIS hardening for FSL11 document>>, there are two
+__rc__ (__run command__) files that can be used for customization of
+the __oper__ account: __~oper/.profile_<AUID>__ and
+__~oper/.bashrc_<AUID>__ (where __<AUID>__ is the user's AUID account
+name). These files are described below. You may find it instructive to
+look at the normal __~oper/.profile__ and __~oper/.bashrc__ files to
+understand how they are typically used.
+
+=== ~oper/.profile_<AUID>
+
+This script is run for the _<AUID>_ user at end of the
+_~oper/.profile_ script. As such, it is run only for interactive login
+shells. It is the appropriate place to set session wide environment
+variables and perform one-time login tasks. Since it is run at the end
+of _~oper/.profile_, it can effectively override many things done by
+_~oper/.profile_.
+
+=== ~oper/.bashrc_<AUID>
+
+This script is run for the _<AUID>_ user at end of the _~oper/.bashrc_
+script. As such, it is run only for interactive shells, both login and
+non-login. It is the appropriate place to set shell interactive
+information such as shell options, prompts, and command aliases. Since
+it is run at the end of _~oper/.bashrc_, it can effectively override
+many things done by _~oper/.bashrc_.
+
+NOTE: _.bashrc_ is run at the start of _.profile_ for login shells.
+
+An example of using this file for the _sysadmin_'s AUID account is
+given in the <<cis-setup.adoc#_setting_hostname_alias,Setting hostname
+alias>> section of the
+<<cis-setup.adoc#_additional_items_for_fs_operations,Additional items
+for FS operations>> appendix of the <<cis-setup.adoc#,CIS hardening
+for FSL11>> document.
+
+== X11 resources customization
+
+This section provides procedures for customizing FS _xterm_ window
+placement and size using X11 resources files. This may be useful for
+defining different window configurations on the console or when
+connecting over _ssh_ from a remote device, which may have a different
+display size.
+
+There are two ways to customize X11 resources, either use the same
+customization for all users, i.e., _general_, or different ones, _per
+AUID account_. The approaches can be mixed so some users get the
+general setup and others get an individual setup.
+
+The methods given here will _not_ work for programs that aren't
+_xterm_ based.  In particular, the RDBE monitor and _rdbemsg_ programs
+positions cannot be set this way, but have their own options for
+setting their geometries. Those options may be used on the lines for
+the programs in the _/usr2/control/clpgm.ctl_ file for the
+`*client=...*` command and in the _~/.fvwm2rc_ file for hot-keys and
+menu options on the local console. Likewise, the appropriate line must
+be modified to explicitly set a geometry for a basic _xterm_ window
+opened with the `*client=xterm*` command or with the window manager.
+Different layouts can be supported with different commands (lines) in
+the files. With additional changes, it would also be possible to use
+different _~/.fvwm2rc_ files for different users on the local console.
+
+The naming convention for the X11 resources files in _~oper_ is:
+
+* _.Xresources_ -- General local values
+
+* _.Xresources_remote_ -- General remote values
+
+* __.Xresources_<AUID>__ -- Per AUID local values for account _<AUID>_
+
+* __.Xresources_remote_<AUID>__ -- Per AUID remote values for account _<AUID>_
+
+=== General X11 resources customization
+
+The section provides procedures for customing the X11 resources so they
+are the same for all AUID users. The customization can be different
+for local and remote users; each is covered in sub-sections below.
+They can be combined with
+<<Per AUID account X11 resources customization>> to tailor the
+configuration for those users that want to deviate from the general
+one.
+
+==== General X11 resources customization for a local connection
+
+. Login in on the console with your AUID account.
+
+. Enter the commands:
+
+ mv .Xresources .Xresources.orig
+ ln -sfn ~oper/.Xresources .Xresources
+
+. Start the GUI by entering `*oper_x11*`.
+
+.. Working in the `login shell` window:
+
+... Enter your password when prompted.
+
+... Start the FS: `*fs*`
+
+.... Adjust the windows to the sizes and positions you want.
+
++
+
++
+
+This can include the `login shell` window.
+
+.... Open an additional window to work in, e.g., use `*client=xterm*` in
+the `Operator Input` window
+
+..... Adjust the contents of ~oper/_.Xresources_ using the method of
+https://nvi-inc.github.io/fs/releases/misc/install_reference.html#_setting_geometry_values_in_xresources[Setting
+geometry values in .Xresources].
+
++
+
+TIP: Copying text by dragging the mouse over it with the first button
+depressed and pasting with the middle mouse button may work best.
+
++
+
++
+
++
+
++
+
++
+
+NOTE: The referenced method is a section of the FS "`Installation
+Reference Document`"
+(https://nvi-inc.github.io/fs/releases/misc/install_reference.html).
+
+..... Enter `exit` to close the additional window.
+
+.... Terminate the FS (or client)
+
+... Exit from the `oper` account shell.
+
+... Exit from the AUID account shell (and `login shell` window).
+
+. Login in on the console with your AUID account.
+
+.. Working in the `login shell` window:
+
+... Promote to _oper_ using the _oper_account_ command.
+
+... Enter your password when prompted.
+
+... Start the FS: `*fs*` (or client: `*fsclient*`)
+
++
+
++
+
++
+
+The windows should appear as you set them. If not, you may need to
+iterate adjusting the _~oper/.Xresources_ file.
+
+==== General X11 resources customization for a remote connection from a PC
+
+This procedure assumes that you have created a client session for
+connecting to the FS computer on the PC according to the appendix
+<<Create Client Session on a PC>>.
+
+CAUTION: Before starting, you may want to make sure the PC has the
+display set to 100% scaling (this may require logging out and logging
+in again) and the Taskbar is set to automatically hide. This will give
+more screen space to work with.
+
+. In the connection client program on the PC, double-click on the
+session you will be using.
+
+.. Enter your password if prompted for it. If prompted to save your
+password, click `No`.
+
+.. Working in the `login shell` window:
+
+... Promote to _oper_ using the _oper_account_ command.
+
+... Enter your password when prompted.
+
+... Start the FS: `*fs*`
+
+.... Adjust the windows to the sizes and positions you want.
+
++
+
++
+
++
+
+This can include the `login shell` window.
+
+.... Open an additional window to work in, e.g., use `*client=xterm*` in
+the `Operator Input` window
+
+..... Edit the _~oper/.profile_ file:
+
++
+
+Changes the lines:
+
++
+....
+#       ssh from remote host with X display
+        xrdb -merge ~/.Xresources
+....
+
++
+
+to:
+
++
+....
+#       ssh from remote host with X display
+        xrdb -merge ~/.Xresources_remote
+....
+
+..... Create the general file for remote by copying the nominal file:
+
+  cp .Xresources .Xresources_remote
+
+..... Adjust the contents of _~oper/.Xresources_remote_ using the
+method of
+https://nvi-inc.github.io/fs/releases/misc/install_reference.html#_setting_geometry_values_in_xresources[Setting
+geometry values in .Xresources].
+
++
+
+[TIP]
+====
+
+Copying text by dragging the mouse over it with the first button
+depressed and pasting with the middle mouse button may work best.
+
+For testing, the _rlxr_ alias will not reload these resources, but you
+can use the command:
+
+ xrdb -merge ~oper/.Xresources_remote
+
+====
+
++
+
++
+
++
+
++
+
++
+
+NOTE: The referenced method is a section of the FS "`Installation
+Reference Document`"
+(https://nvi-inc.github.io/fs/releases/misc/install_reference.html).
+
+..... Enter `Exit` to close the additional window.
+
+.... Terminate the FS (or the client)
+
+... Exit from the _oper_ account shell
+
+... Exit from the AUID account shell (and `login shell` window).
+
+. Press kbd:[Enter] (in the session tab: to close it).
+
+. Right-click on the session you are using.
+
+.. Click `Edit session`
+
+... Click `Advanced SSH settings`
+
+.... Change the `Execute command:` to:
+
+ xrdb -merge ~oper/.Xresources_remote ; xterm -ls -name login_sh
+
++
+
++
+
++
+
++
+
++
+
+CAUTION: The changes are to the path _and_ name of the X11 resources file.
+
+.. Click `OK`
+
+. Double-click on the session you are working with.
+
+.. Enter your password if prompted for it. If prompted to save your
+password, click `No`.
+
+.. Working in the `login shell` window:
+
+... Promote to _oper_ using the _oper_account_ command.
+
+... Enter your password when prompted.
+
+... Start the FS: `*fs*` (or client: `*fsclient*`)
+
++
+
++
+
++
+
+The windows should appear as you set them. If not, you may need to
+iterate adjusting the _~oper/.Xresources_remote_ file.
+
+=== Per AUID account X11 resources customization
+
+The steps in this introductory section only need to be done once. For
+each user that wants individualized settings, use the steps in the
+sub-sections below for local and remote connections as appropriate.
+
+. Login on the console with your AUID account _or_ double-click on the
+session in the connection client on the PC.
+
++
+
+If you are working from a PC, you must have already setup the session
+according to the appendix <<Create Client Session on a PC>>.
+
+. Working in the `login shell` window:
+
+.. Promote to _oper_ with the _oper_account_ command.
+
+.. Enter your password when prompted.
+
+.. If the _oper_ account has _not_ already been setup according to
+<<General X11 resources customization for a remote connection from a PC>>,
+create the general file for remote by copying the nominal file:
+
+  cp .Xresources .Xresources_remote
+
+.. Edit the file _~oper/.profile_ to make two changes:
+
+... Change the lines:
+
++
+
+CAUTION: If the _oper_ account has _not_ already been setup according
+to
+<<General X11 resources customization for a remote connection from a PC>>,
+the old lines will have `~/.Xresources` instead of
+`~/.Xresources_remote`. Replace them anyway.
+
++
+....
+#       ssh from remote host with X display
+        xrdb -merge ~/.Xresources_remote
+....
+
++
+
+to:
+
++
+....
+#       ssh from remote host with X display
+        if [ -f "$HOME/.Xresources_remote_$SUDO_USER" ]; then
+          xrdb -merge ~/.Xresources_remote_$SUDO_USER
+        else 
+          xrdb -merge ~/.Xresources_remote
+        fi
+....
+
+... Change the lines:
+
++
+....
+#       login shell (because this is .profile) on the local X console
+        xrdb -merge ~/.Xresources
+        setsid fvwm --replace >/dev/null 2>&1 &
+....
+
++
+
+to:
+
++
+
++
+
++
+....
+#       login shell (because this is .profile) on the local X console
+        if [ -f "$HOME/.Xresources_$SUDO_USER" ]; then
+          xrdb -merge ~/.Xresources_$SUDO_USER
+        else
+          xrdb -merge ~/.Xresources
+        fi
+        setsid fvwm --replace >/dev/null 2>&1 &
+....
+
+.. Enter `exit` to close the _oper_ account shell
+
+.. Exit from the AUID account shell (and `login shell` window).
+
+. If you connected from a PC, press kbd:[Enter] (in the session tab:
+to close it).
+
+==== Per AUID account X11 resources customization for a local connection
+
+CAUTION: This procedure uses _dhorsley_ as an example AUID (login)
+account name. You should substitute your login account name wherever
+_dhorsley_ is used.
+
+Except for the three items below, follow the same procedure as in
+<<General X11 resources customization for a local connection>>:
+
+. Just after logging into the AUID account, _dhorsley_ for this
+example, execute:
+
++
+
+CAUTION: If the _oper_ account has already been setup according to
+<<General X11 resources customization for a local connection>>,
+do _not_ use the `mv` command below.
+
+ mv .Xresources .Xresources.orig
+ ln -sfn ~oper/.Xresources_dhorsley .Xresources
+
+. When the additional window is opened, e.g., with `*client=xterm*`:
+
+.. Copy the nominal file:
+
+  cp .Xresources .Xresources_dhorsley
+
+.. Adjust the contents of _~oper/.Xresources_dhorsley_ instead of
+_~oper/.Xresources_.
+
++
+
++
+
+For testing, the _rlxr_ alias will not reload these resources, but you
+can use the command:
+
+ xrdb -merge ~oper/.Xresources_dhorsley
+
+. If you need to iterate, adjust the file _~oper/.Xresources_dhorsley_.
+
+==== Per AUID account X11 resources customization for a remote connection from a PC
+
+CAUTION: This procedure uses _dhorsley_ as an example AUID (login)
+account name. You should substitute your login account name wherever
+_dhorsley_ is used.
+
+Except for the three items below, follow the same procedure as in
+<<General X11 resources customization for a remote connection from a PC>>:
+
+. When the additional window is opened, e.g., with `*client=xterm*`:
+
+.. Do _not_ edit the _~oper/.profile_ file.
+
+.. Do _not_ copy to create the general remote file.
+
+.. Instead, copy the general remote file to create the AUID remote file:
+
+  cp .Xresources_remote .Xresources_remote_dhorsley
+
+.. Adjust the contents of _~oper/.Xresources_remote_dhorsley_ instead of
+_~oper/.Xresources_remote_.
+
++
+
++
+
+For testing, the _rlxr_ alias will not reload these resources, but you
+can use the command:
+
+ xrdb -merge ~oper/.Xresources_remote_dhorsley
+
+. When changing the `Execute` command, make it:
+
+ xrdb -merge ~oper/.Xresources_remote_dhorsley ; xterm -ls -name login_sh
+
++
+
+CAUTION: The changes are to the path _and_ name of the X11 resources file.
+
+. If you need to iterate, adjust the file
+_~oper/.Xresources_remote_dhorsley_.
+
+[appendix]
+== Create Client Session on a PC
+
+Details interactions are provided for the connection client used by
+stations that connect from PCs.
+
+CAUTION: This procedure uses _dhorsley_ as an example login account
+name. You should substitute your login account name wherever
+_dhorsley_ is used.
+
+. In the client connection program on the PC, click `Session`
+
+.. Click `SSH`
+
+... Use the IP address of the FS computer for the `Remote host *`.
+
+... Check the `Specify username` box, and supply the AUID account
+name, `dhorsley` (for this example).
+
+... Click `Advanced SSH settings`
+
+.... Make sure the `X11-Forwarding` box is checked.
+
+.... Make sure the `Remote environment:` is `Interactive shell`.
+
+.... For `Execute command:`, enter:
+
+ xrdb -merge ~/.Xresources ; xterm -ls -name login_sh
+
+.... Make sure the `Do not exit after command ends` is _not_ checked.
+
+... Click `Bookmark settings`
+
+.... Optionally, change the `Session name:` to something more
+meaningful, for this example: `fs1&#8209;12m`.
+
+... Click `OK`
+
++
+
++
+
++
+
+The client will attempt to connect.
+
+.. If you are asked to accept the connection (maybe `connexion`) and
+the displayed IP address is  correct, click `Accept`.
+
+.. Enter your password when prompted. If prompted to save your
+password, click `No`.
+
++
+
++
+
+The `login shell` window should appear, but it may be oddly
+placed/sized.
+
+.. Working in the `login shell` window:
+
+... Enter `exit`.
+
+. Press kbd:[Enter] (in the session tab: to close it).
+
+Please see the appendix <<Enable SSH Key Login from a PC>> for
+a way to streamline logging in.
+
+[appendix]
+== Enable SSH Key Login from a PC
+
+You can avoid the need to enter your password each time you login by
+using an _ssh_ key. The key will work across password changes, but
+will not work if the password has expired.
+
+NOTE: You will still need to use your password to promote to _oper_ on
+the FS machine.
+
+This procedure assumes that you have created a client session for
+connecting to the FS computer on the PC according to the appendix
+<<Create Client Session on a PC>>.
+
+. In the PC connection client program on the PC, click `Tools`
+
+.. Click the option with `(SSH key generator)`
+
+... Make sure `RSA` is selected for `Type of key to generate`.
+
+... Make sure `2048` is entered for `Number of bits in a generated key`.
+
+... Click `Generate`
+
++
+
++
+
++
+
+Move the mouse around the _blank_ area to generate some randomness
+until a key is displayed.
+
+... Click `Save Private key`
+
+.... When prompted, click `Yes` to confirm saving the key without a
+passphrase.
+
+.... Click the (your) `Documents` folder.
+
+.... Enter a `File Name:` _id_rsa_. A _.ppk_ extension is added
+automatically.
+
+.... Click `Save`
+
+... Use the mouse to copy the text in the `Public key for ...` field.
+
++
+
++
+
++
+
+Select the _entire_ text (starting with `ssh-rsa` through the
+`rsh-key-_YYYYMMDD_`) by dragging the mouse over it with the first
+button depressed. You may need to drag downward to force scrolling in
+the text box to get it all. Then enter kbd:[Control+C] to copy it.
+
+... Close the window with the `X` in the upper right corner.
+
+. Double-click on the session you want to connect to.
+
++
+
+NOTE: If this method for transferring the public key, specifically the
+pasting, doesn't work, you can try the <<alternate,Alternative>>
+method in the *NOTE* below.
+
+.. Enter your password when prompted.  If prompted to save your
+password, click `No`.
+
+.. Working in the `login shell` window:
+
+... Enter:
+
+  cat >>~/.ssh/authorized_keys
+
+... Paste the copied text into the window by pressing the middle mouse
+button.
+
+... Press kbd:[Enter].
+
+... Press kbd:[Control+D].
+
+... Enter `exit` to close the connection to the FS computer.
+
+. Press kbd:[Enter] (in the session tab: to close it).
+
++
+
+[NOTE]
+====
+
+[[alternate]]<<alternate,Alternative>>: If the above method for
+transferring the public key does not work, this may (click on
+*Details* to open/close):
+
+[%collapsible]
+=====
+
+. Click `Start local terminal`
+
+.. Use _ssh_ to connect to the FS machine, using your AUID account
+name instead of `dhorsley` and the FS machine's IP address in place of
+`xxx.xxx.xxx.xxx`:
+
+
+ ssh dhorsley@xxx.xxx.xxx.xxx
+
++
+
++
+
+_ssh_ will attempt to connect.
+
+.. If prompted to confirm the remote host's key, enter `yes`, unless
+you have some reason to believe it is incorrect.
+
+.. Enter your password when prompted.  If prompted to save your
+password, click `No`.
+
+.. In the connection to the FS, enter:
+
+  cat >>~/.ssh/authorized_keys
+
+.. Paste the copied text into the window with kbd:[Shift+Insert], or
+right-click in the window and click `Paste`.
+
++
+
+When right-clicking, if you are prompted to assign `Actions of mouse
+buttons`, click `right-click action` as `Show context menu`, click
+`OK` and then click `Paste` from the context menu.
+
++
+
++
+
+If you are prompted for `... paste confirmation`, click `OK`.
+
+.. Press kbd:[Enter].
+
+.. Press kbd:[Control+D].
+
+.. Enter `exit` to close the connection to the FS computer.
+
+.. Enter `exit` to close the local terminal.
+
+=====
+====
+
+. Right-click on the session where you will install the key (_fs1-12m_
+in this example).
+
+.. Click `Edit session`
+
+... Click `Advanced SSH settings`
+
+.... Make sure the `Use private key` box is checked.
+
+.... Click on the _browse_ icon in the text entry field for `Use
+private key`.
+
+..... Double-click on the private key file you created, _id_rsa_
+(`Type`: PuTTY Private Key File; extension _.ppk_) , in the (your)
+_Documents_ directory.
+
+... Click `OK`
+
+. Test the connection, by double-clicking on the session.
+
++
+
+The `login shell` window should appear.
+
+.. Working in the `login shell` window:
+
+... Enter `exit`.
+
+. Press kbd:[Enter] (in the session tab: to close it).
+
+[appendix]
+== Launching the FS from a PC
+
+This procedure assumes that you have created a client session with
+an _ssh_ key for login according to the appendix
+<<Enable SSH Key Login from a PC>>.
+
+It may be helpful to customize the windows according to the
+<<General X11 resources customization for a remote connection from a PC>>
+section in the main document above, but that is not necessary. It also
+possible to customize them per AUID account for a remote connection as
+described in the <<Per AUID account X11 resources customization>> section in
+the main document.
+
+. In the PC connection client program on the PC, if you don't see the
+list of `User sessions`, click the star (favorite) icon under `Quick
+connect ...` on the left.
+
+. Double-click on the session you will be using.
+
+.. Working in the `login shell` window:
+
+... Promote to _oper_ using the _oper_account_ command.
+
+... Enter your password when prompted.
+
+... Start the FS: `*fs*`
+
++
+
++
+
++
+
+If the window placement isn't convenient, you can customize it using
+the references above.
+
+. To exit:
+
+.. Working in the `login shell` window:
+
+... Close the client with kbd:[Control+C].
+
++
+
++
+
++
+
+Alternatively, you can `*terminate*` the FS.
+
+... Enter `exit` to close the _oper_ shell.
+
+... Exit from the AUID account shell (and `login shell` window).
+
+. Press kbd:[Enter] (in the session tab: to close it).

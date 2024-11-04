@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020, 2023 NVI, Inc.
+# Copyright (c) 2020, 2023-2024 NVI, Inc.
 #
 # This file is part of FSL11 Linux distribution.
 # (see http://github.com/nvi-inc/fsl11).
@@ -18,11 +18,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-all: installation.html cis-setup.html raid.html
+all: installation.html cis-setup.html raid.html auid_customization.html
 
 installation.html: installation.adoc
 cis-setup.html: cis-setup.adoc
 raid.html: raid.adoc
+auid_customization.html: auid_customization.adoc
 
 
 %.html: %.adoc
