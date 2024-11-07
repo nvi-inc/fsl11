@@ -26,10 +26,12 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.1.7 - October 2024
+Version 1.1.8 - November 2024
 
 :sectnums!:
 == Document revision history
+
+* 1.1.8 -- Remove setting ownership of AUID customization `rc` files.
 
 * 1.1.7 -- Consolidate AUID setup into FSL11; set _~oper_ and _~prog_
 to be readable/searchable by _others_; add _.bashrc_ _sudo_
@@ -1053,21 +1055,8 @@ be prompted for the account name):
 It will also create _~oper/.profile_dhorsley_,
 _~oper/.bashrc_dhorsley_, _~prog/.profile_dhorsley_, and
 _~prog/.bashrc_dhorsley_ scripts for per AUID user customization of
-_oper_ and _prog_ sessions. The owner of these files is set to be the
-AUID user to prevent other users from modifying the _sudo_
-customization scripts.
-
-+
-
-CAUTION: A user promoted to _oper_ or _prog_ will still be able to
-_delete_ any of the corresponding customization scripts, but they will
-be prompted to confirm when doing so. Hopefully that will reduce
-accidental deletions.
-
-+
-
-The initial versions of this file just print a message as a reminder
-that they are being used:
+_oper_ and _prog_ sessions. The initial versions of these files just
+print a message as a reminder that they are being used, e.g.:
 
 +
 .~oper/.profile_dhorsley
