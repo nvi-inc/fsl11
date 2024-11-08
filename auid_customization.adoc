@@ -22,12 +22,19 @@
 
 = AUID Account Customization
 C. Frock, E. Himwich
-Version 1.1.0 - November 2024
+Version 1.1.1 - November 2024
 
 :sectnums:
 :experimental:
 :toc:
+:sectnums!:
+== Document revision history
 
+* 1.1.1 -- Add allowing for PC firewall and revision history
+
+* 1.1.0 -- Initial version
+
+:sectnums:
 == Introduction
 
 This document covers customization for AUID (login) user accounts. As
@@ -584,6 +591,12 @@ stations that connect from PCs.
 CAUTION: This procedure uses _dhorsley_ as an example login account
 name. You should substitute your login account name wherever
 _dhorsley_ is used.
+
+NOTE: The first time you run the client connection program, you will
+probably be prompted by the firewall about whether to allow
+connections for its X11 server. If so, click `Allow`. Then you may be
+prompted about whether to allow the firewall to make changes. If so,
+click `Yes`.
 
 . In the client connection program on the PC, click `Session`
 
