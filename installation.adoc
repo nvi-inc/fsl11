@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.1.4 - September 2024
+Version 1.1.5 - November 2024
 
 :sectnums:
 :experimental:
@@ -32,6 +32,8 @@ Version 1.1.4 - September 2024
 <<<
 :sectnums!:
 == Document revision history
+
+* 1.1.5 -- Add advice for removing insecure packages
 
 * 1.1.4 -- Fix non-_root_ user _~/.ssh_ creation and ownership, make
 wording consistent for analogously _prog_
@@ -1997,9 +1999,10 @@ download (the "`weekly _cron_ job`") as configured according to the
 keep you informed of the available updates on a weekly basis.
 
 It is also recommended that you remove _anacron_ as described in the
-<<_remove_anacron_package>> section below. This will cause the updates
-to always be downloaded at what should be innocuous time, early Sunday
-morning (but this can be adjusted if need be).
+<<_remove_anacron_package>> section in <<Additional Setup Items>>
+appendix. This will cause the updates to always be downloaded at what
+should be innocuous time, early Sunday morning (but this can be
+adjusted if need be).
 
 NOTE: An optional method for identifying available  updates without using
 the weekly _cron_ job is described below in the section
@@ -2227,6 +2230,62 @@ updates initially, if you do not need to review which updates are
 available (you will still get warnings about kernel updates). As
 usual, you will see no output at all if there are no updates
 available.
+
+=== Removing insecure packages
+
+In some cases, it may be necessary to remove an installed `_package_`
+because it has a known security flaw that has not been fixed. When a
+package is removed, any packages that depend on it will be removed as
+well. In same cases, a package that has been removed may be
+reinstalled later because another package that has an update
+recommends it, or recommends a package that depends on it.
+
+When removing a flawed `_package_`, you should check carefully that no
+critical package that depends on it will be deleted as well. You can
+check which packages will be deleted with, as _root_:
+
+[subs="+quotes"]
+....
+apt-get purge _package_
+....
+
+The list of packages to be deleted will be displayed and you will
+prompted for whether to continue. If you are confident that no
+critical packages will be lost, you can confirm (`*Y*`). If don't want
+to delete the listed packages, or need more time to think about it,
+you can stop (`*n*`).
+
+Since subsequent upgrades may reinstall the flawed `_package_`, you
+should attempt to purge it after each upgrade. If the flawed
+`_package_` is not present, there should be nothing to remove. If it
+is present, you should reverify that nothing critical will be removed
+before confirming.
+
+WARNING: It is recommended to _not_ prevent the flawed `_package_`
+from being installed using _/etc/apt/preferences_,
+_/etc/apt/preferences.d_, or `apt-mark hold ...`.  If an update
+requires the flawed `_package_`, not being able to install it will
+probably _silently_ prevent the update from being installed; leaving
+the insecure version in place. Additionally, having a `hold` will
+complicate making a Debian release upgrade.
+
+If you use the automatic weekly updates reminder
+(_/etc/cron.weekly/apt-show-upgradeable_), you can modify it to
+include a reminder about purging the flawed `_package_`, inserting,
+e.g.:
+
+....
+	echo "        apt purge libmfx1     (check packages being deleted before 'y')"
+....
+
+after:
+
+....
+	echo "        apt clean"
+....
+
+You may also wish to adjust the white space on the `apt upgrade` line
+for alignment.
 
 === End of security updates
 
