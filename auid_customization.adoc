@@ -22,13 +22,15 @@
 
 = AUID Account Customization
 C. Frock, E. Himwich
-Version 1.1.1 - November 2024
+Version 1.1.2 - November 2024
 
 :sectnums:
 :experimental:
 :toc:
 :sectnums!:
 == Document revision history
+
+* 1.1.2 -- Clarify which lines to change in _.profile_
 
 * 1.1.1 -- Add allowing for PC firewall and revision history
 
@@ -294,7 +296,10 @@ the `Operator Input` window
 
 +
 
-Changes the lines:
+Change the `xrdb -merge ...` line for a _remote_ connection. This is
+the first one in the file. The following lines show the preceding
+comment to help identify it. Only the second line needs to be
+modified.  Change:
 
 +
 ....
@@ -434,15 +439,21 @@ create the general file for remote by copying the nominal file:
 
 .. Edit the file _~oper/.profile_ to make two changes:
 
-... Change the lines:
+...  Change the `xrdb -merge ...` line for a _remote_ connection.
+
++
+
+This is the first one in the file. The following lines show the
+preceding comment to help identify it. Only the second line needs to
+be modified. Change:
 
 +
 
 CAUTION: If the _oper_ account has _not_ already been setup according
 to
 <<General X11 resources customization for a remote connection from a PC>>,
-the old lines will have `~/.Xresources` instead of
-`~/.Xresources_remote`. Replace them anyway.
+the old line will have `~/.Xresources` instead of
+`~/.Xresources_remote`. Replace it anyway.
 
 +
 ....
@@ -464,13 +475,18 @@ to:
         fi
 ....
 
-... Change the lines:
+...  Change the `xrdb -merge ...` line for a _local_ connection.
+
++
+
+This is the last one in the file (the third including the one added
+above). The following lines show the preceding comment to help
+identify it. Only the second line needs to be modified. Change:
 
 +
 ....
 #       login shell (because this is .profile) on the local X console
         xrdb -merge ~/.Xresources
-        setsid fvwm --replace >/dev/null 2>&1 &
 ....
 
 +
@@ -489,7 +505,6 @@ to:
         else
           xrdb -merge ~/.Xresources
         fi
-        setsid fvwm --replace >/dev/null 2>&1 &
 ....
 
 .. Enter `exit` to close the _oper_ account shell
