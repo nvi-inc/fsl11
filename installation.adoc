@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.1.5 - November 2024
+Version 1.1.6 - November 2024
 
 :sectnums:
 :experimental:
@@ -32,6 +32,8 @@ Version 1.1.5 - November 2024
 <<<
 :sectnums!:
 == Document revision history
+
+* 1.1.6 -- Add *CAUTION* about new packages when upgrading
 
 * 1.1.5 -- Add advice for removing insecure packages
 
@@ -2029,6 +2031,14 @@ kernel updates.
 
 The commands for installing the updates given by the message are (note
         the use of _apt_ instead of _apt-get_):
+
+CAUTION: If the `apt upgrade` command below says it will install new
+packages, it is recommended to understand why they are being installed
+before confirming. Usually new packages will be related to a kernel
+update (see <<Kernel updates>> below) or related to an insecure
+package that was removed (see <<Removing insecure packages>> below).
+Normally, any reinstalled insecure packages should be removed again
+after upgrading.
 
    apt upgrade
 
