@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 1.1.1 - February 2024
+Version 1.1.2 - November 2024
 
 :sectnums:
 :experimental:
@@ -30,6 +30,9 @@ Version 1.1.1 - February 2024
 <<<
 :sectnums!:
 == Document revision history
+
+* 1.1.2 -- Break Splitting the RAID and Testing into separate
+subsections of Recoverable testing.
 
 * 1.1.1 -- Adjustments for CIS hardening using _backup_usr2_
 
@@ -245,12 +248,13 @@ relatively easy recovery option if a problem occurs. Should that recovery fail
 for some reason, it is still possible to recover with the shelf disk as
 described in the <<Recover from a shelf disk>> section below.
 
-The basic plan is given in the three subsections below. The first
-covers <<Setup and testing>>, the final two cover what to do
+The basic plan is given in the four subsections below. The first
+covers <<Splitting the RAID>>; the second, the actual
+<<Testing>>; the final two, what to do
 <<If the update is deemed successful>> or
 <<If the update is deemed to have failed>>.
 
-=== Setup and testing
+=== Splitting the RAID
 
 NOTE: Your BIOS must be set to allow hot swapping of disks for both
 the _primary_ and _secondary_ controllers.
@@ -284,6 +288,10 @@ you to reboot in order to evaluate the success thereof.
 
 . Key-off the _primary_ slot
 . Reboot (_primary_ keyed-off, _secondary_ keyed-on)
+. Proceed to the next subsection.
+
+=== Testing
+
 . Install and test the update
 +
 The update and testing will occur on the _secondary_ disk only.
