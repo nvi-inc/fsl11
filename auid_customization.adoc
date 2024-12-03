@@ -22,13 +22,15 @@
 
 = AUID Account Customization
 C. Frock, E. Himwich
-Version 1.1.2 - November 2024
+Version 1.1.3 - December 2024
 
 :sectnums:
 :experimental:
 :toc:
 :sectnums!:
 == Document revision history
+
+* 1.1.3 -- Add testing `login shell` window configuration
 
 * 1.1.2 -- Clarify which lines to change in _.profile_
 
@@ -215,6 +217,11 @@ depressed and pasting with the middle mouse button may work best.
 
 +
 
+TIP: To test the settings for the `login shell` window, it will
+necessary to exit from the GUI and restart it with `*oper_x11*`.
+
++
+
 +
 
 +
@@ -334,10 +341,13 @@ geometry values in .Xresources].
 Copying text by dragging the mouse over it with the first button
 depressed and pasting with the middle mouse button may work best.
 
-For testing, the _rlxr_ alias will not reload these resources, but you
-can use the command:
+For testing the configuration for all windows except `login shell`,
+instead of using the _rlxr_ alias, use the command:
 
  xrdb -merge ~oper/.Xresources_remote
+
+and restart the FS. To test for `login shell`, it will necessary to
+log-out of the AUID session completely and log back in again.
 
 ====
 
@@ -546,12 +556,18 @@ _~oper/.Xresources_.
 
 +
 
-+
-
-For testing, the _rlxr_ alias will not reload these resources, but you
-can use the command:
+For testing the configuration for all windows except `login shell`,
+instead of using the _rlxr_ alias, you can use the command:
 
  xrdb -merge ~oper/.Xresources_dhorsley
+
++
+
++
+
+and restart the FS. To test the settings for the `login shell` window,
+it will necessary to exit from the GUI and restart it with
+`*oper_x11*`.
 
 . If you need to iterate, adjust the file _~oper/.Xresources_dhorsley_.
 
@@ -579,12 +595,18 @@ _~oper/.Xresources_remote_.
 
 +
 
-+
-
-For testing, the _rlxr_ alias will not reload these resources, but you
-can use the command:
+For testing the configuration of all windows except `login shell`, the
+_rlxr_ alias will not reload its resources, but you can use the
+command:
 
  xrdb -merge ~oper/.Xresources_remote_dhorsley
+
++
+
++
+
+and restart the FS. To test for `login shell`, it will necessary to
+log-out of the AUID session completely and log back in again.
 
 . When changing the `Execute` command, make it:
 
