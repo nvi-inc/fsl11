@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2020, 2023 NVI, Inc.
+# Copyright (c) 2020, 2023, 2025 NVI, Inc.
 #
 # This file is part of FSL11 Linux distribution.
 # (see http://github.com/nvi-inc/fsl11).
@@ -103,13 +103,18 @@ else
 	echo "Re-adding missing device(s) to RAID array $raid ... "
 	mdadm $raid --re-add missing
 fi
-sleep 1
 
 mdadm --detail $raid; echo
-if ! mdadm --detail $raid | grep -q ", recovering $"; then
-	echo "ERROR: RAID $raid failed to start rebuilding"
-	exit 1
-fi
+count=10;
+while [ $count -eq 10 ] || ! mdadm --detail $raid | grep -q ", recovering $"; do
+	if [ $count -le 0 ]; then
+		echo -e "\nERROR: RAID $raid failed to start rebuilding"
+		exit 1
+	fi
+	echo  -n -e "\rWaiting up to $count seconds for RAID $raid to start rebuilding ... "
+	sleep 1
+	count=$((count-1))
+done
 
 if [ "$PROGRESS_METER" -ne 0 ]; then
 	echo "(This may safely be interrupted with 'Control-C' if you don't want to wait)"
