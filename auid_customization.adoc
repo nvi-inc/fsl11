@@ -1,8 +1,8 @@
 //
-// Copyright (c) 2024 NVI, Inc.
+// Copyright (c) 2024, 2025 NVI, Inc.
 //
-// This file is part of the VLBI set_telegraf utility
-// (see https://github.com/nvi-inc/set_telegraf).
+// This file is part of the FSL11 Linux distribution.
+// (see http://github.com/nvi-inc/fsl11).
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,13 +22,16 @@
 
 = AUID Account Customization
 C. Frock, E. Himwich
-Version 1.1.4 - December 2024
+Version 1.1.5 - February 2025
 
 :sectnums:
 :experimental:
 :toc:
 :sectnums!:
 == Document revision history
+
+* 1.1.5 -- Add: CAPI certificate setup and use, disabling remote X11
+connections, and promoting to _oper_ on connecting
 
 * 1.1.4 -- Add display specific Xresources for remote
 
@@ -84,7 +87,7 @@ versions of _oper_'s  _.profile_ and _.bashrc_ files
 * <<X11 resources customization>> -- Customizations of _xterm_ window
 placements and sizes
 
-There are three appendices related to connections from a PC:
+There are four appendices related to connections from a PC:
 
 * <<Create Client Session on a PC>> -- This is useful for connecting
 to the FS computer from a PC.
@@ -92,7 +95,11 @@ to the FS computer from a PC.
 * <<Enable SSH Key Login from a PC>> -- This can be used to streamline
 logging into the FS computer from a PC.
 
-* <<Launching the FS from a PC>> -- This covers how to start the FS
+* <<Create a connection through a jumpbox with a CAPI certificate from a PC>>
+-- This explains how to setup using a CAPI key for a connection
+through a jumpbox.
+
+* <<Launch the FS from a PC>> -- This covers how to start the FS
 when connecting from a PC.
 
 == rc file customization
@@ -661,6 +668,11 @@ _~oper/.Xresources_remote_dhorsley_quad_.
 Details interactions are provided for the connection client used by
 stations that connect from PCs.
 
+If you will be connecting with a CAPI certificate through a jumpbox,
+follow the directions in the
+<<Create a connection through a jumpbox with a CAPI certificate from a PC>>
+appendix before using these instructions.
+
 CAUTION: This procedure uses _dhorsley_ as an example login account
 name. You should substitute your login account name wherever
 _dhorsley_ is used.
@@ -690,12 +702,60 @@ name, `dhorsley` (for this example).
 
  xrdb -merge ~/.Xresources ; xterm -ls -name login_sh
 
++
+
++
+
++
+
++
+
+TIP: If you want this session to directly promote to _oper_, add
+`{nbsp}-e{nbsp} oper_account` to the end of the command (note the
+required leading space `{nbsp}`, in the string to be added). When
+connecting, it will be necessary to enter the AUID account password
+when prompted by _sudo_ to promote to _oper_.
+
 .... Make sure the `Do not exit after command ends` is _not_ checked.
 
 ... Click `Bookmark settings`
 
 .... Optionally, change the `Session name:` to something more
-meaningful, for this example: `fs1&#8209;12m`.
+meaningful, for this example: `fs1&#8209;12m` or
+`dhorsley@fs1&#8209;12m`.
+
+... If you will be using a CAPI certificate to connect through a
+jumpbox, click on the *Details* toggle below for additional steps that
+are needed.
+
++
+
+[%collapsible]
+=====
+
+.... Click on `Network settings`
+
+..... Click on `SSH gateway (jump host)`
+
+...... Enter the jumpbox address in the `Gateway host` text box.
+
+...... Enter your user name on the jumpbox in the `Username` text box
+
+...... Enter the port (usually `22`) on the jumpbox in the `Port` text
+box.
+
+...... Check `Use SSH key`, but do not select a key file in the field
+below it.
+
+...... Click `OK`
+
+NOTE: You can create tunnels for additional connections through the
+jumpbox using the `Tunnels` menu in the top level of the client
+connection program.  These tunnels can be started automatically when
+you start the program by selecting the blue "`runner`" icon on the
+corresponding line.
+
+=====
 
 ... Click `OK`
 
@@ -726,15 +786,24 @@ placed/sized.
 
 . Press kbd:[Enter] (in the session tab: to close it).
 
-Please see the appendix <<Enable SSH Key Login from a PC>> for
-a way to streamline logging in.
+. For improved security, click `Settings`
+
+.. Click `X11`
+
+... For `X11 remote access`, select `disabled`.
+
+.. Click `OK`
+
+If you aren't using a CAPI certificate, please see the appendix
+<<Enable SSH Key Login from a PC>> for a way to streamline logging in.
 
 [appendix]
 == Enable SSH Key Login from a PC
 
-You can avoid the need to enter your password each time you login by
-using an _ssh_ key. The key will work across password changes, but
-will not work if the password has expired.
+If you are not using a CAPI certificate, you can avoid the need to
+enter your password each time you login by using an _ssh_ key. The key
+will work across password changes, but will not work if the password
+has expired.
 
 NOTE: You will still need to use your password to promote to _oper_ on
 the FS machine.
@@ -911,7 +980,177 @@ The `login shell` window should appear.
 . Press kbd:[Enter] (in the session tab: to close it).
 
 [appendix]
-== Launching the FS from a PC
+== Create a connection through a jumpbox with a CAPI certificate from a PC
+
+CAUTION: These instructions have not been verified, but should be
+close to being correct. Please report any discrepancies.
+
+. Run the _key agent_
+
++
+
+For example, using the search box in the `Start` window, type
+the name of the _key agent_, then select the displayed app.
+
+. In the `Task bar`, in the `System Tray` (usually on the right side),
+right-click on the _key agent_ icon. It looks like a computer/monitor
+with a black-hat tilted to the right. If the icon is not displayed,
+you may need to click the "`up`" arrow in the `System Tray` to show
+all the apps. Once the app is display, right-click on it.
+
+.. Select `Add CAPI Cert`
+
++
+
++
+
+If a dialog box appears asking to confirm loading the
+certificate/key, click `Ok` (or `Yes`).
+
+. Right click on _key agent_ icon again
+
+.. Select `View Keys & Certs`
+
+... In the `... Key List` window, select the key, if it isn't already.
+
+... Click on `Copy To Clipboard`
+
++
+
++
+
++
+
++
+
+Mail the key to the system administrator of the jumpbox system. Wait
+until you get confirmation from the system administrator that your key
+has been installed before continuing. It may take several hours for
+this to happen.
+
+. After you receive confirmation from the jumpbox system administrator
+that your key has been installed:
+
+.. Following the directions in the first three steps above to add your
+CAPI certificate (if it is no longer present) and copy it to the
+clipboard.
+
+.. Right click on _key agent_ icon again
+
+... Click on `New Session`
+
+.... Enter your jumpbox hostname (or IP) in the `Host Name (or IP
+address)` text box.
+
+.... Click on `Data` under `Connection` on the left side.
+
++
+
+Enter your user name (perhaps your AUID) in the `Auto-login username`
+text box
+
+.... Click the plus sign,`+`, to left of `SSH` under `Connection` on
+the left side.
+
+.... Click on `Auth` under `SSH`
+
++
+
+Make sure `Attempt authentication using Pagent` is checked.
+
+.... Click on `Session` on the left side (at the top)
+
+..... Enter a suitable name in the `Saved Sessions box` text box,
+perhaps `jumpbox`
+
+..... Click `Save`
+
+..... Click `Open`
+
++
+
++
+
++
+
++
+
++
+
+You should be prompted for your SmartCard PIN and then logged into a
+jumpbox session.
+
+...... From the jumpbox session, connect to your target host with `ssh`
+using your user name for `_AUID_` (in fact, perhaps your AUID) and the
+hostname (or IP) of the target host for `_target_`:
+
++
+
++
+
++
+
++
+
++
+
+[subs="+quotes"]
+....
+ ssh _AUID_@_target_
+....
+
++
+
++
+
++
+
++
+
++
+
++
+
+Enter your password when prompted. That should log you into that
+system.
+
+...... On your target system, enter
+
+ cat >>~/.ssh/authorized_keys
+
+...... Paste the clipboard into the target system with kbd:[Ctrl+V].
+
+......  Press kbd:[Enter].
+
+...... End input to the _cat_ command with kbd:[Ctrl+D].
+
+...... Exit from the target session: `exit`.
+
+...... Exit from the jumpbox session: `exit`.
+
+.. Right click on _key agent_ icon again
+
+... Highlight the session for the jumpbox, perhaps `jumpbox`, under
+`Saved Sessions`.
+
+... Click `Load`
+
+... Click on of `SSH` under `Connection` on the left side
+
++
+
++
+
++
+
+Enter `exit` for the `Remote Command`
+
+... Click on `Session` on the left side (at the top)
+
+... Click `Save`
+
+[appendix]
+== Launch the FS from a PC
 
 This procedure assumes that you have created a client session with
 an _ssh_ key for login according to the appendix
@@ -923,6 +1162,60 @@ section in the main document above, but that is not necessary. It also
 possible to customize them per AUID account for a remote connection as
 described in the <<Per AUID account X11 resources customization>> section in
 the main document.
+
+. If you require a CAPI certificate to connect, it will need to be
+loaded and you will need to enter your PIN each time after rebooting
+(and possibly after removing and reinserting your SmartCard). Click
+on the *Details* toggle below for the steps needed.
+
++
+
+[%collapsible]
+====
+
+.. Run the _key agent_
+
++
+
++
+
+For example, using the search box in the `Start` window, type
+the name of the _key agent_, then select the displayed app.
+
+.. In the `Task bar`, in the `System Tray` (usually on the right
+side), right click on the _key agent_ icon. It looks like a
+computer/monitor with a black-hat tilted to the right. If the icon is
+not displayed, you may need to click the "`up`" arrow in the `System
+Tray` to show all the apps.
+
+... Select `Add CAPI Cert`
+
++
+
++
+
+A dialog box will appear asking to confirm loading the
+certificate/key, click `Ok` (or `Yes`).
+
+..  Right-click the _key agent_ icon in the `System Tray` again.
+
+... Select `Saved Sessions`, then select the appropriate session,
+perhaps `jumpbox`.
+
++
+
++
+
+A dialog box will appear prompting you for your PIN, enter it and
+select `OK`.
+
++
+
+A window for the connection will appear. If everything goes okay, it
+will disappear. If it doesn't disappear, it may contain useful
+information about what went wrong.
+
+====
 
 . In the PC connection client program on the PC, if you don't see the
 list of `User sessions`, click the star (favorite) icon under `Quick
