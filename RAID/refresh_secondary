@@ -256,14 +256,17 @@ fi
 
 # Check that the RAID is now rebuilding ie. the addition succeeded
 count=10;
-while [ $count -eq 10 ] || ! mdadm --detail /dev/md0 | grep -q ", recovering $"; do
+while : ; do
+	echo  -n -e "\rWaiting up to $count seconds for RAID /dev/md0 to start rebuilding ... "
+	sleep 1
+	if  mdadm --detail /dev/md0 | grep -q ", recovering $"; then
+           break
+	fi
+	count=$((count-1))
 	if [ $count -le 0 ]; then
 		echo -e "\nERROR: RAID /dev/md0 failed to start rebuilding"
 		exit 1
 	fi
-	echo  -n -e "\rWaiting up to $count seconds for RAID /dev/md0 to start rebuilding ... "
-	sleep 1
-	count=$((count-1))
 done
 
 # Now RAID is using both disks again, we delete the override interlock file
