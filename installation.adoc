@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020-2024 NVI, Inc.
+// Copyright (c) 2020-2025 NVI, Inc.
 //
 // This file is part of the FSL11 Linux distribution.
 // (see http://github.com/nvi-inc/fsl11).
@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.1.6 - November 2024
+Version 1.1.7 - February 2025
 
 :sectnums:
 :experimental:
@@ -32,6 +32,9 @@ Version 1.1.6 - November 2024
 <<<
 :sectnums!:
 == Document revision history
+
+* 1.1.7 -- Fix when to use archive for editing
+_/etc/apt/sources.list_; correct date for end of support
 
 * 1.1.6 -- Add *CAUTION* about new packages when upgrading
 
@@ -782,9 +785,10 @@ to use a proxy _proxy.some.where_ at port `8080` for example.
 
 === Edit /etc/apt/sources.list
 
-NOTE: If _Bullseye_ is no longer the current release, you will also
+NOTE: If _Bullseye_ is no longer under security support, you will also
 need to modify _sources.list_ as described in the
-<<End of security updates>> in <<Managing Security Updates>> appendix.
+<<End of security updates>> in the <<Managing Security Updates>>
+appendix.
 
 Using your favourite text editor, eg _vi_, and comment out all `cdrom`
 entries (unless you don't have a decent Internet connection and need
@@ -2299,11 +2303,12 @@ for alignment.
 
 === End of security updates
 
-When support for _bullseye_ ends, currently expected in May 2024,
-there will be no more security updates.  At that time, the existing
-packages will be migrated to the Debian archive site. This will be
-visible in the output from the weekly _cron_ job script as errors that
-the packages files can't be found. Two steps are needed at that time:
+When support for _Bullseye_ ends, currently expected at the end of
+August 2026, there will be no more security updates. At that time, the
+existing packages will be migrated to the Debian archive site. This
+will be visible in the output from the weekly _cron_ job script as
+errors that the packages files can't be found. Two steps are needed at
+that time:
 
 . If you have been using the weekly _cron_ job, it should be deleted:
 +
