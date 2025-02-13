@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.1.10 - February 2025
+Version 1.2.0 - February 2025
 
 :sectnums!:
 == Document revision history
@@ -35,6 +35,8 @@ Click the "`Details`" toggle below for the revision history.
 
 [%collapsible]
 ====
+
+* 1.2.0 -- Minor release
 
 * 1.1.10 -- Add collapsible box for document revision history
 

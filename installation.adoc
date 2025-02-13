@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.1.8 - February 2025
+Version 1.2.0 - February 2025
 
 :sectnums:
 :experimental:
@@ -37,6 +37,8 @@ Click the "`Details`" toggle below for the revision history.
 
 [%collapsible]
 ====
+
+* 1.2.0 -- Minor release
 
 * 1.1.8 -- Add collapsible box for document revision history; further
 wording improvements in the <<End of security updates>>

@@ -21,8 +21,8 @@
 :doctype: book
 
 = AUID Account Customization
-C. Frock, E. Himwich
-Version 1.1.6 - February 2025
+Chip Frock and Ed Himwich
+Version 1.2.0 - February 2025
 
 :sectnums:
 :experimental:
@@ -34,6 +34,8 @@ Click the "`Details`" toggle below for the revision history.
 
 [%collapsible]
 ====
+
+* 1.2.0 -- Minor release
 
 * 1.1.6 -- Add collapsible box for document revision history
 
