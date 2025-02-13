@@ -22,13 +22,20 @@
 
 = AUID Account Customization
 C. Frock, E. Himwich
-Version 1.1.5 - February 2025
+Version 1.1.6 - February 2025
 
 :sectnums:
 :experimental:
 :toc:
 :sectnums!:
 == Document revision history
+
+Click the "`Details`" toggle below for the revision history.
+
+[%collapsible]
+====
+
+* 1.1.6 -- Add collapsible box for document revision history
 
 * 1.1.5 -- Add: CAPI certificate setup and use, disabling remote X11
 connections, and promoting to _oper_ on connecting
@@ -42,6 +49,8 @@ connections, and promoting to _oper_ on connecting
 * 1.1.1 -- Add allowing for PC firewall and revision history
 
 * 1.1.0 -- Initial version
+
+====
 
 :sectnums:
 == Introduction

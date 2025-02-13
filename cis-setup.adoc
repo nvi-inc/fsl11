@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020-2024 NVI, Inc.
+// Copyright (c) 2020-2025 NVI, Inc.
 //
 // This file is part of the FSL11 Linux distribution.
 // (see http://github.com/nvi-inc/fsl11).
@@ -26,10 +26,17 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.1.9 - November 2024
+Version 1.1.10 - February 2025
 
 :sectnums!:
 == Document revision history
+
+Click the "`Details`" toggle below for the revision history.
+
+[%collapsible]
+====
+
+* 1.1.10 -- Add collapsible box for document revision history
 
 * 1.1.9 -- Add reference to AUID customization document
 
@@ -79,6 +86,8 @@ _sudoers_; cleanup _refresh_spare_usr2_ only for _root_
 * 1.0.2 -- Add no GUI login and other new remediations
 * 1.0.1 -- Fix typo in desktop setup
 * 1.0.0 -- Initial release
+
+====
 
 :sectnums:
 

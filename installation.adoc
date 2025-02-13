@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.1.7 - February 2025
+Version 1.1.8 - February 2025
 
 :sectnums:
 :experimental:
@@ -32,6 +32,14 @@ Version 1.1.7 - February 2025
 <<<
 :sectnums!:
 == Document revision history
+
+Click the "`Details`" toggle below for the revision history.
+
+[%collapsible]
+====
+
+* 1.1.8 -- Add collapsible box for document revision history; further
+wording improvements in the <<End of security updates>>
 
 * 1.1.7 -- Fix when to use archive for editing
 _/etc/apt/sources.list_; correct date for end of support
@@ -64,6 +72,8 @@ wording fixes
 * 1.0.2 -- Add pgplot version of pgperl; use `10.2.0-alpha3` tag
 * 1.0.1 -- Use `10.2.0-alpha2` tag
 * 1.0.0 -- Initial release
+
+====
 
 :sectnums:
 == Introduction
@@ -2305,10 +2315,10 @@ for alignment.
 
 When support for _Bullseye_ ends, currently expected at the end of
 August 2026, there will be no more security updates. At that time, the
-existing packages will be migrated to the Debian archive site. This
-will be visible in the output from the weekly _cron_ job script as
-errors that the packages files can't be found. Two steps are needed at
-that time:
+existing packages will subsequently be migrated to the historical
+Debian archive site. This will be visible in the output from the
+weekly _cron_ job script as errors that the packages files can't be
+found. Two steps are needed at that time:
 
 . If you have been using the weekly _cron_ job, it should be deleted:
 +
@@ -2345,8 +2355,9 @@ Lastly, update the index files:
 +
 This may generate an error about a `Release` file having expired, but that is benign.
 
-NOTE: When bullseye becomes no longer supported, it is strongly advised that you move
-your FS machine behind a firewall or upgrade it to a more recent FS Linux release.
+NOTE: When support for _Bullseye_ ends, it is strongly advised that
+you move your FS machine behind a firewall and/or upgrade it to a more
+recent FS Linux release.
 
 [appendix]
 
