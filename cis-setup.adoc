@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.2.0 - February 2025
+Version 1.2.1 - March 2025
 
 :sectnums!:
 == Document revision history
@@ -35,6 +35,9 @@ Click the "`Details`" toggle below for the revision history.
 
 [%collapsible]
 ====
+
+* 1.2.1 -- Simplify code block for copying _root_ public key to AUID
+account
 
 * 1.2.0 -- Minor release
 
@@ -1673,9 +1676,10 @@ the directory already exists. That is benign and can be ignored.
 
 [subs="+quotes"]
 ----
-mkdir ~_AUID_/.ssh
-cat /root/.ssh/id_rsa.pub >>~_AUID_/.ssh/authorized_keys
-chown -R _AUID_._AUID_ ~_AUID_/.ssh
+cd ~_AUID_
+mkdir .ssh
+cat /root/.ssh/id_rsa.pub >>~.ssh/authorized_keys
+chown -R _AUID_._AUID_ .ssh
 ----
 
 +
