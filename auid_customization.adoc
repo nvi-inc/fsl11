@@ -21,8 +21,8 @@
 :doctype: book
 
 = AUID Account Customization
-Chip Frock and Ed Himwich
-Version 1.2.0 - February 2025
+Chip Frock, Chevo Terrazas, and Ed Himwich
+Version 1.2.1 - March 2025
 
 :sectnums:
 :experimental:
@@ -34,6 +34,9 @@ Click the "`Details`" toggle below for the revision history.
 
 [%collapsible]
 ====
+
+* 1.2.1 -- Add instructions for quad display; add missing final "`s'"
+to a few "`Xresource`"
 
 * 1.2.0 -- Minor release
 
@@ -81,8 +84,8 @@ user promotion to oper/prog and root>> section of the
 
 * On non-CIS hardened systems without creating new accounts, providing
 special aliases (in _~/.bash_alias_) to allow users to load different
-_.Xresource_ files with one type-in. The _rlxr_ alias can be used as a
-starting point for new aliases. There could also be aliases for
+_.Xresources_ files with one type-in. The _rlxr_ alias can be used as
+a starting point for new aliases. There could also be aliases for
 running different versions of the _.profile_ (starting alias _rl_) and
 _.bashrc_ (starting alias _rc_) scripts.
 
@@ -347,12 +350,14 @@ to:
         xrdb -merge ~/.Xresources_remote
 ....
 
-..... Create the general file for remote by copying the nominal file:
+..... If you have not already created the  general file
+_.Xresources_remote_ file according to <<quad,Quad Display>> create
+one by copying the nominal file:
 
   cp .Xresources .Xresources_remote
 
-..... Adjust the contents of _~oper/.Xresources_remote_ using the
-method of
+..... If needed, adjust the contents of _~oper/.Xresources_remote_
+using the method of
 https://nvi-inc.github.io/fs/releases/misc/install_reference.html#_setting_geometry_values_in_xresources[Setting
 geometry values in .Xresources].
 
@@ -404,9 +409,10 @@ Reference Document`"
 
 ... Click `Advanced SSH settings`
 
-.... Change the `Execute command:` to:
+.... Change the `xrdb` command part of the `Execute command:` text box
+(the part before the semi-colon, `;`) to:
 
- xrdb -merge ~oper/.Xresources_remote ; xterm -ls -name login_sh
+ xrdb -merge ~oper/.Xresources_remote
 
 +
 
@@ -465,8 +471,10 @@ according to the appendix <<Create Client Session on a PC>>.
 .. Enter your password when prompted.
 
 .. If the _oper_ account has _not_ already been setup according to
-<<General X11 resources customization for a remote connection from a PC>>,
-create the general file for remote by copying the nominal file:
+<<General X11 resources customization for a remote connection from a PC>>
+or a _.Xresources_remote_ file created according to
+<<quad,Quad Display>>, create the general file for remote by copying
+the nominal file:
 
   cp .Xresources .Xresources_remote
 
@@ -600,12 +608,13 @@ CAUTION: This procedure uses _dhorsley_ as an example AUID (login)
 account name. You should substitute your login account name wherever
 _dhorsley_ is used.
 
-CAUTION: This procedure assumes you are setting this up for the _quad_
-display. If you are doing it for say, your laptop, you can use
-_laptop_ in place of _quad_ in the instructions below. You can have
-both quad and laptop (and other additional) configurations for a given
-AUID user. This is helpful if you connect from different machines with
-different X11 resolutions or display sizes.
+CAUTION: This procedure assumes you are setting this up for a _quad_
+display as described at <<quad,Quad Display>>. If you are doing it for
+say, your laptop, you can use _laptop_ in place of _quad_ in the
+instructions below. You can have both quad and laptop (and other
+additional) configurations for a given AUID user. This is helpful if
+you connect from different machines with different X11 resolutions or
+display sizes.
 
 TIP: If you are only making a non-display specific Xresources file,
 e.g., _~oper/.Xresources_remote_dhorsley_ for this user, drop the
@@ -626,7 +635,7 @@ file for this display:
 
   cp .Xresources_remote .Xresources_remote_dhorsley_quad
 
-.. Create a dummy _.Xresource_remote_dhorsley_ file:
+.. Create a dummy _.Xresources_remote_dhorsley_ file:
 
 +
 
@@ -641,7 +650,7 @@ being overwritten and removes additional (redundant) communication
 with the X11 server.
 
  cat <<EOT >.Xresources_dhorsley
- !if this file has no resources look for other .Xresource_remote_* files for this AUID
+ !if this file has no resources look for other .Xresources_remote_* files for this AUID
  EOT
 
 .. Adjust the contents of _~oper/.Xresources_remote_dhorsley_quad_
@@ -662,9 +671,10 @@ command:
 and restart the FS. To test for `login shell`, it will necessary to
 log-out of the AUID session completely and log back in again.
 
-. When changing the `Execute` command, make it:
+. When changing the `xrdb` command part of the `Execute command:` text
+box (the part before the semi-colon, `;`), make it:
 
- xrdb -merge ~oper/.Xresources_remote_dhorsley_quad ; xterm -ls -name login_sh
+ xrdb -merge ~oper/.Xresources_remote_dhorsley_quad
 
 +
 
@@ -709,15 +719,9 @@ name, `dhorsley` (for this example).
 
 .... Make sure the `Remote environment:` is `Interactive shell`.
 
-.... For `Execute command:`, enter:
+.... In the `Execute command:` text box, enter:
 
  xrdb -merge ~/.Xresources ; xterm -ls -name login_sh
-
-+
-
-+
-
-+
 
 +
 
@@ -727,6 +731,80 @@ required leading space `{nbsp}`, in the string to be added). When
 connecting, it will be necessary to enter the AUID account password
 when prompted by _sudo_ to promote to _oper_.
 
++
+
++
+[NOTE]
+====
+
+[[quad]]<<quad,Quad Display>>: If your FS display uses four monitors,
+a _quad_ display (an arrangement that  provides much more screen real
+estate), you may want to use a slightly different approach. Please
+click on the "`Details`" toggle below for more information.
+
+[%collapsible]
+=====
+
+In the `Execute command:` text box, enter instead:
+
+ xrdb -merge ~oper/.Xresources_remote ; bash
+
+This command will open a _bash_ shell prompt on the target machine.
+From there, you can open __xterm__s that will be sized and positioned
+according to the _oper_ Xresources file (which must be installed, see
+below). For example, you can define Xresources for a window named
+`xterm_2` and start such an _xterm_ with:
+
+ xterm -name xterm_2 &
+
+If you promote to _oper_ before opening the _xterm_, it will run in
+the _oper_ account instead of the AUID account.
+
+Example files for use with a quad display are included in
+_/root/fsl11/quad_display/_:
+
+[disc]
+* _fsy_ -- A script to open a `login shell` running the FS, or running
+the client if the FS is already running. It is intended to be run
+after promoting to _oper_ in the _bash_ shell session opened by the
+connection.
+
+* _xterm_2_ -- A script to open an _xterm_ with the name `xterm_2`.
+This is also intended to be run from the _bash_ shell session opened
+by the connection, but it may be before or after promoting to _oper_
+depending on what is needed.
+
+* _.Xresources_remote_ -- An example quad display Xresources file that
+includes example window lay-outs, including for `xterm_2`.
+
+The scripts can be placed in _~oper/bin_ by _root_:
+
+  cd ~oper/bin
+  cp /root/fsl11/quad_display/fsy .
+  cp /root/fsl11/quad_display/xterm_2 .
+  chown oper.rtx fsy xterm_2
+  chmod o-x fsy
+
+The Xresources file can be placed in _~oper_ by _root_:
+
+  cd ~oper
+  cp /root/fsl11/quad_display/.Xresources_remote .
+  chown oper.rtx .Xresources_remote
+
+If the file already exists in _~oper_ you will be asked to confirm the
+_cp_. If it is safe to overwrite, you can answer `*y*`. Working as _oper_, you
+can modify the size and placement of the windows in
+_~oper/.Xresources_remote_ as you wish.
+
+Working as _oper_, you can setup additional __xterm__s: `xterm_3`,
+etc,, either by cloning and modifying _~oper/bin/xterm_2_ or adding
+them to that script. The resources for `xterm_2` in
+_~oper/.Xresources_remote_ can be copied-and-pasted for each
+additional _xterm_ and the copies modified.
+
+=====
+
+====
 .... Make sure the `Do not exit after command ends` is _not_ checked.
 
 ... Click `Bookmark settings`
@@ -805,8 +883,34 @@ placed/sized.
 
 .. Click `OK`
 
+
+[TIP]
+====
+
+You can create a desktop shortcut to open the connection. In the
+connection client:
+
+. Select the `Sessions` icon.
+
+. Right-click on the session from the drop-down list and select `Edit
+session`.
+
+. Select `Create a desktop shortcut to this session`
+
+. Check both `Hide terminal on startup` and `Close ... on exit`
+boxes and select `OK`.
+
+. If you are using the <<quad,Quad Display>> approach above, in the
+`Start session in` drop-down box select `Detached tab`.
+
+. Select `OK`.
+
+====
+
 If you aren't using a CAPI certificate, please see the appendix
-<<Enable SSH Key Login from a PC>> for a way to streamline logging in.
+<<Enable SSH Key Login from a PC>> for a way to streamline logging in
+without using a password. That is better than having the connection
+client remember your password since that may change.
 
 [appendix]
 == Enable SSH Key Login from a PC
