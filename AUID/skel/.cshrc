@@ -23,3 +23,5 @@ a rlxr	'xrdb -merge ~/.Xresources'
 a psall 'ps aux | egrep -v "^bin|^root"'
 set noclobber
 cd .
+a dj	'date +"%c (Day %j)"'
+a lj	'ls -l --time-style=+"%Y.%j.%H:%M:%S"'
