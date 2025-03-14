@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 1.2.0 - February 2025
+Version 1.2.1 - March 2025
 
 :sectnums:
 :experimental:
@@ -35,6 +35,10 @@ Click the "`Details`" toggle below for the revision history.
 
 [%collapsible]
 ====
+
+* 1.2.1 -- Explain recovery for simple errors from _refresh_secondary_
+during a disk rotation; emphasize in incidental uses of the `-p` option of
+_rotation_shutdown_ that a shutdown is not included
 
 * 1.2.0 -- Minor release
 
@@ -204,7 +208,7 @@ prevent shutting down:
 * If the RAID is `recovering`: you will need to wait until the
 recovery is finished before shutting down. You can check the progress
 with the _mdstat_ command (or use `*rotation_shutdown{nbsp}-p*` for a
-progress meter).
+progress meter; this _not_ will include a shutdown).
 
 * If the RAID is `degraded`: seek expert advice.
 
@@ -234,21 +238,90 @@ loaded:
 * Move the _old_ _shelf_ disk to the _secondary_ slot and turn the
 slot on.
 
-. If the script rejects the disk (it will stop with an error): seek
-expert advice.
+. If the script rejects the disk (it will stop with an error),
+corrective action will be needed. Click the "`Details`" toggle below
+for how to proceed.
+
++
+[%collapsible]
+====
+
+IMPORTANT: You should _not_ run _blank_secondary_, as is suggested by
+some of the error messages, without expert advice. Running
+_blank_secondary_ is only suggested as a reminder for experts.
+
+If an error stop occurred during _refresh_secondary_, one of these
+two, bullet point, cases applies:
+
+[disc]
+* The error was one of:
+
++
+--
+
+.. The disk is too recent (you probably inserted the
+_new_ shelf disk).
+
+.. `Foreign RAID(s)` were detected (you inserted a disk from a
+different computer/RAID).
+
+.. The `MD_UUID` doesn't match (also a disk from a different
+computer/RAID).
+
+--
++
+
+For these errors, click the "`Details`" toggle below
+for the steps to take.
 
 +
 
-Be sure to note any messages so they can be reported.
+[%collapsible]
+=====
 
-. If the disk is accepted: let the refresh run to completion.
+NOTE: If you are unsure, you can always seek expert advice first.
+
+... Shut the system down (as _root_: `*shutdown -h now*`).
+
+... Remove the _secondary_ disk. (Neither this disk nor the _primary_
+disk were harmed.)
+
+... Locate the _correct_ disk.
+
+... Reboot.
+
+... Run _refresh_secondary_ again.
+
+... When the script says it is waiting for the secondary disk to be
+loaded:
+
++
+
+Insert the _correct_ disk in`the _secondary_ slot and turn the
+slot on.
+
+... If this disk is also rejected, seek expert advice. Otherwise
+proceed to the next step, <<fini,Finish>>.
+
+=====
+
+* For _any_ other error, seek expert advice.
+
++
+
+Be sure to record the full error message to aid` troubleshooting.
+
+====
+
+. [[fini]]<<fini,Finish>>: If the disk is accepted, let the refresh
+run to completion.
 
 +
 
 You can check its progress with _mdstat_ (or use
-`*rotation_shutdown{nbsp}-p*` for a progress meter). The system can be
-used for operations while the refresh is in progress, but may be a
-little slow.
+`*rotation_shutdown{nbsp}-p*` for a progress meter; this will _not_
+include a shutdown). The system can be used for operations while the
+refresh is in progress, but may be a little slow.
 
 == Recoverable testing
 
