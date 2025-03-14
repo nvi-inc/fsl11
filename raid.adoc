@@ -20,7 +20,7 @@
 
 = RAID Notes for FSL 11
 J.F.H. Quick, W.E. Himwich, and D.E. Horsley
-Version 1.2.0 - February 2025
+Version 1.2.1 - March 2025
 
 :sectnums:
 :experimental:
@@ -35,6 +35,10 @@ Click the "`Details`" toggle below for the revision history.
 
 [%collapsible]
 ====
+
+* 1.2.1 -- Explain recovery for simple errors from _refresh_secondary_
+during a disk rotation; emphasize that in the incidental uses of
+_rotation_shutdown_, the `-p` option inhibits a shutdown
 
 * 1.2.0 -- Minor release
 
@@ -193,22 +197,32 @@ account password.
 +
 
 This command will check the status of the RAID and proceed to shutting
-down _only_ if the RAID is synced. There are three errors that can
-prevent shutting down:
+down _only_ if the RAID is synced. Click the "`Details`" toggle below
+for how to handle the script refusing to shutdown.
 
 +
+[%collapsible]
+====
+
+There are three errors that can prevent shutting down:
+
 [disc]
 
-* If the FS is running: you should terminate it before trying again.
+* If the FS is running: you should terminate it, when convenient,
+before trying again.
 
 * If the RAID is `recovering`: you will need to wait until the
 recovery is finished before shutting down. You can check the progress
 with the _mdstat_ command (or use `*rotation_shutdown{nbsp}-p*` for a
-progress meter).
+progress meter; the `-p` option also inhibits actually shutting down).
 
 * If the RAID is `degraded`: seek expert advice.
 
-. Take the disk from the _primary_ slot, put it on the _shelf_.
+====
+
+. After the shutdown has completed, take the disk from the _primary_
+slot and put it on the _shelf_.
+
 +
 
 We recommend that you label the disk immediately, including the date
@@ -225,7 +239,7 @@ turn the slot on.
 
  refresh_secondary
 
-. When the script says it is waiting for the secondary disk to be
+. When the script says it is waiting for the _secondary_ disk to be
 loaded:
 
 +
@@ -234,21 +248,79 @@ loaded:
 * Move the _old_ _shelf_ disk to the _secondary_ slot and turn the
 slot on.
 
-. If the script rejects the disk (it will stop with an error): seek
-expert advice.
+. If the script rejects the disk (it will stop with an error),
+corrective action will be needed. Click the "`Details`" toggle below
+for how to proceed.
 
 +
+[%collapsible]
+====
 
-Be sure to note any messages so they can be reported.
+IMPORTANT: You should _not_ run _blank_secondary_, as is suggested by
+some of the error messages, without expert advice. Running
+_blank_secondary_ is only suggested as a reminder for experts.
 
-. If the disk is accepted: let the refresh run to completion.
+If an error stop occurred during _refresh_secondary_, you should
+generally seek expert advice; be sure to copy down the full error
+message to aid troubleshooting. Neither the _secondary_ nor the
+_primary_ disk have been harmed.
+
+While generally expert help is recommended, the following three errors
+usually have a simple remedy:
+
+[disc]
+* The disk is too recent (you probably inserted the _new_ _shelf_
+disk).
+
+* `Foreign RAID(s)` were detected (you inserted a disk from a
+different computer/RAID).
+
+* The `MD_UUID` doesn't match (also a disk from a different
+computer/RAID).
+
+For these errors, the recovery method is basically to try again with
+the _correct_ disk. The following steps should resolve the problem:
+
+TIP: If you are unsure, you can always seek expert advice first.
+
+.. Shut the system down (as _root_: `*shutdown -h now*`).
+
+.. After the shutdown has completed, remove the _secondary_ disk and
+put it where it belongs, properly labeled.
+
+.. Locate the _correct_ disk.
+
+.. Reboot.
+
+.. Login as _root_ (or with an AUID account) and run:
+
+ refresh_secondary
+
+.. When the script says it is waiting for the _secondary_ disk to be
+loaded:
+
++
+[disc]
+
+* Insert the _correct_ disk in the _secondary_ slot and turn the slot
+on.
+
+.. If this disk is also rejected, you must seek expert advice; be sure
+to copy down the full error message to aid troubleshooting. Neither
+the _secondary_ nor the _primary_ disk have been harmed.
+
+.. If this disk is accepted, proceed to the next step.
+
+====
+
+. If the disk is accepted, let the refresh run to completion.
 
 +
 
 You can check its progress with _mdstat_ (or use
-`*rotation_shutdown{nbsp}-p*` for a progress meter). The system can be
-used for operations while the refresh is in progress, but may be a
-little slow.
+`*rotation_shutdown{nbsp}-p*` for a progress meter; the `-p` option
+also inhibits actually shutting down). The system can be used for
+operations while the refresh is in progress, but may be a little slow.
 
 == Recoverable testing
 
@@ -893,7 +965,7 @@ start and end of any other RAID rebuilds, including those triggered by
 the _recover_raid_ script. Checks are triggered periodically to verify
 the integrity of the RAIDs.
 
-The emails are sent to _root_, then typically redirected to _oper_,`
+The emails are sent to _root_, then typically redirected to _oper_,
 and then forwarded to off-system accounts that may have their email
 read more frequently. There are four different possible subject lines
 used in the emails:
