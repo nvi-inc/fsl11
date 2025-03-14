@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.2.0 - February 2025
+Version 1.2.1 - March 2025
 
 :sectnums:
 :experimental:
@@ -37,6 +37,9 @@ Click the "`Details`" toggle below for the revision history.
 
 [%collapsible]
 ====
+
+* 1.2.1 -- Add how to overcome not checking weekly cron output for
+kernel updates
 
 * 1.2.0 -- Minor release
 
@@ -2022,9 +2025,9 @@ appendix. This will cause the updates to always be downloaded at what
 should be innocuous time, early Sunday morning (but this can be
 adjusted if need be).
 
-NOTE: An optional method for identifying available  updates without using
-the weekly _cron_ job is described below in the section
-<<Manually checking for updates>>.
+NOTE: An optional method for identifying available updates without
+using the weekly _cron_ job is described below in the
+<<Manually checking for updates>> section.
 
 === Installing updates (upgrading)
 
@@ -2041,9 +2044,12 @@ convenient time, when not in (or about to start) operations, to install
 the updates and test the system.
 
 IMPORTANT: The weekly _cron_ job message will include instructions for
-handling a kernel update if one is available.  See the
-<<Kernel updates>> subsection below for additional considerations for
-kernel updates.
+handling a kernel update if one is available. If you don't use the
+weekly job, or don't check its output, you should check for updates
+manually (see the <<Manually checking for updates>> section below) to
+see if there are instruction about kernel updates, before running
+`*apt{nbsp}upgrade*` (below). See the <<Kernel updates>> section below
+for additional considerations for kernel updates.
 
 The commands for installing the updates given by the message are (note
         the use of _apt_ instead of _apt-get_):
@@ -2051,10 +2057,10 @@ The commands for installing the updates given by the message are (note
 CAUTION: If the `apt upgrade` command below says it will install new
 packages, it is recommended to understand why they are being installed
 before confirming. Usually new packages will be related to a kernel
-update (see <<Kernel updates>> below) or related to an insecure
-package that was removed (see <<Removing insecure packages>> below).
-Normally, any reinstalled insecure packages should be removed again
-after upgrading.
+update (see the <<Kernel updates>> section below) or related to an
+insecure package that was removed (see the
+<<Removing insecure packages>> section below). Normally, any
+reinstalled insecure packages should be removed again after upgrading.
 
    apt upgrade
 
@@ -2137,7 +2143,7 @@ Be sure to allow time to follow the instructions when planning to
 install these updates.  As described in the ABI update warning, you
 will need to rebuild any out-of-tree modules after rebooting for that
 case. This is discussed in the <<Updating out-of-tree modules>>
-subsection below.
+section below.
 
 CAUTION: In extreme circumstances, an ABI (but _not_ a non-ABI) kernel
 update can be deferred to a later date when more extensive testing can
@@ -2230,11 +2236,11 @@ script manually to check for updates:
 If there is no output, there are no updates to install.
 
 If there is output, there are updates to install. You can install them
-by following the installation procedure in subsection
-<<Installing updates (upgrading)>> above, except you will use the
-instructions from the output of the script above instead of from the
-weekly _cron_ job (the outputs should be equivalent for the same set
-of updates).  Additionally, please read the following *NOTE*.
+by following the installation procedure in the
+<<Installing updates (upgrading)>> section above, except you will use
+the instructions from the output of the script above instead of from
+the weekly _cron_ job (the outputs should be equivalent for the same
+set of updates). Additionally, please read the following *NOTE*.
 
 NOTE: If the weekly _cron_ job has not been installed, you may not get a
     display of NEWS items and a chance to abort when you install the updates. You
