@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.2.0 - February 2025
+Version 1.2.1 - March 2025
 
 :sectnums:
 :experimental:
@@ -37,6 +37,8 @@ Click the "`Details`" toggle below for the revision history.
 
 [%collapsible]
 ====
+
+* 1.2.1 -- Reorganize installing updates and related text
 
 * 1.2.0 -- Minor release
 
@@ -2013,8 +2015,13 @@ possible to prevent that if you prefer.
 
 It is strongly recommended that you use the weekly _cron_ update
 download (the "`weekly _cron_ job`") as configured according to the
-`Window 2` subsection in the <<_fsadapt>> section above. This will
-keep you informed of the available updates on a weekly basis.
+`Window 2` subsection in the <<_fsadapt>> section of the main
+document. The job will send a message to _root_ (or whoever e-mail to
+_root_ is aliased to, typically _oper_) to provide notification of the
+available updates on a weekly basis. You can choose a convenient time,
+when not in (or about to start) operations, to install the updates and
+test the system.
+
 
 It is also recommended that you remove _anacron_ as described in the
 <<_remove_anacron_package>> section in <<Additional Setup Items>>
@@ -2022,58 +2029,154 @@ appendix. This will cause the updates to always be downloaded at what
 should be innocuous time, early Sunday morning (but this can be
 adjusted if need be).
 
-NOTE: An optional method for identifying available  updates without using
-the weekly _cron_ job is described below in the section
-<<Manually checking for updates>>.
+NOTE: An optional method for identifying available updates without
+using the weekly _cron_ job is described below in the
+<<Manually checking for updates>> section.
 
 === Installing updates (upgrading)
 
-TIP: It is recommended that a disk rotation be performed before any
-update is installed. This will make recovery much easier if a problem with the
-update is discovered.  Please see the FSL11 Raid document section
-<<raid.adoc#_recoverable_testing,Recoverable testing>> for a
-streamlined method to manage testing of updates.
+This section gives a recipe for upgrading, collecting best practices
+from this appendix and elsewhere in the FSL11 documents. Links to
+explanatory information are included.
 
-If updates are needed, the weekly _cron_ job will send a message to _root_
-(or whoever e-mail to _root_ is aliased to, typically _oper_) with
-instructions on how to install the updates. You can choose a
-convenient time, when not in (or about to start) operations, to install
-the updates and test the system.
+All steps are to be performed by _root_:
 
-IMPORTANT: The weekly _cron_ job message will include instructions for
-handling a kernel update if one is available.  See the
-<<Kernel updates>> subsection below for additional considerations for
-kernel updates.
+. If you are using the RAID configuration with removable disks, it is
+recommended that you perform a disk rotation first (see the
+<<raid.adoc#_disk_rotation,Disk Rotation>> section in the
+<<raid.adoc#,RAID Notes for FSL 11>> document). This will provide an
+easier recovery path in the unlikely event that something goes wrong.
+You do __not__ need to wait for the refresh to finish before
+upgrading.
 
-The commands for installing the updates given by the message are (note
-        the use of _apt_ instead of _apt-get_):
++
 
-CAUTION: If the `apt upgrade` command below says it will install new
-packages, it is recommended to understand why they are being installed
-before confirming. Usually new packages will be related to a kernel
-update (see <<Kernel updates>> below) or related to an insecure
-package that was removed (see <<Removing insecure packages>> below).
-Normally, any reinstalled insecure packages should be removed again
-after upgrading.
+If your RAID is in a "`split`" testing configuration (see the
+<<raid.adoc#_recoverable_testing,Recoverable testing>> section of the
+previously referenced document), you can't perform a rotation. Click
+the "`Details`" toggle below for information on how to proceed in this
+case.
 
-   apt upgrade
++
 
-Enter `*y*` to confirm as needed. Then
+[%collapsible]
+====
 
-   apt clean
+If it is not feasible to restore the RAID, and rotate disks, before
+upgrading, you can still apply updates, but there are additional
+considerations:
 
-If the weekly _cron_ job was installed according to the <<_fsadapt>>
-section above (for `Window 2`), the first of these commands (with
-        `upgrade`) will show if any NEWS items are included in the
-update. If there are, they will be displayed by a paging program at the beginning of the upgrade and
-you will be given an extra chance to abort before installing.
+[disc]
 
-NOTE: NEWS items are, rarely occurring, announcements that may
-indicate additional steps are needed beyond the standard installation
-process. If any NEWS items are displayed, you should consider
-whether these will effect your system and how to handle them before
-installing. The first command above (with `upgrade`) will also cause e-mails
-to be sent to _root_ with the NEWS information.
+* If you had split the RAID using __drop_primary__, it is recommended
+that you reboot with the _primary_ disk turned off. However, this is
+not strictly necessary unless there is a kernel update.
+
+* When the testing is completed you will restore the RAID with either
+_recover_raid_ (overwriting the _primary_ disk) or with
+_refresh_secondary_ (overwriting the _secondary_ disk). In the latter
+case, you will need to reinstall the updates, probably after a disk
+rotation.
+
+* Additional disk rotations may be needed to re-sync the disk order
+with other systems if the testing has been going on for an extended
+period.
+
+====
+
++
+
+If the RAID is not already "`split`", you can create an additional
+recovery path using the method of the
+<<raid.adoc#_recoverable_testing,Recoverable testing>> section of the
+previously referenced document. Click the "`Details`" toggle below for
+additional considerations for this case.
+
++
+
+[%collapsible]
+====
+
+If you want to use this approach:
+
+[disc]
+
+* It will be necessary to wait until the refresh from the disk
+rotation completes before splitting the RAID.
+
+* It is recommended that you __not__ use __drop_primary__ to split
+the RAID. But strictly speaking, not using it is only necessary if
+there is a kernel update.
+
+====
+
+. Execute (see the <<Manually checking for updates>> section below):
+
+ /root/fsl11/etc_cron.weekly_apt-show-upgradeable --which=news
+
++
+
+This may take a few minutes, depending on your Internet connection. If
+there is no output, there are no updates to install and the rest of
+the steps in this section can be skipped.
+
++
+
+If there is output, the instructions for upgrading (starting with
+`apt{nbsp}upgrade{nbsp}...`) will be shown, including any special
+instructions for a kernel update (see the <<Kernel updates>> section
+below).
+
++
+
+WARNING: Before the instructions, there may be `News` items. These
+rarely occur, but may contain additional actions that are needed. If
+there are any, you should consider how they will affect your system.
+Be sure you are prepared to handle them before continuing to the next
+step.
+
++
+
+NOTE: If you want to see the full list of packages to be installed,
+leave the `--which=news` off the above command. You may want to pipe
+the output through _less_ so you can view it a page at a time.
+
+. Upgrade:
+
+  apt upgrade
+
++
+
+Before answering `*y*` to proceed, check if any `NEW` packages will be
+installed. There should only be the new packages associated with a
+kernel update, if there is one. There may also be new packages listed
+for insecure packages that have been removed (see the
+<<Removing insecure packages>> section below). Those can be removed
+afterwards. If there are new packages that you don't recognize, you
+can answer `*n*` and investigate before proceeding.
+
++
+
+NOTE: This command will also show if any `News` items are included in
+the update. If there are, they will be displayed by a paging program
+at the beginning of the upgrade, giving you an extra chance to be
+prepared for them before upgrading or aborting if you are not.
+
+. Clean the cache:
+
+ apt clean
+
+. Remove any insecure packages that were reinstalled.
+
+. Take any actions specified by `News` items.
+
+. Reboot
+
+. If there was a kernel ABI update, rebuild any out-of-tree modules
+and reboot again (see the <<Updating out-of-tree modules>> section
+below).
+
+. Test the system as appropriate, particularly for a kernel update.
 
 === Kernel updates
 
@@ -2137,7 +2240,7 @@ Be sure to allow time to follow the instructions when planning to
 install these updates.  As described in the ABI update warning, you
 will need to rebuild any out-of-tree modules after rebooting for that
 case. This is discussed in the <<Updating out-of-tree modules>>
-subsection below.
+section below.
 
 CAUTION: In extreme circumstances, an ABI (but _not_ a non-ABI) kernel
 update can be deferred to a later date when more extensive testing can
@@ -2167,7 +2270,7 @@ empty version of the file. For this example, enter:
 
 ==== Updating out-of-tree modules
 
-When a ABI update is installed, it will be necessary to update any,
+When an ABI update is installed, it will be necessary to update any,
 so-called, _out-of-tree_ modules that use the kernel ABI. This must be
 done _after_ rebooting with the new kernel installed.
 
@@ -2220,42 +2323,34 @@ version, there will be two packages you should purge:
 
 === Manually checking for updates
 
-If you do not use the weekly _cron_ job to check for updates, or if
-you want to make sure you have the very latest updates when you
-install them, you can run the distributed copy of the weekly update
-script manually to check for updates:
+If you do not use the weekly _cron_ job, you can run the distributed
+copy of the weekly script manually to check for updates:
 
     /root/fsl11/etc_cron.weekly_apt-show-upgradeable
 
 If there is no output, there are no updates to install.
 
 If there is output, there are updates to install. You can install them
-by following the installation procedure in subsection
-<<Installing updates (upgrading)>> above, except you will use the
-instructions from the output of the script above instead of from the
-weekly _cron_ job (the outputs should be equivalent for the same set
-of updates).  Additionally, please read the following *NOTE*.
+by following the installation procedure in the
+<<Installing updates (upgrading)>> section above. (That section uses
+the alternate form of running the script given below.)
 
-NOTE: If the weekly _cron_ job has not been installed, you may not get a
-    display of NEWS items and a chance to abort when you install the updates. You
-    can use the method below with the `--which=news` parameter to
-    check for NEWS before installing an update.
-
-Any NEWS items will be included in the script output along with the
-packages to be updated. If you would like to see any NEWS items more
-distinctly after the previous command and before installing the
-updates, you can run the script again using the `--which=news` option:
+Any `News` items will be included in the output along with the
+packages to be updated. If you would like to just see any `News` items
+you can run the script with the `--which=news` option:
 
     /root/fsl11/etc_cron.weekly_apt-show-upgradeable --which=news
 
-If there are updates available and no NEWS items, you will only get
+If there are updates available and no `News` items, you will only get
 the installation instructions.
 
-You can use this second form of running the script to check for
-updates initially, if you do not need to review which updates are
-available (you will still get warnings about kernel updates). As
-usual, you will see no output at all if there are no updates
-available.
+You can use this form of running the script to check for updates
+initially, if you do not need to review which updates are available
+(you will still get warnings about kernel updates). As usual, you will
+see no output at all if there are no updates available.
+
+CAUTION: Each run of the script, with or without `--which-news`, may
+add to the list of updates to install.
 
 === Removing insecure packages
 
