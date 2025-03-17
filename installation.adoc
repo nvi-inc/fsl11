@@ -38,8 +38,8 @@ Click the "`Details`" toggle below for the revision history.
 [%collapsible]
 ====
 
-* 1.2.1 -- Add how to overcome not checking weekly cron output for
-kernel updates
+* 1.2.1 -- Add security update cookbook; Add how to overcome not checking
+weekly cron output for kernel updates
 
 * 1.2.0 -- Minor release
 
@@ -2017,12 +2017,13 @@ possible to prevent that if you prefer.
 The first section, <<Cookbook for installing updates (upgrading)>>, of
 this appendix provides a minimal set of instructions for installing
 security updates. The remaining sections provide a more comprehensive
-treatment of managing these updates..
+treatment of managing these updates.
 
 It is strongly recommended that you use the weekly _cron_ update
 download (the "`weekly _cron_ job`") as configured according to the
-`Window 2` subsection in the <<_fsadapt>> section above. This will
-keep you informed of the available updates on a weekly basis.
+`Window 2` subsection in the <<_fsadapt>> section of the main
+document. This will keep you informed of the available updates on a
+weekly basis.
 
 It is also recommended that you remove _anacron_ as described in the
 <<_remove_anacron_package>> section in <<Additional Setup Items>>
@@ -2036,8 +2037,8 @@ using the weekly _cron_ job is described below in the
 
 === Cookbook for installing updates (upgrading)
 
-This section gives "`cookbook`" instructions for upgradng. It collects
-best practices from elsewhere in the FSL11 documents. Links to
+This section gives a recipe for upgrading, collecting best practices
+from this appendix and elsewhere in the FSL11 documents. Links to
 explanatory information are included.
 
 All steps are to be preformed by _root_:
@@ -2048,14 +2049,50 @@ recommended that you perform a disk rotation first (see the
 <<raid.adoc#,RAID Notes for FSL 11>> document). This will provide an
 easier recovery path in the unlikely event that something goes wrong.
 
++
+
+If your RAID is in a "`split`" testing configuration (see the
+<<raid.adoc#_recoverable_testing,Recoverable testing>> section of the
+previously referenced document), you can't perform a rotation. Click
+the "`Details`" toggle below for information on how to proceed in this
+case.
+
++
+
+[%collapsible]
+====
+
+If it is not feasible to restore the RAID, and rotate disks, before
+upgrading, you can still apply updates, but there are additional
+considerations:
+
+[disc]
+
+* If you had split the RAID using __drop_primary__, it is recommended
+that you reboot with the _primary_ disk turned off. However, this is
+not strictly necessary unless there is a kernel update.
+
+* When the testing is completed you will restore the RAID with either
+_recover_raid_ (overwriting the _primary_ disk) or with
+_refresh_secondary_ (overwriting the _secondary_ disk). In the latter
+case, you will need to reinstall the updates, probably after a disk
+rotation.
+
+* Additional disk rotations may be needed to re-sync the disk order
+with other systems if the testing has been going on for an extended
+period.
+
+====
+
 . Execute (see the <<Manually checking for updates>> section below): 
 
  /root/fsl11/etc_cron.weekly_apt-show-upgradeable --which==news
 
 +
 
-This may take a few minutes. If there is no output, there are no
-updates to install.
+This may take a few minutes, depending on your Internet connection. If
+there is no output, there are no updates to install and the rest of
+the steps in this section can be skipped.
 
 +
 
@@ -2064,36 +2101,8 @@ If there is output, the instructions for upgrading (starting with
 instructions for a kernel update (see the <<Kernel updates>> section
 below). Before the instructions, there may be `NEWS` items. These
 rarely occur, but may contain additional actions that are needed. If
-there are any, be sure you are prepared to perform them before using
-`apt{nbsp}upgrade`.
-
-. If kernel update instructions were included in the output of the
-previous step and you had previously split the RAID using
-__drop_primary__ (see <<raid.adoc#_recoverable_testing,Recoverable
-Testing>> section in the <<raid.adoc#,RAID Notes for FSL 11>>
-document):
-
-+
---
-.. Shut the system down (as _root_: `*shutdown -h now*`)
-.. Turn the _primary_ disk off.
-.. Reboot.
---
-+
-
-[NOTE]
-====
-
-When the testing is completed you will restore the RAID with either
-_recover_raid_ (overwriting the _primary_ disk) or with
-_refresh_secondary_ (overwriting the _secondary_ disk). In the latter
-case, you will need to reinstall the updates, probably after a disk
-rotation.
-
-Additional disk rotations may be needed to re-sync the disk order with
-other systems if the testing has been going on for an extended period.
-
-====
+there are any, be sure you are prepared to perform them before
+continuing to the next step.
 
 . Upgrade:
 
@@ -2101,13 +2110,13 @@ other systems if the testing has been going on for an extended period.
 
 +
 
-Before answering `*y*` to proceed, check if any "`new`" packages will
-be installed. There should only be the new packages associated with a
-kernel update, if there is one. There may also be `new` packages
-listed for insecure packages that have been removed (see the
+Before answering `*y*` to proceed, check if any `NEW` packages will be
+installed. There should only be the new packages associated with a
+kernel update, if there is one. There may also be new packages listed
+for insecure packages that have been removed (see the
 <<Removing insecure packages>> section below). Those can removed
-afterwards. If there are packages that your don't recognize, you can
-answer `*n*` and investigate before proceeding.
+afterwards. If there are new packages that you don't recognize, you
+can answer `*n*` and investigate before proceeding.
 
 . Clean the cache:
 
@@ -2149,7 +2158,7 @@ for additional considerations for kernel updates.
 The commands for installing the updates given by the message are (note
         the use of _apt_ instead of _apt-get_):
 
-CAUTION: If the `apt upgrade` command below says it will install new
+CAUTION: If the `apt upgrade` command below says it will install `NEW`
 packages, it is recommended to understand why they are being installed
 before confirming. Usually new packages will be related to a kernel
 update (see the <<Kernel updates>> section below) or related to an
