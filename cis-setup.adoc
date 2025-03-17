@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.2.1 - March 2025
+Version 1.2.2 - March 2025
 
 :sectnums!:
 == Document revision history
@@ -35,6 +35,8 @@ Click the "`Details`" toggle below for the revision history.
 
 [%collapsible]
 ====
+
+* 1.2.2 -- Add how to allow _operators_ to use _reboot_ and _shutdown_
 
 * 1.2.1 -- Simplify code block for copying _root_ public key to AUID
 account
@@ -737,6 +739,21 @@ to the accounts. Run _visudo_, then add at end:
     %operators      ALL=(oper) ALL
     %programmers    ALL=(prog) ALL
     %programmers    ALL=(oper) ALL
+
+To allow _operators_ to use _shutdown_ and _reboot_ add
+(respectively):
+
+   %operators      ALL=(ALL) /sbin/shutdown
+   %operators      ALL=(ALL) /sbin/reboot
+
+To use these commands the _operators_ will need to enter
+(respectively) from their AUID accounts:
+
+   sudo shutdown
+   sudo reboot
+
+A password will be required. Trailing options can be used with the
+commands, as appropriate.
 
 If they don't already exist, create the needed groups:
 
