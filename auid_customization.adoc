@@ -22,7 +22,7 @@
 
 = AUID Account Customization
 Chip Frock, Chevo Terrazas, and Ed Himwich
-Version 1.2.1 - March 2025
+Version 1.2.2 - March 2025
 
 :sectnums:
 :experimental:
@@ -35,7 +35,10 @@ Click the "`Details`" toggle below for the revision history.
 [%collapsible]
 ====
 
-* 1.2.1 -- Add instructions for quad display; add missing final "`s'"
+* 1.2.2 -- Restart the X11 server if changing the `X11 server remote
+access` selection
+
+* 1.2.1 -- Add instructions for quad display; add missing final "`s`"
 to a few "`Xresource`"
 
 * 1.2.0 -- Minor release
@@ -882,6 +885,9 @@ placed/sized.
 ... For `X11 remote access`, select `disabled`.
 
 .. Click `OK`
+
+.. If you changed the setting, you will need restart the X11 server.
+Click `Yes` if you are given that option.
 
 
 [TIP]
