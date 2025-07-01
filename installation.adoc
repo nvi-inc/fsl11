@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.2.1 - March 2025
+Version 1.2.2 - July 2025
 
 :sectnums:
 :experimental:
@@ -37,6 +37,8 @@ Click the "`Details`" toggle below for the revision history.
 
 [%collapsible]
 ====
+
+* 1.2.2 -- Use `10.2.1` for FS tag
 
 * 1.2.1 -- Reorganize installing updates and related text
 
@@ -1016,7 +1018,7 @@ TIP: More information about RAID operation can be found in the
  git checkout -q _tag_
 ....
 
-where `_tag_` is the latest available release, _10.2.0_ or later.
+where `_tag_` is the latest available release, _10.2.1_ or later.
 
 [IMPORTANT]
 ====
