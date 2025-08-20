@@ -22,7 +22,7 @@
 
 = FS Linux 11 Installation Guide
 J.F.H. Quick, D.E. Horsley, and W.E. Himwich
-Version 1.2.2 - July 2025
+Version 1.2.3 - August 2025
 
 :sectnums:
 :experimental:
@@ -37,6 +37,9 @@ Click the "`Details`" toggle below for the revision history.
 
 [%collapsible]
 ====
+
+* 1.2.3 -- Change to use _/etc/cron.weekly/apt-show-upgradeable_ to
+manually check for updates
 
 * 1.2.2 -- Use `10.2.1` for FS tag
 
@@ -2015,10 +2018,16 @@ possible to prevent that if you prefer.
 
 == Managing Security Updates
 
-It is strongly recommended that you use the weekly _cron_ update
-download (the "`weekly _cron_ job`") as configured according to the
-`Window 2` subsection in the <<_fsadapt>> section of the main
-document. The job will send a message to _root_ (or whoever e-mail to
+IMPORTANT: It is strongly recommended that you use the weekly _cron_
+update download (the "`weekly _cron_ job`") as configured according to
+the `Window 2` subsection in the <<_fsadapt>> section of the main
+document. The rest of this appendix assumes that you have installed
+it. (A *NOTE* on checking for updates if you have not installed the
+_cron_ job is given at the start of the
+<<Manually checking for updates>> section below; but this is not
+recommended.)
+
+The _cron_ job will send a message to _root_ (or whoever e-mail to
 _root_ is aliased to, typically _oper_) to provide notification of the
 available updates on a weekly basis. You can choose a convenient time,
 when not in (or about to start) operations, to install the updates and
@@ -2031,9 +2040,6 @@ appendix. This will cause the updates to always be downloaded at what
 should be innocuous time, early Sunday morning (but this can be
 adjusted if need be).
 
-NOTE: An optional method for identifying available updates without
-using the weekly _cron_ job is described below in the
-<<Manually checking for updates>> section.
 
 === Installing updates (upgrading)
 
@@ -2114,7 +2120,7 @@ there is a kernel update.
 
 . Execute (see the <<Manually checking for updates>> section below):
 
- /root/fsl11/etc_cron.weekly_apt-show-upgradeable --which=news
+ /etc/cron.weekly/apt-show-upgradeable --which=news
 
 +
 
@@ -2325,10 +2331,24 @@ version, there will be two packages you should purge:
 
 === Manually checking for updates
 
-If you do not use the weekly _cron_ job, you can run the distributed
-copy of the weekly script manually to check for updates:
+[NOTE]
+====
+
+If you have chosen to _not_ install the weekly _cron_ update job (this
+is not recommended), you should replace the use of
+
+    /etc/cron.weekly/apt-show-upgradeable
+
+in this subsection with:
 
     /root/fsl11/etc_cron.weekly_apt-show-upgradeable
+
+====
+
+You can manually check for updates with:
+
+    /etc/cron.weekly/apt-show-upgradeable
+
 
 If there is no output, there are no updates to install.
 
@@ -2341,7 +2361,7 @@ Any `News` items will be included in the output along with the
 packages to be updated. If you would like to just see any `News` items
 you can run the script with the `--which=news` option:
 
-    /root/fsl11/etc_cron.weekly_apt-show-upgradeable --which=news
+    /etc/cron.weekly/apt-show-upgradeable --which=news
 
 If there are updates available and no `News` items, you will only get
 the installation instructions.
