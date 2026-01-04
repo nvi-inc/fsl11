@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020-2025 NVI, Inc.
+// Copyright (c) 2020-2026 NVI, Inc.
 //
 // This file is part of the FSL11 Linux distribution.
 // (see http://github.com/nvi-inc/fsl11).
@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.2.2 - March 2025
+Version 1.2.3 - January 2026
 
 :sectnums!:
 == Document revision history
@@ -35,6 +35,8 @@ Click the "`Details`" toggle below for the revision history.
 
 [%collapsible]
 ====
+
+* 1.2.3 -- Set `PATH` before restarting _fvwm_ on console
 
 * 1.2.2 -- Add how to allow _operators_ to use _reboot_ and _shutdown_
 
@@ -836,6 +838,14 @@ changes for all three accounts in one step.
 if ! [ -z ${XCOOKIE+x} ]; then
    xauth add $XCOOKIE
 fi
+#
+# include AUID user's .profile_SUDO_USER
+if [ -n "$SUDO_USER" ]; then
+    if [ -f "$HOME/.profile_$SUDO_USER" ]; then
+        . "$HOME/.profile_$SUDO_USER"
+    fi
+fi
+#
 # set .Xresources/window-manager coming from AUID accounts
 if ! [ -z ${DISPLAY+x} ]; then
 #   NOT no DISPLAY defined, do something (otherwise do nothing)
@@ -845,14 +855,8 @@ if ! [ -z ${DISPLAY+x} ]; then
     else
 #       login shell (because this is .profile) on the local X console
         xrdb -merge ~/.Xresources
+# make sure all PATH (and other env. var.) setting occurs before fvwm
         setsid fvwm --replace >/dev/null 2>&1 &
-    fi
-fi
-#
-# include AUID user's .profile_SUDO_USER
-if [ -n "$SUDO_USER" ]; then
-    if [ -f "$HOME/.profile_$SUDO_USER" ]; then
-        . "$HOME/.profile_$SUDO_USER"
     fi
 fi
 ```
@@ -865,9 +869,18 @@ _bash_ script (if present) to apply customizations for the _sudo_ user
 in a login shell. Additional customization may be run (earlier) from
 the _.bashrc_ file, which is also executed for non-login shells; see
 the <<bashrc,.bashrc>> step below. (For _root_ only the first clause
-would be used since Xresources would not be set, the window manager
-would not be replaced, and there would not be _sudo_ user
-customization.)
+would be used since there would not be _sudo_ user customization,
+Xresources would not be set, and the window manager would not be
+replaced.)
+
++
+
+CAUTION: The `PATH` and other environment variables should be set
+before the window manager, _fvwm_, is restarted. This helps make sure
+the window manager, and any windows it launches, have the same
+environment as the login shell. It is recommended that additional
+`PATH` updates be included at the end of the `PATH` stanza in the
+original _.profile_ file.
 
 . Create the following file:
 +

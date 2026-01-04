@@ -3,6 +3,14 @@
 if ! [ -z ${XCOOKIE+x} ]; then
    xauth add $XCOOKIE
 fi
+#
+# include AUID user's .profile_SUDO_USER
+if [ -n "$SUDO_USER" ]; then
+    if [ -f "$HOME/.profile_$SUDO_USER" ]; then
+        . "$HOME/.profile_$SUDO_USER"
+    fi
+fi
+#
 # set .Xresources/window-manager coming from AUID accounts
 if ! [ -z ${DISPLAY+x} ]; then
 #   NOT no DISPLAY defined, do something (otherwise do nothing)
@@ -12,13 +20,7 @@ if ! [ -z ${DISPLAY+x} ]; then
     else
 #       login shell (because this is .profile) on the local X console
         xrdb -merge ~/.Xresources
+# make sure all PATH (and other env. var.) setting occurs before fvwm
         setsid fvwm --replace >/dev/null 2>&1 &
-    fi
-fi
-#
-# include AUID user's .profile_SUDO_USER
-if [ -n "$SUDO_USER" ]; then
-    if [ -f "$HOME/.profile_$SUDO_USER" ]; then
-        . "$HOME/.profile_$SUDO_USER"
     fi
 fi
