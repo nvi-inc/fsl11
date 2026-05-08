@@ -26,7 +26,7 @@
 :toclevels: 3
 :toc:
 Dave Horsley and Ed Himwich
-Version 1.2.3 - January 2026
+Version 1.2.4 - May 2026
 
 :sectnums!:
 == Document revision history
@@ -35,6 +35,9 @@ Click the "`Details`" toggle below for the revision history.
 
 [%collapsible]
 ====
+
+* 1.2.4 -- Correct typo in <<root_key,Copy root ssh
+key for running backup_usr2>>
 
 * 1.2.3 -- Set `PATH` before restarting _fvwm_ on console
 
@@ -1708,7 +1711,7 @@ the directory already exists. That is benign and can be ignored.
 ----
 cd ~_AUID_
 mkdir .ssh
-cat /root/.ssh/id_rsa.pub >>~.ssh/authorized_keys
+cat /root/.ssh/id_rsa.pub >>.ssh/authorized_keys
 chown -R _AUID_._AUID_ .ssh
 ----
 
